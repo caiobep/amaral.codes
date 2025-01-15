@@ -4,7 +4,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build-blogposts": "npm run build-and-run -w packages/import-blogposts-from-notion ../../packages/website/src/content/blog-posts",
+    "build-blogposts": "npm run build-and-run -w packages/import-blogposts ../../packages/website/src/content/blog-posts",
     "build": "npm run build-blogposts && npm run build -w packages/website",
     "start": "npm run start -w packages/website",
     "serve": "npm run preview -w packages/website",
