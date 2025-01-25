@@ -1,0 +1,25 @@
+
+---
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <div>
+      <h1>Redirecting...</h1>
+    </div>
+  </body>
+  
+  <script lang="ts">
+    const searchParams = new URLSearchParams(window.location.search);
+    const action = searchParams.get('a');
+    const siriShortcutsLink =
+    `shortcuts://run-shortcut?name=${action}`;
+    window.location.href = siriShortcutsLink
+  </script>
+</html>
