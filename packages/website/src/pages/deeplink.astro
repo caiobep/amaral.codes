@@ -16,7 +16,18 @@
   
   <script lang="ts">
     const searchParams = new URLSearchParams(window.location.search);
+
     const deeplink = searchParams.get('l');
-    window.location.href = deeplink
+    if (deeplink) {
+      window.location.href = deeplink
+      return
+    }
+
+    const shortcutlink = searchParams.get('s')
+    if (shortcutLink) {
+      window.location.href = `shortcuts://run-shortcut?name=${shortcutlink}`
+      return
+    }
+
   </script>
 </html>
