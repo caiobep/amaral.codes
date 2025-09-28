@@ -1,5 +1,5 @@
 import type { BlockTransformer } from '../types.ts'
-import { randomUUID } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import { downloadImageToFilesystem } from '../../filesystem/use-cases/downloadImageToFilesystem.ts'
 import { generateWebpOptimizedVersionOfImage } from '../../image-converter/generateWebpVersionOfImage.ts'
 
@@ -16,7 +16,7 @@ export const imageToDownloadedWebpProcessor = (dir: string) => async (block, n2m
 
   if (!url) return ''
 
-  const name = randomUUID()
+  const name = createHash('sha256').update(url).digest('hex')
   const imageOnFs = await downloadImageToFilesystem(dir, { name, url })
   await generateWebpOptimizedVersionOfImage(imageOnFs.path)
 
@@ -32,7 +32,7 @@ export const imageProcessor: ImageProcessor =
 
     if (!url) return ''
 
-    const name = randomUUID()
+    const name = createHash('sha256').update(url).digest('hex')
     if (imageProcessor) imageProcessor({ name, url })
 
     const imageCaption = await n2m.blockToMarkdown(image?.caption)

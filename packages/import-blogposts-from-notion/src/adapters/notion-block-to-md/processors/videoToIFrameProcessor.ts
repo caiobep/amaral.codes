@@ -1,7 +1,8 @@
 import type { BlockTransformer } from '../types.ts'
 
 export const videoToIFrameProcessor: BlockTransformer = async block => {
-  const url = block?.video?.external?.url ?? block?.video?.file?.url
+  const notionBlock = block as any
+  const url = notionBlock?.video?.external?.url ?? notionBlock?.video?.file?.url
 
   if (!url) return ''
 

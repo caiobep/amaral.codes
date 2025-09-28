@@ -8,10 +8,12 @@ const program = new Command()
 program
   .name('notion-utils')
   .description('A set of utilities for searching/exporting data from Notion')
+
+program.command('export-blogposts')
   .arguments('[outputPath]')
   .option('-o, --output-path <path>', 'Target folder for exported markdown files')
   .action(async (outputPathArg: string | undefined, command: Command) => {
-    const { outputPath } = command.opts<{ outputPath?: string }>()
+    const { outputPath } = command.opts() as { outputPath?: string }
     const destination = (outputPathArg ?? outputPath)?.trim()
 
     if (!destination) {
