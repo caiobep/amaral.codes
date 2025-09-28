@@ -4,7 +4,9 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "lib": [
       "esnext",
       "es6"

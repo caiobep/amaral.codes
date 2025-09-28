@@ -1,24 +1,21 @@
-import { createBlogpostFileWriter } from '../ports/output/filesystem/use-cases'
+import path from 'path'
 import {
   createNotionMarkdownExporter,
   getAllBlogpostPageMetadata,
   getTagNameAndIcon,
-} from '../ports/input/notion-api/use-cases'
-import { downloadImageToFilesystem } from '../ports/output/filesystem/use-cases/downloadImageToFilesystem'
-import { generateWebpOptimizedVersionOfImage } from '../domain/images/generateWebpVersionOfImage'
-import path from 'path'
+} from '../adapters/notion-api/use-cases/index.ts'
+import { createBlogpostFileWriter } from '../adapters/filesystem/use-cases/index.ts'
 import {
-  imageDownloadProcessor,
-  imageProcessor,
-} from '../domain/notion-to-markdown-processors/imageProcessor'
-import { videoProcessor } from '../domain/notion-to-markdown-processors/videoProcessor'
-import { embedProcessor } from '../domain/notion-to-markdown-processors/embedProcessor'
+  bookmarkToInlineLinkMentionProcessor,
+  embedToIframeProcessor,
+  imageToDownloadedWebpProcessor,
+  videoToIFrameProcessor,
+} from '../adapters/notion-block-to-md/index.ts'
 
 /**
  * Fetch all blog posts from Notion and writes them as markdown files in a folder.
  * @param {string} destinationPath - The path to the folder where the markdown files will be written.
  **/
-
 export async function retrieveAllBlogpostsAndWriteInFolder(
   destinationPath: string,
 ) {
@@ -27,20 +24,20 @@ export async function retrieveAllBlogpostsAndWriteInFolder(
   const imageDownloadDir = path.join(destinationPath, 'images')
 
   const getPageContentInMd = await createNotionMarkdownExporter({
-    image: imageDownloadProcessor(imageDownloadDir),
-    embed: embedProcessor,
-    video: videoProcessor,
+    image: imageToDownloadedWebpProcessor(imageDownloadDir),
+    embed: embedToIframeProcessor,
+    video: videoToIFrameProcessor,
+    bookmark: bookmarkToInlineLinkMentionProcessor
   })
 
   const tasks = blogpostPages.map(async page => {
-    const tags = await Promise.all(page.tagIds.map(getTagNameAndIcon))
+    const { tagIds, ...pageMetadata } = page
+    const tags = await Promise.all(tagIds.map(getTagNameAndIcon))
     const content = await getPageContentInMd(page.id)
 
-    try {
-      await writeBlogpostFile({ ...page, tags, content })
-    } catch (err) {
-      console.error(err)
-    }
+    await writeBlogpostFile({ ...pageMetadata, tags, content }).catch(
+      console.error,
+    )
   })
 
   await Promise.all(tasks)

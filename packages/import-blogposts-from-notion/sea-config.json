@@ -1,0 +1,8 @@
+{
+  "main": "./dist/sea/main.cjs",
+  "output": "./dist/sea/sea-prep.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": false,
+  "execArgv": []
+}

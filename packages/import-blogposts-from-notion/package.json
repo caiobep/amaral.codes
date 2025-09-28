@@ -2,27 +2,33 @@
   "name": "import-blogposts-from-notion",
   "version": "0.0.0",
   "description": "",
+  "type": "module",
   "engine": {
-    "node": ">=18"
+    "node": ">=24"
   },
   "scripts": {
-    "build": "npx esbuild ./src/index.ts --bundle --platform=node --target=node20 --packages=external --minify --sourcemap --outfile=./dist/index.js",
-    "build-and-run": "npm run build && npm start -- $1",
-    "start": "node ./dist/index.js",
-    "lint": "eslint --cache --ext .ts,js,tsx,jsx .",
+    "build": "npm run sea",
+    "build-and-run": "npm start -- $1",
+    "start": "node --experimental-strip-types src/presentation/cli/cli.ts",
+    "lint": "run-s lint:eslint lint:typecheck",
+    "lint:eslint": "eslint --cache --ext .ts,js,tsx,jsx .",
     "lint:fix": "npm run lint -- --fix",
-    "test": "node --loader tsm --test ./src/**/*.test.*",
-    "test:watch": "npm run test -- --watch"
+    "lint:typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test",
+    "test:watch": "node --experimental-strip-types --test --watch",
+    "sea": "node scripts/build-sea.mjs"
   },
   "devDependencies": {
-    "@notionhq/client": "~2.2.12",
-    "dotenv": "~16.3.1",
-    "esbuild": "~0.19.2",
-    "notion-to-md": "~3.1.1",
-    "sharp": "~0.32.5",
-    "tsm": "~2.3.0",
-    "typescript": "~5.2.2"
+    "@notionhq/client": "~5.1.0",
+    "dotenv": "~17.2.2",
+    "notion-to-md": "~3.1.9",
+    "npm-run-all": "~4.1.5",
+    "sharp": "~0.34.4",
+    "typescript": "~5.9.2",
+    "esbuild": "~0.23.0",
+    "postject": "~1.1.0"
   },
-  "author": "Caio Amaral Corrêa <caiobep@me.com> (https://github.com/caiobep)",
+  "dependencies": {},
+  "author": "Caio Amaral Corr\u00eaa <caiobep@me.com> (https://github.com/caiobep)",
   "license": "MIT"
 }

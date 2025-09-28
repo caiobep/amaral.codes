@@ -1,1 +1,1 @@
-export * from './blogpost'
+export * from './blogpost.ts'
