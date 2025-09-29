@@ -2,14 +2,8 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { Blogpost } from '../../../domain/blogpost.ts'
-import { getFsSafeNameFromStr, recordToPageHeaderAdapter } from '../mappers/index.ts'
-
-export function renderBlogpostToMarkdown(blogpost: Blogpost): string {
-  const { content, ...headers } = blogpost
-  const postHeader = recordToPageHeaderAdapter(headers)
-
-  return `${postHeader} \n ${content}`
-}
+import { getFsSafeNameFromStr } from '../mappers/index.ts'
+import { renderRecordAsMarkdownWithMetadata } from '../../notion-block-to-md/index.ts'
 
 export type BlogpostFileWriterOptions = {
   clean?: boolean
@@ -44,7 +38,13 @@ export async function writeBlogpostInFs(
   blogpost: Blogpost,
 ): Promise<void> {
   const fileName = getFsSafeNameFromStr(blogpost.title)
-  const fileContents = renderBlogpostToMarkdown(blogpost)
+
+  const { title, content, ...metadata } = blogpost
+  const fileContents = renderRecordAsMarkdownWithMetadata({
+    header: title,
+    content,
+    metadata,
+  })
 
   console.log('Writing file: ', fileName + ' to dir: ', directory)
 

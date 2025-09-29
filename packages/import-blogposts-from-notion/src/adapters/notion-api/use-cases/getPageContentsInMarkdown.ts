@@ -1,4 +1,15 @@
 import { createNotionToMarkdownClient } from '../configuration/index.ts'
+import {
+  bookmarkToInlineLinkMentionProcessor,
+  embedToIframeProcessor,
+  videoToIFrameProcessor,
+} from '../../notion-block-to-md/index.ts'
+
+const standardProcessors = {
+  embed: embedToIframeProcessor,
+  video: videoToIFrameProcessor,
+  bookmark: bookmarkToInlineLinkMentionProcessor,
+} satisfies Parameters<typeof createNotionToMarkdownClient>[0]
 
 export async function getPageContentsInMarkdown(
   postId: string,
@@ -13,6 +24,10 @@ export async function getPageContentsInMarkdown(
 export async function createNotionMarkdownExporter(
   ...args: Parameters<typeof createNotionToMarkdownClient>
 ) {
-  const notionMarkdownClient = createNotionToMarkdownClient(...args)
+  const [processors, ...options] = args
+  const notionMarkdownClient = createNotionToMarkdownClient(
+    { ...standardProcessors, ...processors },
+    ...options,
+  )
   return (p: string) => getPageContentsInMarkdown(p, notionMarkdownClient)
 }

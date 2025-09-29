@@ -2,6 +2,8 @@ import { convertPageObjectToBlogpostHeader } from '../../mappers/convertPageObje
 import { notionApiClient } from '../../configuration/index.ts'
 import environment from '../../../../infrastructure/environment.ts'
 import type { Blogpost } from '../../../../domain/blogpost.ts'
+import { getTagNameAndIcon } from '../getTagById/index.ts'
+import { createNotionMarkdownExporter } from '../getPageContentsInMarkdown.ts'
 
 type BlogpostPageResponse = Parameters<
   typeof convertPageObjectToBlogpostHeader
@@ -84,6 +86,26 @@ export async function getBlogpostMetadataById(
   })) as unknown as BlogpostPageResponse
 
   return mapPageToMetadata(page)
+}
+
+export async function getBlogpostById(
+  pageId: string,
+  notionClient: typeof notionApiClient = notionApiClient,
+): Promise<Blogpost> {
+  const pageMetadata = await getBlogpostMetadataById(pageId, notionClient)
+  const getPageContentInMd = await createNotionMarkdownExporter()
+  const content = await getPageContentInMd(pageId)
+  const tags = await Promise.all(pageMetadata.tagIds.map(getTagNameAndIcon))
+
+  return {
+    id: pageMetadata.id,
+    title: pageMetadata.title,
+    summary: pageMetadata.summary,
+    date: pageMetadata.date,
+    readTime: pageMetadata.readTime,
+    content,
+    tags,
+  }
 }
 
 function mapPageToMetadata(

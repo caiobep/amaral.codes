@@ -5,12 +5,7 @@ import {
   getTagNameAndIcon,
 } from '../adapters/notion-api/use-cases/index.ts'
 import { createBlogpostFileWriter } from '../adapters/filesystem/use-cases/index.ts'
-import {
-  bookmarkToInlineLinkMentionProcessor,
-  embedToIframeProcessor,
-  imageToDownloadedWebpProcessor,
-  videoToIFrameProcessor,
-} from '../adapters/notion-block-to-md/index.ts'
+import { imageToDownloadedWebpProcessor, } from '../adapters/notion-block-to-md/index.ts'
 
 /**
  * Fetch all blog posts from Notion and writes them as markdown files in a folder.
@@ -25,9 +20,6 @@ export async function retrieveAllBlogpostsAndWriteInFolder(
 
   const getPageContentInMd = await createNotionMarkdownExporter({
     image: imageToDownloadedWebpProcessor(imageDownloadDir),
-    embed: embedToIframeProcessor,
-    video: videoToIFrameProcessor,
-    bookmark: bookmarkToInlineLinkMentionProcessor
   })
 
   const tasks = blogpostPages.map(async page => {
