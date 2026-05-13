@@ -1,22 +1,47 @@
 ---
-import ImageLink from "./ImageLink.astro";
+import ImageLink from './ImageLink.astro'
+
+const companies = [
+  ['https://www.bancobmg.com.br', '/photos/clients/bmg.webp', 'Banco BMG'],
+  ['https://embraer.com', '/photos/clients/embraer.webp', 'Embraer'],
+  ['https://www.itv.com', '/photos/clients/itv.webp', 'ITV'],
+  ['https://www.lambda3.com.br', '/photos/clients/lambda3.webp', 'Lambda3'],
+  ['https://www.linkedin.com/company/resource-it-solutions/', '/photos/clients/resource.webp', 'Resource IT'],
+  ['https://www.santander.com.br', '/photos/clients/santander.webp', 'Santander'],
+  ['https://www.ticket.com.br', '/photos/clients/ticket.webp', 'Ticket'],
+  ['https://tmamerica.com/', '/photos/clients/tokio-marine.webp', 'Tokio Marine'],
+  ['https://vigil.global', '/photos/clients/vigil.webp', 'Vigil'],
+  ['https://xpinc.com', '/photos/clients/xpinc.webp', 'XP Inc.'],
+  ['https://xpi.com.br', '/photos/clients/xpprivate.webp', 'XP Private'],
+  ['https://xpi.us', '/photos/clients/xpinvestments.webp', 'XP Securities'],
+  ['https://findmypast.co.uk', '/photos/clients/findmypast.webp', 'Findmypast'],
+]
 ---
 
-<div class="grayscale dark:invert flex flex-wrap justify-center gap-9 my-19
-  mx-28 lg:max-w-[80%] mx-auto">
-  <ImageLink href="https://www.bancobmg.com.br" src="photos/clients/bmg.webp" alt="bmg" />
-  <ImageLink href="https://embraer.com" src="photos/clients/embraer.webp" alt="embraer" />
-  <ImageLink href="https://www.itv.com" src="photos/clients/itv.webp" alt="itv" />
-  <ImageLink href="https://www.lambda3.com.br" src="photos/clients/lambda3.webp" alt="lambda3" />
-  <ImageLink  href="https://www.linkedin.com/company/resource-it-solutions/" src="photos/clients/resource.webp"
-    alt="resource" />
-  <ImageLink href="https://www.santander.com.br" src="photos/clients/santander.webp" alt="santander" />
-  <ImageLink href="https://www.ticket.com.br" src="photos/clients/ticket.webp" alt="ticket" />
-  <ImageLink href="https://tmamerica.com/" src="photos/clients/tokio-marine.webp" alt="tokio marine" />
-  <ImageLink href="https://vigil.global" src="photos/clients/vigil.webp" alt="vigil" />
-  <ImageLink href="https://xpinc.com" src="photos/clients/xpinc.webp" alt="xpinc" />
-  <ImageLink href="https://xpi.com.br" src="photos/clients/xpprivate.webp" alt="xp private" />
-  <ImageLink href="https://xpi.us" src="photos/clients/xpinvestments.webp" alt="xp securities" />
-  <ImageLink href="https://findmypast.co.uk"
-    src="photos/clients/findmypast.webp" alt="Find My Past" />
+<div class="companies">
+  {companies.map(([href, src, alt]) => (
+    <ImageLink href={href} src={src} alt={alt} />
+  ))}
 </div>
+
+<style>
+  .companies {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem 1.6rem;
+    margin: 2rem auto 0;
+    filter: grayscale(1);
+  }
+
+  .companies :global(a) {
+    display: grid;
+    min-width: 8.75rem;
+    min-height: 5rem;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.8rem;
+    background: rgba(255, 253, 247, 0.66);
+  }
+</style>

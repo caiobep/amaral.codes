@@ -1,92 +1,169 @@
 ---
-import { CollectionEntry, getCollection } from 'astro:content'
-import Layout from "../../layouts/Layout.astro"
-import Typography from '../../components/Typography.astro'
-import Chip from '../../components/Chip.astro'
-import BlogPost from "../../layouts/BlogPost.astro"
+import { getCollection } from 'astro:content'
+import Layout from '../../layouts/Layout.astro'
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog-posts')
 
-  return posts.map(post => ({
+  return posts.map((post) => ({
     params: { slug: post.slug },
-    props: { post }
+    props: { post },
   }))
 }
 
-const { post: { render, data:{ id, title, date, tags }, slug} } = Astro.props;
-const { Content } = await render()
-
-const titleTransitionName = `${slug}-title`
+const { post } = Astro.props
+const { Content } = await post.render()
+const { title, date, tags, summary } = post.data
 ---
 
-<Layout>
-  <section class="p-6 mx-auto max-w-[80vw] md:max-w-[60vw] flex flex-col gap-6  justify-items-center boder-red-500">
-    <header class="flex flex-col gap-2">
-      <Typography variant="h1" transition:name={titleTransitionName} transition:animate="morph" class="text-4xl font-bold">{title}</Typography>
+<Layout
+  title={title}
+  description={summary && summary !== 'undefined' ? summary : `A post by Caio Amaral about ${tags?.map((tag) => tag.name).join(', ') || 'software, ideas, and personal systems'}.`}
+>
+  <article class="post page-shell">
+    <header>
+      <a href="/posts" class="back-link">Back to posts</a>
+      <time datetime={date}>{new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+      <h1>{title}</h1>
+      {tags?.length ? (
+        <ul>
+          {tags.map((tag) => <li>{tag.icon} {tag.name}</li>)}
+        </ul>
+      ) : null}
     </header>
 
-
-    <article class="content font-mono max-w-[60vw] leading-5 flex flex-col gap-6 mx-auto">
+    <div class="content">
       <Content />
-    </article>
-  </section>
+    </div>
+  </article>
 </Layout>
 
-
-<style is:inline>
-  .content iframe {
-    width: 100%;
-    height: 30vh;
-    max-height: 300px;
-    margin-left: auto;
-    margin-right: auto;
+<style>
+  .post {
+    max-width: 760px;
+    padding: 3.5rem 0 5rem;
   }
 
-  .content img {
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
+  header {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
   }
 
-  .content pre {
-    padding: 20px 40px;
-    border-radius: 10px;
-    white-space: pre-wrap;
-    background-color: rgba(0,0,0,0.8) !important;
-    backdrop-filter: blur(10px);
+  .back-link,
+  time {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 750;
   }
 
-  .content h1 {
-    font-size: 1.6rem;
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2.3rem, 5vw, 4.4rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
   }
 
-  .content h2 {
-    font-size: 1.4rem;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .content h3 {
-    font-size: 1.2rem;
+  li {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    color: var(--muted);
+    font-size: 0.88rem;
   }
 
-  .content h4 {
+  .content {
+    color: var(--ink);
     font-size: 1rem;
+    line-height: 1.72;
   }
 
-  .content h5 {
-    font-size: 0.8rem;
+  .content :global(p),
+  .content :global(ul),
+  .content :global(ol),
+  .content :global(blockquote) {
+    margin: 1rem 0;
   }
 
-  .content h6 {
-    font-size: 0.6rem;
+  .content :global(h1),
+  .content :global(h2),
+  .content :global(h3),
+  .content :global(h4) {
+    margin: 2rem 0 0.65rem;
+    line-height: 1.12;
   }
 
-  .content h1 h2 h3 h4 h5 h6 {
-    margin-top: 2em;
-    margin-bottom: 0.5rem;
+  .content :global(h2) {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    font-weight: 400;
   }
 
-  .content a {
-    text-decoration: underline;
+  .content :global(h3) {
+    font-size: 1.32rem;
+  }
+
+  .content :global(a) {
+    color: var(--accent-strong);
+    font-weight: 700;
+  }
+
+  .content :global(img) {
+    width: auto;
+    max-width: min(100%, 680px);
+    max-height: 460px;
+    height: auto;
+    margin: 1.5rem auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    object-fit: contain;
+    background: var(--paper-strong);
+    box-shadow: 0 14px 40px rgba(36, 33, 29, 0.06);
+  }
+
+  .content :global(iframe) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .content :global(pre) {
+    overflow-x: auto;
+    border-radius: 8px;
+    padding: 1.2rem;
+    background: #201d19;
+    color: #fffdf7;
+  }
+
+  @media (max-width: 640px) {
+    .post {
+      padding-top: 2.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 10vw, 3.5rem);
+    }
+
+    .content :global(img) {
+      max-height: 320px;
+      margin: 1.25rem auto;
+    }
+
+    .content :global(iframe) {
+      min-height: auto;
+    }
   }
 </style>

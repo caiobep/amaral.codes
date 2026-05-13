@@ -1,1 +1,177 @@
-<h1>About</h1>
+---
+import Layout from '../layouts/Layout.astro'
+
+const yearsAsSoftwareEngineer = new Date().getFullYear() - 2016
+
+const principles = [
+  'Interfaces should make the next step clear.',
+  'Good software respects existing workflows.',
+  'Accessibility is product quality.',
+  'Useful ideas need a place to be revisited.',
+]
+---
+
+<Layout
+  title="About"
+  description="About Caio Amaral: a software engineer from São Paulo focused on human-computer interaction, accessible software, productivity, and thoughtful digital tools."
+>
+  <section class="about-hero page-shell">
+    <div>
+      <p class="eyebrow">About Caio</p>
+      <h1>Software, interfaces, and the habit of paying attention.</h1>
+    </div>
+    <img src="/photos/profile/bw/4x5.png" alt="Caio Amaral in black and white" width="640" height="800" />
+  </section>
+
+  <section class="story page-shell">
+    <p>
+      I grew up in a small city in São Paulo with a lot of interests that did not always have an obvious place to land: software, music, history, productivity, interfaces, and the way tools shape how people think.
+    </p>
+    <p>
+      Over time, that made me more interested in how people communicate what they care about. I started noticing how often good conversations depend on making enough of yourself visible for others to connect with it.
+    </p>
+    <p>
+      That shaped the way I think about software. Good interfaces can make unfamiliar things approachable. They can help people learn, collaborate, and express intent with less friction.
+    </p>
+  </section>
+
+  <section class="page-shell split">
+    <div>
+      <p class="section-label">Work</p>
+      <h2>{yearsAsSoftwareEngineer}+ years building practical software for real workflows.</h2>
+    </div>
+    <div>
+      <p>
+        My work sits between engineering, product thinking, design systems, accessibility, and human-computer interaction. I like building tools that feel clear after they exist: software that supports the work instead of competing with it.
+      </p>
+      <a class="button" href="/projects">Explore projects</a>
+    </div>
+  </section>
+
+  <section class="page-shell principles">
+    <p class="section-label">Principles</p>
+    <div>
+      {principles.map((principle) => (
+        <article>
+          <p>{principle}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="page-shell split">
+    <div>
+      <p class="section-label">Publishing</p>
+      <h2>A public place for work and notes.</h2>
+    </div>
+    <div>
+      <p>
+        I want this site to hold short opinions, longer essays, project notes, links, old ideas, and new experiments. Some posts will be polished. Others will be closer to field notes. The point is to make the work easier to find and return to.
+      </p>
+      <a class="button-secondary" href="/posts">Read the blog</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.65fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding: 4rem 0;
+  }
+
+  h1 {
+    max-width: 13ch;
+    margin: 0.8rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(3rem, 6vw, 5.4rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    margin: 0.8rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+  }
+
+  .about-hero img {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .story {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    padding: 2rem 0 4.5rem;
+  }
+
+  .story p,
+  .split p {
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .split .button,
+  .split .button-secondary {
+    margin-top: 1rem;
+  }
+
+  .principles {
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .principles > div {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .principles article {
+    min-height: 10rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--paper-strong);
+  }
+
+  .principles p {
+    margin: 0;
+    font-size: 1.04rem;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 900px) {
+    .about-hero,
+    .story,
+    .split,
+    .principles > div {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: clamp(2.7rem, 12vw, 4.4rem);
+    }
+  }
+</style>

@@ -1,85 +1,425 @@
 ---
 import { ViewTransitions } from 'astro:transitions'
-import LinkButton from '../components/LinkButton.astro'
-import Typography from '../components/Typography.astro'
 import Footer from '../components/Footer.astro'
 
 export interface Props {
-  title: string
+  title?: string
+  description?: string
+  image?: string
 }
 
-const { title, ...rest } = Astro.props
+const {
+  title = 'Caio Amaral',
+  description = 'Caio Amaral is a software engineer and product-minded builder creating accessible, thoughtful tools for people who want technology to amplify their work.',
+  image = '/photos/profile/4x5.png',
+  ...rest
+} = Astro.props
+
+const siteUrl = 'https://amaral.codes'
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
+const pageTitle = title === 'Caio Amaral' ? title : `${title} | Caio Amaral`
+const socialImage = new URL(image, siteUrl).toString()
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/posts', label: 'Posts' },
+  { href: '#contact', label: 'Contact' },
+]
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="dark:bg-black bg-gray/50 dark:text-gray-300">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="mask-icon" href="/favicon.svg" color="#111111" />
+    <link rel="alternate" type="application/rss+xml" title="Caio Amaral RSS" href="/rss.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <title>{pageTitle}</title>
+    <ViewTransitions />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="currentColor" />
-  <meta name="generator" content={Astro.generator} />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="mask-icon" href="favicon.svg" color="#FFF" />
-  <title>{title}</title>
-  <ViewTransitions />
-</head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
 
-<body class="px-6 sm:max-w-[90%] md:px-[4rem] max-w-[104rem] mx-auto transition-all duration-300">
-  <navbar class="py-4 flex flex-row justify-between dark:text-gray-300 text-gray-900 font-medium">
-    <header class="pt-2 text-xl dark:hover:text-white">
-      <a href="/" class="animate__animated animate__bounceInLeft">
-        Caio Amaral
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="/" class="brand" aria-label="Caio Amaral home">
+        <span class="brand-name">Caio Amaral</span>
+        <span class="brand-domain">amaral.codes</span>
       </a>
-    </header>
 
-    <ul class="flex flex-row gap-1 animate__animated animate__fadeInRight">
-      <li>
-        <LinkButton
-            href="https://www.notion.so/caicorre/Projects-cfd6734a46ea4a038364fd596c428435?pvs=4"
-            title="Projects" />
-      </li>
-      <li>
-        <LinkButton href="/posts" title="Posts" />
-      </li>
-    </ul>
-  </navbar>
+      <ul>
+        {navItems.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
 
+    <main id="content" {...rest}>
+      <slot />
+    </main>
 
-  <main slot="main" {...rest}>
-    <slot />
-  </main>
+    <Footer />
 
-  <Footer />
-
-  <style is:global>
-
-    @keyframes slideUpFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(1rem);
+    <style is:global>
+      :root {
+        color-scheme: light;
+        --ink: #24211d;
+        --muted: #6e675f;
+        --paper: #fbfaf7;
+        --paper-strong: #ffffff;
+        --line: #e5dfd5;
+        --accent: #4a7468;
+        --accent-strong: #34594f;
+        --wash: #f1eee8;
+        --display: "New York", "Iowan Old Style", Charter, "Palatino Linotype", Palatino, ui-serif, serif;
       }
 
-      100% {
-        opacity: 1;
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background: var(--paper);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.22em;
+      }
+
+      img,
+      video {
+        max-width: 100%;
+        display: block;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .skip-link {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        z-index: 20;
+        transform: translateY(-160%);
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 0.7rem 1rem;
+        background: var(--paper-strong);
+      }
+
+      .skip-link:focus {
         transform: translateY(0);
       }
-    }
 
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      html {
-        background-color: #fff;
+      .site-nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: min(1080px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 1rem 0;
+        background: rgba(251, 250, 247, 0.86);
+        backdrop-filter: blur(14px);
       }
-    }
-  </style>
 
+      .brand {
+        display: grid;
+        gap: 0.08rem;
+        text-decoration: none;
+      }
 
-</body>
+      .brand-name {
+        font-size: 1rem;
+        font-weight: 650;
+        line-height: 1.1;
+      }
 
+      .brand-domain {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.72rem;
+        line-height: 1.1;
+      }
+
+      .site-nav ul {
+        display: flex;
+        align-items: center;
+        gap: 0.1rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .site-nav a:not(.brand) {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 0.45rem 0.58rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 520;
+        text-decoration: none;
+      }
+
+      .site-nav a:not(.brand):hover,
+      .site-nav a:not(.brand):focus-visible {
+        background: var(--wash);
+        color: var(--ink);
+        outline: none;
+      }
+
+      .page-shell {
+        width: min(1080px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        color: var(--accent-strong);
+        font-size: 0.76rem;
+        font-weight: 650;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 650;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .section-label::before {
+        display: block;
+        width: 2rem;
+        height: 1px;
+        content: "";
+        background: var(--line);
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .button,
+      .button-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.45rem;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 0.58rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          background-color 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease,
+          transform 160ms ease;
+      }
+
+      .button {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .button-secondary {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--ink);
+      }
+
+      .button:hover,
+      .button-secondary:hover {
+        transform: translateY(-1px);
+      }
+
+      .button:hover {
+        background: var(--accent-strong);
+      }
+
+      .button-secondary:hover {
+        border-color: rgba(52, 89, 79, 0.35);
+        background: var(--wash);
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper-strong);
+        box-shadow: 0 12px 30px rgba(36, 33, 29, 0.05);
+      }
+
+      .field {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .field span {
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .field input,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0.85rem 0.9rem;
+        background: var(--paper-strong);
+        color: var(--ink);
+      }
+
+      .field textarea {
+        min-height: 8rem;
+        resize: vertical;
+      }
+
+      @keyframes pageFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes softReveal {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+          filter: blur(6px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+
+      @keyframes lineGrow {
+        from {
+          transform: scaleX(0);
+        }
+
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      main {
+        animation: pageFadeIn 420ms ease both;
+      }
+
+      main > section {
+        animation: softReveal 640ms ease both;
+        animation-delay: 80ms;
+      }
+
+      main > section:nth-of-type(2) {
+        animation-delay: 150ms;
+      }
+
+      main > section:nth-of-type(3) {
+        animation-delay: 220ms;
+      }
+
+      main > section:nth-of-type(4) {
+        animation-delay: 290ms;
+      }
+
+      .section-label::before {
+        transform-origin: left;
+        animation: lineGrow 520ms ease both;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 1ms !important;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .site-nav {
+          position: static;
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 0.65rem;
+          padding: 0.9rem 0 0.5rem;
+        }
+
+        .site-nav ul {
+          display: grid;
+          grid-template-columns: repeat(5, max-content);
+          justify-content: space-between;
+          width: 100%;
+          gap: 0.3rem;
+        }
+
+        .site-nav a:not(.brand) {
+          padding: 0.25rem 0;
+          font-size: 0.76rem;
+          font-weight: 560;
+        }
+
+        .brand {
+          gap: 0.02rem;
+        }
+      }
+    </style>
+  </body>
 </html>

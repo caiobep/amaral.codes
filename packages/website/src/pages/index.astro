@@ -1,77 +1,650 @@
 ---
-
+import { getCollection } from 'astro:content'
 import Layout from '../layouts/Layout.astro'
-import PageSection from "../layouts/PageSection.astro";
-import LinkButton from "../components/LinkButton.astro";
-import Typography from "../components/Typography.astro";
-import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
 
-const yearsAsSoftwareEngineer = new Date().getFullYear() - 2016;
+const posts = (await getCollection('blog-posts'))
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+
+const featuredPosts = posts
+  .filter((post) => [
+    'my_journey_with_productivity_tools',
+    'window_managers_in_macos',
+    'projects_over_categories',
+    'the_capture_habit',
+  ].includes(post.slug))
+  .slice(0, 4)
+
+const artifacts = [
+  {
+    title: 'Product interfaces',
+    label: 'Work',
+    detail: 'Front-end architecture, interface implementation, workflow analysis, and design-system work for teams in finance, media, aerospace, and enterprise software.',
+    href: '/projects',
+    index: '01',
+  },
+  {
+    title: 'Publishing pipeline',
+    label: 'Tool',
+    detail: 'A Notion-to-Astro workflow for turning notes and references into a public archive with posts, RSS, and searchable content.',
+    href: '/projects',
+    index: '02',
+  },
+  {
+    title: 'Productivity notes',
+    label: 'Writing',
+    detail: 'Essays and field notes about capture habits, project organization, spaced studying, and keeping ideas moving.',
+    href: '/posts',
+    index: '03',
+  },
+]
+
+const socialLinks = [
+  ['GitHub', 'https://github.com/caiobep'],
+  ['LinkedIn', 'https://ca.linkedin.com/in/caiobep/'],
+  ['X / Twitter', 'https://twitter.com/caicorre'],
+  ['Mastodon', 'https://mstdn.social/@caicorre'],
+]
 ---
 
-<Layout title="Caio Amaral">
-  <main class="flex flex-col mt-5 gap-20">
-    <section class="sm:px-2 md:px-11 sm:h-[80vh] sm:max-h-[800px] md:h-[80vh]
-      max-h-[90vh] lg:max-h-[100vh] sm:w-full">
-      <Typography variant="h1"
-        class="font-bold max-w-[70%] md:max-w-[70%] lg:max-w-[50%] pt-[25%]">
-        Augmenting human potential through software
-      </Typography>
-    </section>
-
-    <section class="px-1 md:px-11 py-48 flex flex-col md:flex-row justify-center items-center gap-20">
-      <div class="max-w-[60vw] md:max-w-[30vw] lg:max-w-[400px]">
-        <img src="photos/profile/bw/4x5.png" alt="Caio's Profile Picture"
-          style="max-width:100%;"  class="rounded-md"/>
+<Layout
+  title="Caio Amaral"
+  description="Portfolio, writing, projects, and contact information for Caio Amaral, a software engineer interested in interfaces, accessibility, productivity, and personal knowledge systems."
+>
+  <section class="hero page-shell">
+    <div class="hero-copy">
+      <p class="eyebrow">amaral.codes</p>
+      <h1>Software, notes, and small systems.</h1>
+      <p>
+        I’m Caio, a software engineer interested in interfaces, accessibility, productivity, and the tools people use to think. This site is my public index: work I’ve done, notes I’m keeping, and projects I want to make easier to find.
+      </p>
+      <div class="hero-links">
+        <a href="/projects">Projects</a>
+        <a href="/posts">Posts</a>
+        <a href="#contact">Contact</a>
       </div>
+    </div>
 
-      <div class="md:mt-[-90px] max-w-[800px] md:flex-grow">
-        <Typography variant="h3" class="my-6">About me</Typography>
-        <Typography variant="body1" class="text-xl max-w-[90vw] md:max-w-[40vw]">
-          For the last {yearsAsSoftwareEngineer} years, I have been using software
-          to leverage people's productivity and creativity by analyzing and assessing
-          opportunities. As a kid, I was always fascinated by how UIs and software
-          could teach you how to do things without any prior knowledge. Ever since,
-          I've decided to dedicate my career to
-          <b> Human Computer Interaction</b>
-          helping better integrate computers and humans, and hopefully sparking
-          the same feeling I've got in newer generations. On my way I've also developed
-          a passion for <b>Design</b>, <b>Productivity</b>, <b>History</b>
-          and <a href="/posts"> many other topics</a>
-
-          <br />
-          <br />
-
-          I believe that good software it's good for <b>everyone</b> so
-          focus on building <b>high-quality delightful</b> to use <b>accessible</b> applications that cohesively
-          integrate
-          with the user's workflow.
-        </Typography>
+    <div class="portrait-wrap" aria-label="Portrait and site index">
+      <img src="/photos/profile/4x5.png" alt="Caio Amaral" width="640" height="800" />
+      <div class="index-strip">
+        <span>Work</span>
+        <span>Writing</span>
+        <span>Systems</span>
+        <span>Notes</span>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="flex flex-col gap-14 mb-20">
-      <Typography variant="h2" class="text-5xl text-center">
-        Trusted by Industry Leaders
-      </Typography>
+  <section class="page-shell artifact-board" aria-labelledby="artifact-title">
+    <div class="board-heading">
+      <p class="section-label">Selected artifacts</p>
+      <h2 id="artifact-title">A few concrete things to open first.</h2>
+    </div>
 
-      <CompaniesIveWorkedWith />
-    </section>
+    <div class="artifact-grid">
+      {artifacts.map((artifact) => (
+        <a href={artifact.href} class="artifact">
+          <span class="artifact-index">{artifact.index}</span>
+          <span class="artifact-label">{artifact.label}</span>
+          <h3>{artifact.title}</h3>
+          <p>{artifact.detail}</p>
+        </a>
+      ))}
+    </div>
+  </section>
 
-    <section class="flex flex-col gap-4 mb-20">
-      <Typography variant="h2" class="text-center">
-        Let's work together
-      </Typography>
+  <section class="page-shell work-proof" aria-labelledby="proof-title">
+    <div>
+      <p class="section-label">Past work</p>
+      <h2 id="proof-title">Teams and contexts I’ve worked around.</h2>
+    </div>
+    <div class="context-list" aria-label="Work contexts">
+      <span>Financial products</span>
+      <span>Media platforms</span>
+      <span>Aerospace systems</span>
+      <span>Insurance workflows</span>
+      <span>Internal tools</span>
+      <span>Design systems</span>
+    </div>
+  </section>
 
-      <Typography variant="body1" class="text-center lg:max-w-[40vw] lg:ml-auto lg:mr-auto">
-        Got a project in mind? Need help leveraging your team productivity? Want
-        to move your business to the next level? Trying to excell through the
-        digital transformation? <a href="mailto:a.com">Let's chat!</a>
-      </Typography>
+  <section class="page-shell writing-section" aria-labelledby="writing-title">
+    <div class="writing-heading">
+      <div>
+        <p class="section-label">Writing</p>
+        <h2 id="writing-title">Posts that explain the shape of my interests.</h2>
+      </div>
+      <a href="/posts">All posts</a>
+    </div>
 
-      <LinkButton href="https://fantastical.app/caio/20-minute-chat-with-caio" class="w-full md:w-auto" title="Let's get in touch" />
-    </section>
+    <div class="writing-list">
+      {featuredPosts.map((post) => (
+        <a href={`/posts/${post.slug}`} class="writing-row">
+          <time datetime={post.data.date}>{new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</time>
+          <span>{post.data.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
 
-  </main>
+  <section class="page-shell contact-section" id="contact" aria-labelledby="contact-title">
+    <div>
+      <p class="section-label">Contact</p>
+      <h2 id="contact-title">Send a note if something here connects.</h2>
+      <p>
+        I’m most interested in product engineering, accessible interfaces, publishing workflows, and personal knowledge systems.
+      </p>
+      <div class="social-links">
+        {socialLinks.map(([label, href]) => (
+          <a href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+        ))}
+      </div>
+    </div>
 
+    <form class="contact-form panel" id="contact-form">
+      <label class="field">
+        <span>Name</span>
+        <input name="name" autocomplete="name" placeholder="Your name" required />
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label class="field">
+        <span>Message</span>
+        <textarea name="message" placeholder="What are you working on?" required></textarea>
+      </label>
+      <button class="button" type="submit">Send email</button>
+    </form>
+  </section>
+
+  <section class="page-shell newsletter-section" aria-labelledby="newsletter-title">
+    <div>
+      <p class="section-label">Newsletter</p>
+      <h2 id="newsletter-title">Occasional notes, when there is something worth sending.</h2>
+    </div>
+    <form class="newsletter-form panel" id="newsletter-form">
+      <label class="field">
+        <span>Email address</span>
+        <input name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+      </label>
+      <button class="button-secondary" type="submit">Subscribe</button>
+    </form>
+  </section>
 </Layout>
+
+<script>
+  const initializeHomepage = () => {
+    document.querySelector('#contact-form')?.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const form = event.currentTarget
+      if (!(form instanceof HTMLFormElement)) return
+      const data = new FormData(form)
+      const subject = encodeURIComponent(`Message from ${data.get('name')}`)
+      const body = encodeURIComponent(`${data.get('message')}\n\nFrom: ${data.get('name')} <${data.get('email')}>`)
+      window.location.href = `mailto:caiobep@me.com?subject=${subject}&body=${body}`
+    }, { once: true })
+
+    document.querySelector('#newsletter-form')?.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const form = event.currentTarget
+      if (!(form instanceof HTMLFormElement)) return
+      const email = new FormData(form).get('email')
+      const subject = encodeURIComponent('Newsletter signup')
+      const body = encodeURIComponent(`Please add ${email} to the newsletter list.`)
+      window.location.href = `mailto:caiobep@me.com?subject=${subject}&body=${body}`
+    }, { once: true })
+  }
+
+  document.addEventListener('astro:page-load', initializeHomepage)
+  initializeHomepage()
+</script>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+    gap: clamp(2rem, 7vw, 5.5rem);
+    align-items: end;
+    min-height: calc(100vh - 92px);
+    padding: 2rem 0 5rem;
+  }
+
+  .hero h1 {
+    max-width: 10ch;
+    margin: 0.7rem 0 1.05rem;
+    font-family: var(--display);
+    font-size: clamp(3.8rem, 8vw, 7rem);
+    font-weight: 400;
+    line-height: 0.96;
+    letter-spacing: 0;
+  }
+
+  .hero p:not(.eyebrow) {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: clamp(1rem, 1.35vw, 1.12rem);
+    line-height: 1.68;
+  }
+
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1.35rem;
+  }
+
+  .hero-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.25rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.48rem 0.72rem;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .hero-links a::after {
+    content: "→";
+    color: var(--accent-strong);
+    font-size: 0.9rem;
+    transition: transform 160ms ease;
+  }
+
+  .hero-links a:hover {
+    border-color: rgba(52, 89, 79, 0.32);
+    background: var(--wash);
+    transform: translateY(-1px);
+  }
+
+  .hero-links a:hover::after {
+    transform: translateX(2px);
+  }
+
+  .portrait-wrap {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .portrait-wrap img {
+    width: 100%;
+    max-height: 620px;
+    border-radius: 2px;
+    object-fit: cover;
+    box-shadow: 0 18px 46px rgba(36, 33, 29, 0.08);
+    transition: transform 420ms ease, box-shadow 420ms ease;
+  }
+
+  .portrait-wrap:hover img {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 60px rgba(36, 33, 29, 0.1);
+  }
+
+  .index-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    writing-mode: vertical-rl;
+    border-left: 1px solid var(--line);
+    padding-left: 0.7rem;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    text-transform: lowercase;
+  }
+
+  h2 {
+    margin: 0.8rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 400;
+    line-height: 1.08;
+  }
+
+  .artifact-board,
+  .work-proof,
+  .writing-section,
+  .contact-section,
+  .newsletter-section {
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .artifact-board {
+    display: grid;
+    grid-template-columns: minmax(0, 0.62fr) minmax(0, 1.38fr);
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+
+  .artifact-grid {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .artifact {
+    display: grid;
+    grid-template-columns: 3.5rem 6rem minmax(0, 1fr);
+    gap: 1rem;
+    border-bottom: 1px solid var(--line);
+    padding: 1.1rem 0;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 180ms ease, padding-left 180ms ease;
+  }
+
+  .artifact:hover h3,
+  .writing-row:hover span,
+  .hero-links a:hover {
+    text-decoration: none;
+  }
+
+  .artifact:hover {
+    padding-left: 0.65rem;
+    background: rgba(255, 255, 255, 0.42);
+  }
+
+  .artifact-index,
+  .artifact-label,
+  .writing-row time {
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+  }
+
+  .artifact h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .artifact p {
+    grid-column: 3;
+    margin: -0.25rem 0 0;
+    color: var(--muted);
+    line-height: 1.62;
+  }
+
+  .work-proof {
+    display: grid;
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 1.55fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .context-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .context-list span {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 0.85rem 0.9rem;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--muted);
+    font-size: 0.92rem;
+    transition: transform 180ms ease, background-color 180ms ease;
+  }
+
+  .context-list span:hover {
+    transform: translateY(-2px);
+    background: var(--paper-strong);
+  }
+
+  .writing-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .writing-heading > a {
+    align-self: end;
+    color: var(--accent-strong);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .writing-heading > a::after {
+    content: " →";
+  }
+
+  .writing-list {
+    border-top: 1px solid var(--line);
+  }
+
+  .writing-row {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1rem;
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 0;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 180ms ease, padding-left 180ms ease;
+  }
+
+  .writing-row:hover {
+    padding-left: 0.65rem;
+    background: rgba(255, 255, 255, 0.42);
+  }
+
+  .writing-row span {
+    font-size: clamp(1.15rem, 2vw, 1.55rem);
+    line-height: 1.25;
+  }
+
+  .contact-section,
+  .newsletter-section {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .contact-section p {
+    max-width: 34rem;
+    color: var(--muted);
+  }
+
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+
+  .social-links a {
+    color: var(--accent-strong);
+    font-size: 0.94rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .social-links a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-form,
+  .newsletter-form {
+    display: grid;
+    gap: 0.95rem;
+    border-radius: 18px;
+    padding: 1.1rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.64));
+    box-shadow: 0 20px 60px rgba(36, 33, 29, 0.06);
+  }
+
+  .contact-form {
+    align-self: start;
+  }
+
+  .contact-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-form .field:nth-child(3),
+  .contact-form button {
+    grid-column: 1 / -1;
+  }
+
+  .contact-form button,
+  .newsletter-form button {
+    justify-self: start;
+  }
+
+  .contact-form :global(.field),
+  .newsletter-form :global(.field) {
+    gap: 0.42rem;
+  }
+
+  .contact-form :global(.field span),
+  .newsletter-form :global(.field span) {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .contact-form :global(.field input),
+  .contact-form :global(.field textarea),
+  .newsletter-form :global(.field input) {
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 0.9rem 0.95rem;
+    background: var(--wash);
+    color: var(--ink);
+    outline: none;
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .contact-form :global(.field input::placeholder),
+  .contact-form :global(.field textarea::placeholder),
+  .newsletter-form :global(.field input::placeholder) {
+    color: rgba(110, 103, 95, 0.72);
+  }
+
+  .contact-form :global(.field input:focus),
+  .contact-form :global(.field textarea:focus),
+  .newsletter-form :global(.field input:focus) {
+    border-color: rgba(52, 89, 79, 0.34);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(74, 116, 104, 0.11);
+  }
+
+  .newsletter-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    align-self: center;
+  }
+
+  @media (max-width: 900px) {
+    .hero,
+    .artifact-board,
+    .work-proof,
+    .contact-section,
+    .newsletter-section {
+      grid-template-columns: 1fr;
+    }
+
+    .context-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero {
+      min-height: auto;
+      padding: 2rem 0 3.5rem;
+    }
+
+    .portrait-wrap {
+      grid-template-columns: 1fr;
+    }
+
+    .index-strip {
+      writing-mode: horizontal-tb;
+      border-top: 1px solid var(--line);
+      border-left: 0;
+      padding: 0.6rem 0 0;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .artifact-board,
+    .work-proof,
+    .writing-section,
+    .contact-section,
+    .newsletter-section {
+      padding: 3rem 0;
+    }
+
+    .hero {
+      padding-top: 1.2rem;
+    }
+
+    .hero h1 {
+      max-width: 8.8ch;
+      font-size: clamp(3rem, 14vw, 4.7rem);
+    }
+
+    .hero-links {
+      gap: 0.5rem;
+    }
+
+    .artifact {
+      grid-template-columns: 2.6rem minmax(0, 1fr);
+      gap: 0.55rem 0.8rem;
+    }
+
+    .artifact-label {
+      justify-self: end;
+    }
+
+    .artifact h3,
+    .artifact p {
+      grid-column: 1 / -1;
+    }
+
+    .writing-heading {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .writing-heading > a {
+      align-self: start;
+    }
+
+    .writing-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    .contact-form,
+    .newsletter-form {
+      grid-template-columns: 1fr;
+    }
+
+    .context-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

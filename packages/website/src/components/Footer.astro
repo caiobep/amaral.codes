@@ -1,51 +1,126 @@
 ---
-import Typography from './Typography.astro'
-import FooterLinks from './FooterLinks.astro'
+const linkGroups = [
+  {
+    title: 'Explore',
+    links: {
+      Home: '/',
+      About: '/about',
+      Projects: '/projects',
+      Blog: '/posts',
+      'Resume / CV': '/resume/CV.pdf',
+    },
+  },
+  {
+    title: 'Social',
+    links: {
+      GitHub: 'https://github.com/caiobep',
+      LinkedIn: 'https://ca.linkedin.com/in/caiobep/',
+      'X / Twitter': 'https://twitter.com/caicorre',
+      Mastodon: 'https://mstdn.social/@caicorre',
+      Letterboxd: 'https://letterboxd.com/caiobep/',
+    },
+  },
+  {
+    title: 'Contact',
+    links: {
+      Email: 'mailto:caiobep@me.com',
+      '20 minute chat': 'https://fantastical.app/caio/20-minute-chat-with-caio',
+      Projects: 'https://caicorre.notion.site/Projects-cfd6734a46ea4a038364fd596c428435?pvs=4',
+      Podcasts: 'https://caicorre.notion.site/Podcasts-f4dbd1cbd73f4e16ad6d873c8de9610e',
+    },
+  },
+]
 ---
 
-<footer class="flex flex-col items-center justify-center gap-10
-  py-20 px-11 mt-14 border-t-2 dark:border-gray-700 border-gray-200">
-  <div class="flex gap-10 md:gap-20 flex-wrap md:flex-nowrap mx-auto">
-    <FooterLinks title="Sitemap" 
-      links={{
-        'Blog': '/posts',
-        'Podcasts': 'https://caicorre.notion.site/Podcasts-f4dbd1cbd73f4e16ad6d873c8de9610e',
-        'Projects': 'https://caicorre.notion.site/Projects-cfd6734a46ea4a038364fd596c428435?pvs=4',
-        'About Me': '/',
-        'Talk Material': 'https://www.notion.so/caicorre/Meetups-f0f2b3caf5c44c80b020ac05c9119cae?pvs=4',
-        'Resume / CV': '/resume/CV.pdf',
-      }} 
-    />
-    <FooterLinks title="Social" 
-      links={{
-        '𝕏 / Twitter': 'https://twitter.com/caicorre',
-        'Mastodon': 'https://mstdn.social/@caicorre',
-        'Github': 'https://github.com/caiobep',
-        'LinkedIn': 'https://ca.linkedin.com/in/caiobep/',
-        'Kit (Gear that I use)': 'https://kit.co/caiobep',
-        'Letterboxd': 'https://letterboxd.com/caiobep/',
-        'Gametrack': 'https://gametrack.app/user/caiobep',
-      }} 
-    />
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-intro">
+      <p class="eyebrow">Amaral.codes</p>
+      <h2>Software, writing, projects, and ways to get in touch.</h2>
+    </div>
 
-    <FooterLinks title="RSS Feed" 
-      links={{
-        'Complete Feed': '/rss',
-        'Podcasts': '/rss/podcasts',
-        'Technical': '/rss/tech',
-      }}
-    />
-
-    <FooterLinks title="Contact" 
-      links={{
-        'Email': 'mailto:caiobep@me.com',
-        '20 Minutes Chat': 'https://fantastical.app/caio/20-minute-chat-with-caio',
-      }}
-    />
-
+    <div class="footer-links">
+      {linkGroups.map((group) => (
+        <section>
+          <h3>{group.title}</h3>
+          <ul>
+            {Object.entries(group.links).map(([label, href]) => (
+              <li>
+                <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
   </div>
 
-  <Typography variant="body2" class="text-center">
-    © {new Date().getFullYear()} Caio Amaral Corrêa
-  </Typography>
+  <p class="copyright">© {new Date().getFullYear()} Caio Amaral Corrêa</p>
 </footer>
+
+<style>
+  .footer {
+    width: min(1080px, calc(100% - 40px));
+    margin: 5rem auto 0;
+    border-top: 1px solid var(--line);
+    padding: 2.5rem 0 3rem;
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr);
+    gap: 2rem;
+  }
+
+  .footer-intro h2 {
+    max-width: 22rem;
+    margin: 0.5rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 2.5vw, 2.3rem);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  h3 {
+    margin: 0 0 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: var(--muted);
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .copyright {
+    margin: 2.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 820px) {
+    .footer-inner,
+    .footer-links {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

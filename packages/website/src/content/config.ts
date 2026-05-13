@@ -6,6 +6,9 @@ const blogPostsCollection = defineCollection({
     id: z.string(),
     title: z.string(),
     date: z.string(),
+    summary: z.string().optional(),
+    readTime: z.string().optional(),
+    tagIds: z.array(z.string()).optional(),
     tags: z.array(
       z.object({
         id: z.string(),

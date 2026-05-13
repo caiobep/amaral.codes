@@ -9,5 +9,5 @@ const { href, src, alt } = Astro.props;
 ---
 
 <a href={href} class="flex">
-  <img src={src} alt={alt} class="object-contain max-w-[140px] max-h-[80px]" />
+  <img src={src} alt={alt} loading="lazy" width="140" height="80" class="object-contain max-w-[140px] max-h-[80px]" />
 </a>

@@ -1,0 +1,204 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const projects = [
+  {
+    title: 'Product interfaces for high-stakes workflows',
+    category: 'Client work',
+    summary: 'Interfaces for teams operating in finance, media, aerospace, insurance, and enterprise environments where clarity, accessibility, and reliability matter.',
+    impact: 'Design systems, front-end architecture, workflow analysis, implementation, and delivery collaboration.',
+  },
+  {
+    title: 'Personal publishing pipeline',
+    category: 'Internal tool',
+    summary: 'A Notion-connected content workflow for turning notes, imported writing, references, and short opinions into durable posts.',
+    impact: 'Content collections, Markdown generation, RSS-ready structure, and a stronger habit loop for publishing.',
+  },
+  {
+    title: 'Digital garden and archive assistant',
+    category: 'Experiment',
+    summary: 'A site-native assistant concept that helps visitors find posts, projects, and ideas through questions instead of navigation alone.',
+    impact: 'Static prototype today, ready for a retrieval-backed LLM endpoint later.',
+  },
+  {
+    title: 'Knowledge and productivity systems',
+    category: 'Research',
+    summary: 'Writing and experiments around PARA, spaced studying, capture habits, project organization, and how people keep ideas moving.',
+    impact: 'Essays, reusable workflows, and practical patterns for personal operating systems.',
+  },
+]
+---
+
+<Layout
+  title="Projects"
+  description="Selected projects and work directions from Caio Amaral, including product engineering, publishing systems, digital gardens, and productivity tooling."
+>
+  <section class="projects-hero page-shell">
+    <p class="eyebrow">Projects</p>
+    <h1>Selected work and project directions.</h1>
+    <p>
+      A concise view of the work I want this site to make easier to find: product engineering, publishing tools, personal knowledge systems, and experiments around how people interact with software.
+    </p>
+  </section>
+
+  <section class="page-shell project-list" aria-label="Selected projects">
+    {projects.map((project) => (
+      <article class="project-row">
+        <div>
+          <p>{project.category}</p>
+          <h2>{project.title}</h2>
+        </div>
+        <div>
+          <p>{project.summary}</p>
+          <strong>{project.impact}</strong>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section class="page-shell contexts">
+    <p class="section-label">Contexts</p>
+    <div>
+      <span>Financial products</span>
+      <span>Media platforms</span>
+      <span>Aerospace systems</span>
+      <span>Insurance workflows</span>
+      <span>Internal tooling</span>
+      <span>Design systems</span>
+    </div>
+  </section>
+
+  <section class="page-shell cta">
+    <h2>Have a product or workflow that needs clearer shape?</h2>
+    <a class="button" href="/#contact">Start a conversation</a>
+  </section>
+</Layout>
+
+<style>
+  .projects-hero {
+    max-width: 820px;
+    padding: 4rem 0 3rem;
+  }
+
+  h1 {
+    margin: 0.8rem 0 1rem;
+    font-family: var(--display);
+    font-size: clamp(3rem, 6vw, 5.4rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .projects-hero p:last-child {
+    max-width: 48rem;
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.7;
+  }
+
+  .project-list {
+    display: grid;
+    gap: 0;
+  }
+
+  .project-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 5vw, 4rem);
+    border-top: 1px solid var(--line);
+    padding: 1.8rem 0;
+  }
+
+  .project-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .project-row h2 {
+    max-width: 18ch;
+    margin: 0.3rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(1.8rem, 3.2vw, 3rem);
+    font-weight: 400;
+    line-height: 1.08;
+  }
+
+  .project-row p:first-child {
+    margin: 0;
+    color: var(--accent-strong);
+    font-size: 0.74rem;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  .project-row div:last-child p {
+    margin-top: 0;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .project-row strong {
+    display: block;
+    max-width: 36rem;
+    line-height: 1.45;
+  }
+
+  .contexts,
+  .cta {
+    padding: 4.5rem 0;
+  }
+
+  .contexts {
+    border-top: 1px solid var(--line);
+  }
+
+  .contexts > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .contexts span {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 0.85rem 0.9rem;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .cta h2 {
+    max-width: 18ch;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+  }
+
+  @media (max-width: 820px) {
+    .project-row,
+    .cta {
+      grid-template-columns: 1fr;
+      align-items: start;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: clamp(2.7rem, 12vw, 4.4rem);
+    }
+
+    .contexts > div {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

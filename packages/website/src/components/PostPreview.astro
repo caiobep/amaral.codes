@@ -1,41 +1,83 @@
 ---
-import Typography from './Typography.astro'
-
 interface Props {
   pathname: string
   title: string
   date?: string
-  summary: string
+  summary?: string
 }
 
-const { title, summary,  pathname, date } = Astro.props
+const { title, summary, pathname, date } = Astro.props
 
 const postUrl = `/posts/${pathname}`
-const titleTransitionName = `${pathname}-title`
-const dateFieldId = `${pathname}-date`
-
-const optmisticDate = new Date(date).toLocaleDateString("en-US", {
-  month: 'short', 
-  day: 'numeric', 
-  year: 'numeric', 
-  daySuffix: 'ordinal' 
-})
-const titleName = title.substring(0, 65) + (title.length > 65 ? '...' : '')
-const content = `${title} ${summary}`
+const readableDate = date
+  ? new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  : 'Undated'
+const excerpt = summary && summary !== 'undefined'
+  ? summary
+  : 'A note from the archive about software, productivity, creativity, or the systems around them.'
 ---
 
-<a href={postUrl} alt={`open blog post ${title}`} class="post" data-title={title}>
-  <div class="max-w-md h-40 dark:border-gray-700 rounded-lg p-4 flex flex-col gap-2 cursor-pointer transition-all hover:scale-105 hover:border border-gray-300 hover:shadow-black-100 hover:shadow-md"> 
-    <Typography variant="h4" transition:name={titleTransitionName}>{titleName}</Typography>
-
-    <div class="flex flex-row justify-between">
-      <span id={dateFieldId} class="date text-gray-500 text-bold text-sm">Posted on {optmisticDate}</span>
-      <!-- <span class="date text-gray-500 text-bold text-xs">5 min read</span> -->
-    </div>
-
-    <div class="text-gray-400">
-      {summary}
-    </div>
-  </div>
+<a href={postUrl} class="post" data-title={`${title} ${excerpt}`}>
+  <article>
+    <time datetime={date}>{readableDate}</time>
+    <h2>{title}</h2>
+    <p>{excerpt}</p>
+  </article>
 </a>
 
+<style>
+  .post {
+    display: block;
+    min-height: 11.5rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--paper-strong);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(36, 33, 29, 0.05);
+  }
+
+  article {
+    display: grid;
+    min-height: 9.5rem;
+    align-content: space-between;
+    gap: 1rem;
+  }
+
+  time {
+    color: var(--accent-strong);
+    font-size: 0.74rem;
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.18rem, 2vw, 1.55rem);
+    line-height: 1.18;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.55;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+</style>
