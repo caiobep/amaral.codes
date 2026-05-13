@@ -494,13 +494,14 @@ const navItems = [
           top: 0;
           align-items: flex-start;
           flex-direction: column;
-          gap: 0.65rem;
-          width: min(1120px, calc(100% - 32px));
+          gap: 0.85rem;
+          width: 100%;
           height: auto;
           margin: 0 auto;
           border-right: 0;
           border-bottom: 1px solid var(--line);
-          padding: 0.9rem 0 0.5rem;
+          padding: 0.95rem 1rem 0.85rem;
+          background: rgba(11, 14, 20, 0.92);
         }
 
         main,
@@ -508,22 +509,51 @@ const navItems = [
           margin-left: 0;
         }
 
+        .brand-name {
+          font-size: 1.42rem;
+        }
+
         .site-nav ul {
-          display: grid;
-          grid-template-columns: repeat(5, max-content);
-          justify-content: space-between;
+          display: flex;
+          flex-direction: row;
+          overflow-x: auto;
+          scrollbar-width: none;
           width: 100%;
-          gap: 0.3rem;
+          gap: 0.45rem;
+          margin-top: 0;
+          padding: 0;
+        }
+
+        .site-nav ul::-webkit-scrollbar {
+          display: none;
         }
 
         .site-nav a:not(.brand) {
-          padding: 0.25rem 0;
-          font-size: 0.76rem;
+          flex: 0 0 auto;
+          border: 1px solid var(--line);
+          border-radius: 999px;
+          padding: 0.4rem 0.62rem;
+          background: rgba(232, 227, 213, 0.035);
+          font-size: 0.72rem;
           font-weight: 560;
         }
 
         .site-nav a:not(.brand)::before {
           display: none;
+        }
+
+        .site-nav a:not(.brand)::after {
+          display: none;
+        }
+
+        .site-nav a:not(.brand):hover,
+        .site-nav a:not(.brand):focus-visible {
+          border-color: rgba(199, 91, 58, 0.44);
+          background: rgba(199, 91, 58, 0.08);
+        }
+
+        .page-shell {
+          width: min(1120px, calc(100% - 32px));
         }
 
         .brand {

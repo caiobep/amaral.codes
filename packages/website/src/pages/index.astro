@@ -74,11 +74,6 @@ const socialLinks = [
           <span>archive</span>
         </div>
       </div>
-      <div class="man-page">
-        <p><span>NAME</span> caio - software, notes, and small systems</p>
-        <p><span>SYNOPSIS</span> ~/projects ~/posts ~/about</p>
-        <p><span>STATUS</span> building quietly, editing often</p>
-      </div>
     </div>
   </section>
 
@@ -285,11 +280,6 @@ const socialLinks = [
     transform: translateX(2px);
   }
 
-  .atelier-panel {
-    display: grid;
-    gap: 1rem;
-  }
-
   .portrait-wrap {
     position: relative;
     display: grid;
@@ -336,31 +326,6 @@ const socialLinks = [
     font-family: var(--mono);
     font-size: 0.72rem;
     text-transform: lowercase;
-  }
-
-  .man-page {
-    display: grid;
-    gap: 0.4rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.9rem;
-    background:
-      linear-gradient(180deg, rgba(17, 21, 29, 0.86), rgba(11, 14, 20, 0.86));
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    line-height: 1.55;
-  }
-
-  .man-page p {
-    margin: 0;
-  }
-
-  .man-page span {
-    display: inline-block;
-    min-width: 5.7rem;
-    color: var(--phosphor);
-    letter-spacing: 0.08em;
   }
 
   h2 {
