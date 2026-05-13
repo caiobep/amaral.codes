@@ -38,6 +38,45 @@ const { title, date, tags, summary } = post.data
   </article>
 </Layout>
 
+<script>
+  const enhanceBookmarks = () => {
+    document.querySelectorAll('.content p').forEach((paragraph) => {
+      const links = paragraph.querySelectorAll('a')
+      const text = paragraph.textContent?.trim().toLowerCase()
+
+      if (links.length !== 1 || text !== 'bookmark') return
+
+      const link = links[0]
+      let domain = link.href
+
+      try {
+        domain = new URL(link.href).hostname.replace(/^www\./, '')
+      } catch {
+        domain = link.href
+      }
+
+      const card = document.createElement('a')
+      card.className = 'bookmark-card'
+      card.href = link.href
+      card.target = '_blank'
+      card.rel = 'noopener noreferrer'
+
+      const label = document.createElement('span')
+      label.textContent = 'bookmark'
+
+      const title = document.createElement('strong')
+      title.textContent = domain
+
+      card.append(label, title)
+
+      paragraph.replaceWith(card)
+    })
+  }
+
+  document.addEventListener('astro:page-load', enhanceBookmarks)
+  enhanceBookmarks()
+</script>
+
 <style>
   .post {
     max-width: 760px;
@@ -119,6 +158,46 @@ const { title, date, tags, summary } = post.data
   .content :global(a) {
     color: var(--accent-strong);
     font-weight: 700;
+  }
+
+  .content :global(.bookmark-card) {
+    display: grid;
+    gap: 0.35rem;
+    margin: 1.25rem 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    background:
+      linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .content :global(.bookmark-card:hover) {
+    border-color: rgba(199, 91, 58, 0.48);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 58px rgba(0, 0, 0, 0.28);
+  }
+
+  .content :global(.bookmark-card span) {
+    color: var(--accent-strong);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .content :global(.bookmark-card strong) {
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 
   .content :global(img) {
