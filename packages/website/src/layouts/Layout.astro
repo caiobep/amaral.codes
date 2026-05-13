@@ -131,12 +131,16 @@ const navItems = [
       }
 
       body::before {
-        opacity: 0.36;
+        opacity: 0.58;
         background-image:
           linear-gradient(rgba(232, 227, 213, 0.035) 1px, transparent 1px),
           linear-gradient(90deg, rgba(232, 227, 213, 0.025) 1px, transparent 1px),
-          radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px);
-        background-size: 100% 4px, 4px 100%, 18px 18px;
+          radial-gradient(circle at 20% 10%, rgba(232, 227, 213, 0.08) 0 1px, transparent 1px),
+          radial-gradient(circle at 70% 30%, rgba(199, 91, 58, 0.055) 0 1px, transparent 1px),
+          radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.34) 0 1px, transparent 1px);
+        background-position: 0 0, 0 0, 0 0, 7px 11px, 3px 5px;
+        background-size: 100% 4px, 4px 100%, 17px 17px, 23px 23px, 13px 13px;
+        mix-blend-mode: screen;
       }
 
       body::after {
