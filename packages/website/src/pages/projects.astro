@@ -3,26 +3,26 @@ import Layout from '../layouts/Layout.astro'
 
 const projects = [
   {
-    title: 'Product interfaces for high-stakes workflows',
-    category: 'Client work',
-    summary: 'Interfaces for teams operating in finance, media, aerospace, insurance, and enterprise environments where clarity, accessibility, and reliability matter.',
+    title: 'Product interfaces for complex workflows',
+    category: 'PRJ-001',
+    summary: 'Interfaces for teams operating in finance, media, aerospace, insurance, and enterprise environments where clarity and reliability matter.',
     impact: 'Design systems, front-end architecture, workflow analysis, implementation, and delivery collaboration.',
   },
   {
     title: 'Personal publishing pipeline',
-    category: 'Internal tool',
+    category: 'SYS-002',
     summary: 'A Notion-connected content workflow for turning notes, imported writing, references, and short opinions into durable posts.',
     impact: 'Content collections, Markdown generation, RSS-ready structure, and a stronger habit loop for publishing.',
   },
   {
     title: 'Digital garden and archive assistant',
-    category: 'Experiment',
-    summary: 'A site-native assistant concept that helps visitors find posts, projects, and ideas through questions instead of navigation alone.',
+    category: 'LAB-003',
+    summary: 'A site-native assistant concept for finding posts, projects, and ideas through questions instead of navigation alone.',
     impact: 'Static prototype today, ready for a retrieval-backed LLM endpoint later.',
   },
   {
     title: 'Knowledge and productivity systems',
-    category: 'Research',
+    category: 'TXT-004',
     summary: 'Writing and experiments around PARA, spaced studying, capture habits, project organization, and how people keep ideas moving.',
     impact: 'Essays, reusable workflows, and practical patterns for personal operating systems.',
   },
@@ -34,10 +34,10 @@ const projects = [
   description="Selected projects and work directions from Caio Amaral, including product engineering, publishing systems, digital gardens, and productivity tooling."
 >
   <section class="projects-hero page-shell">
-    <p class="eyebrow">Projects</p>
-    <h1>Selected work and project directions.</h1>
+    <p class="eyebrow">~/projects</p>
+    <h1>Selected work and active directions.</h1>
     <p>
-      A concise view of the work I want this site to make easier to find: product engineering, publishing tools, personal knowledge systems, and experiments around how people interact with software.
+      A concise view of the work this site should make easier to find: product interfaces, publishing tools, personal systems, and experiments around how people interact with software.
     </p>
   </section>
 
@@ -57,7 +57,7 @@ const projects = [
   </section>
 
   <section class="page-shell contexts">
-    <p class="section-label">Contexts</p>
+    <p class="section-label">Contexts, anonymized</p>
     <div>
       <span>Financial products</span>
       <span>Media platforms</span>
@@ -69,8 +69,8 @@ const projects = [
   </section>
 
   <section class="page-shell cta">
-    <h2>Have a product or workflow that needs clearer shape?</h2>
-    <a class="button" href="/#contact">Start a conversation</a>
+    <h2>Have a product or workflow that needs a clearer shape?</h2>
+    <a class="button" href="/#contact">Write me</a>
   </section>
 </Layout>
 
@@ -125,6 +125,7 @@ const projects = [
   .project-row p:first-child {
     margin: 0;
     color: var(--accent-strong);
+    font-family: var(--mono);
     font-size: 0.74rem;
     font-weight: 750;
     text-transform: uppercase;
@@ -161,10 +162,11 @@ const projects = [
 
   .contexts span {
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 8px;
     padding: 0.85rem 0.9rem;
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(232, 227, 213, 0.035);
     color: var(--muted);
+    font-family: var(--mono);
     font-size: 0.92rem;
   }
 

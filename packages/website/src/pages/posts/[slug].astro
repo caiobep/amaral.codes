@@ -27,7 +27,7 @@ const { title, date, tags, summary } = post.data
       <h1>{title}</h1>
       {tags?.length ? (
         <ul>
-          {tags.map((tag) => <li>{tag.icon} {tag.name}</li>)}
+          {tags.map((tag) => <li>{tag.name}</li>)}
         </ul>
       ) : null}
     </header>
@@ -53,6 +53,7 @@ const { title, date, tags, summary } = post.data
   .back-link,
   time {
     color: var(--muted);
+    font-family: var(--mono);
     font-size: 0.9rem;
     font-weight: 750;
   }
@@ -80,6 +81,7 @@ const { title, date, tags, summary } = post.data
     border-radius: 999px;
     padding: 0.35rem 0.7rem;
     color: var(--muted);
+    font-family: var(--mono);
     font-size: 0.88rem;
   }
 
@@ -129,7 +131,7 @@ const { title, date, tags, summary } = post.data
     border-radius: 12px;
     object-fit: contain;
     background: var(--paper-strong);
-    box-shadow: 0 14px 40px rgba(36, 33, 29, 0.06);
+    box-shadow: 0 22px 64px rgba(0, 0, 0, 0.28);
   }
 
   .content :global(iframe) {
@@ -144,8 +146,8 @@ const { title, date, tags, summary } = post.data
     overflow-x: auto;
     border-radius: 8px;
     padding: 1.2rem;
-    background: #201d19;
-    color: #fffdf7;
+    background: #11151d;
+    color: var(--ink);
   }
 
   @media (max-width: 640px) {

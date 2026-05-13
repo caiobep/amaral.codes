@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# a small room for crawlers
+# follow the lamp, not the noise
+
 Sitemap: https://amaral.codes/sitemap-index.xml

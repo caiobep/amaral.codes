@@ -16,25 +16,25 @@ const featuredPosts = posts
 
 const artifacts = [
   {
-    title: 'Product interfaces',
-    label: 'Work',
-    detail: 'Front-end architecture, interface implementation, workflow analysis, and design-system work for teams in finance, media, aerospace, and enterprise software.',
+    title: 'Interface systems',
+    label: 'PRJ-001',
+    detail: 'Front-end architecture, interaction work, accessibility, and design-system implementation across complex product environments.',
     href: '/projects',
-    index: '01',
+    index: 'work',
   },
   {
-    title: 'Publishing pipeline',
-    label: 'Tool',
-    detail: 'A Notion-to-Astro workflow for turning notes and references into a public archive with posts, RSS, and searchable content.',
+    title: 'Publishing archive',
+    label: 'SYS-002',
+    detail: 'A Notion-to-Astro workflow for moving notes, references, and essays into a public place without turning the site into a content machine.',
     href: '/projects',
-    index: '02',
+    index: 'system',
   },
   {
-    title: 'Productivity notes',
-    label: 'Writing',
-    detail: 'Essays and field notes about capture habits, project organization, spaced studying, and keeping ideas moving.',
+    title: 'Notes under revision',
+    label: 'TXT-003',
+    detail: 'Short writing about capture habits, computing, interfaces, studying, and the attempt to keep a life from drifting into noise.',
     href: '/posts',
-    index: '03',
+    index: 'notes',
   },
 ]
 
@@ -48,14 +48,14 @@ const socialLinks = [
 
 <Layout
   title="Caio Amaral"
-  description="Portfolio, writing, projects, and contact information for Caio Amaral, a software engineer interested in interfaces, accessibility, productivity, and personal knowledge systems."
+  description="A public archive for Caio Amaral: software work, projects, notes, and writing about interfaces, computing, productivity, and personal systems."
 >
   <section class="hero page-shell">
     <div class="hero-copy">
-      <p class="eyebrow">amaral.codes</p>
-      <h1>Software, notes, and small systems.</h1>
+      <p class="eyebrow">~/index</p>
+      <h1><span>Order</span> out of small systems.</h1>
       <p>
-        I’m Caio, a software engineer interested in interfaces, accessibility, productivity, and the tools people use to think. This site is my public index: work I’ve done, notes I’m keeping, and projects I want to make easier to find.
+        I’m Caio. This is a public room for software work, notes, and tools I keep returning to: interfaces, accessibility, productivity, computing, and the discipline required to make ideas visible.
       </p>
       <div class="hero-links">
         <a href="/projects">Projects</a>
@@ -64,13 +64,20 @@ const socialLinks = [
       </div>
     </div>
 
-    <div class="portrait-wrap" aria-label="Portrait and site index">
-      <img src="/photos/profile/4x5.png" alt="Caio Amaral" width="640" height="800" />
-      <div class="index-strip">
-        <span>Work</span>
-        <span>Writing</span>
-        <span>Systems</span>
-        <span>Notes</span>
+    <div class="atelier-panel" aria-label="Site index">
+      <div class="portrait-wrap">
+        <img src="/photos/profile/4x5.png" alt="Caio Amaral" width="640" height="800" />
+        <div class="index-strip" aria-hidden="true">
+          <span>interfaces</span>
+          <span>notes</span>
+          <span>systems</span>
+          <span>archive</span>
+        </div>
+      </div>
+      <div class="man-page">
+        <p><span>NAME</span> caio - software, notes, and small systems</p>
+        <p><span>SYNOPSIS</span> ~/projects ~/posts ~/about</p>
+        <p><span>STATUS</span> building quietly, editing often</p>
       </div>
     </div>
   </section>
@@ -78,7 +85,7 @@ const socialLinks = [
   <section class="page-shell artifact-board" aria-labelledby="artifact-title">
     <div class="board-heading">
       <p class="section-label">Selected artifacts</p>
-      <h2 id="artifact-title">A few concrete things to open first.</h2>
+      <h2 id="artifact-title">Open the work before the explanation.</h2>
     </div>
 
     <div class="artifact-grid">
@@ -96,7 +103,7 @@ const socialLinks = [
   <section class="page-shell work-proof" aria-labelledby="proof-title">
     <div>
       <p class="section-label">Past work</p>
-      <h2 id="proof-title">Teams and contexts I’ve worked around.</h2>
+      <h2 id="proof-title">Contexts, kept anonymous on purpose.</h2>
     </div>
     <div class="context-list" aria-label="Work contexts">
       <span>Financial products</span>
@@ -112,7 +119,7 @@ const socialLinks = [
     <div class="writing-heading">
       <div>
         <p class="section-label">Writing</p>
-        <h2 id="writing-title">Posts that explain the shape of my interests.</h2>
+        <h2 id="writing-title">Notes from the archive.</h2>
       </div>
       <a href="/posts">All posts</a>
     </div>
@@ -130,9 +137,9 @@ const socialLinks = [
   <section class="page-shell contact-section" id="contact" aria-labelledby="contact-title">
     <div>
       <p class="section-label">Contact</p>
-      <h2 id="contact-title">Send a note if something here connects.</h2>
+      <h2 id="contact-title">Leave a note at the desk.</h2>
       <p>
-        I’m most interested in product engineering, accessible interfaces, publishing workflows, and personal knowledge systems.
+        I’m usually interested in interface work, accessibility, publishing workflows, personal systems, and people who care about craft without making it loud.
       </p>
       <div class="social-links">
         {socialLinks.map(([label, href]) => (
@@ -152,7 +159,7 @@ const socialLinks = [
       </label>
       <label class="field">
         <span>Message</span>
-        <textarea name="message" placeholder="What are you working on?" required></textarea>
+        <textarea name="message" placeholder="What should I know?" required></textarea>
       </label>
       <button class="button" type="submit">Send email</button>
     </form>
@@ -161,7 +168,7 @@ const socialLinks = [
   <section class="page-shell newsletter-section" aria-labelledby="newsletter-title">
     <div>
       <p class="section-label">Newsletter</p>
-      <h2 id="newsletter-title">Occasional notes, when there is something worth sending.</h2>
+      <h2 id="newsletter-title">Occasional notes. No cadence theater.</h2>
     </div>
     <form class="newsletter-form panel" id="newsletter-form">
       <label class="field">
@@ -203,21 +210,26 @@ const socialLinks = [
 <style>
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
     gap: clamp(2rem, 7vw, 5.5rem);
-    align-items: end;
-    min-height: calc(100vh - 92px);
-    padding: 2rem 0 5rem;
+    align-items: center;
+    min-height: 100vh;
+    padding: 4rem 0 5.5rem;
   }
 
   .hero h1 {
-    max-width: 10ch;
+    max-width: 11ch;
     margin: 0.7rem 0 1.05rem;
     font-family: var(--display);
-    font-size: clamp(3.8rem, 8vw, 7rem);
+    font-size: clamp(4rem, 8vw, 7.6rem);
     font-weight: 400;
     line-height: 0.96;
     letter-spacing: 0;
+  }
+
+  .hero h1 span {
+    color: var(--accent-strong);
+    font-style: italic;
   }
 
   .hero p:not(.eyebrow) {
@@ -231,22 +243,24 @@ const socialLinks = [
   .hero-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem;
-    margin-top: 1.35rem;
+    gap: 0.65rem;
+    margin-top: 1.55rem;
   }
 
   .hero-links a {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    min-height: 2.25rem;
+    position: relative;
+    min-height: 2.45rem;
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 0.48rem 0.72rem;
-    background: rgba(255, 255, 255, 0.62);
+    border-radius: 999px;
+    padding: 0.54rem 0.86rem;
+    background: rgba(232, 227, 213, 0.035);
     color: var(--ink);
+    font-family: var(--mono);
     font-size: 0.88rem;
-    font-weight: 600;
+    font-weight: 560;
     text-decoration: none;
     transition:
       background-color 160ms ease,
@@ -256,19 +270,24 @@ const socialLinks = [
 
   .hero-links a::after {
     content: "→";
-    color: var(--accent-strong);
+    color: var(--accent);
     font-size: 0.9rem;
     transition: transform 160ms ease;
   }
 
   .hero-links a:hover {
-    border-color: rgba(52, 89, 79, 0.32);
-    background: var(--wash);
+    border-color: rgba(199, 91, 58, 0.52);
+    background: rgba(199, 91, 58, 0.1);
     transform: translateY(-1px);
   }
 
   .hero-links a:hover::after {
     transform: translateX(2px);
+  }
+
+  .atelier-panel {
+    display: grid;
+    gap: 1rem;
   }
 
   .portrait-wrap {
@@ -284,13 +303,26 @@ const socialLinks = [
     max-height: 620px;
     border-radius: 2px;
     object-fit: cover;
-    box-shadow: 0 18px 46px rgba(36, 33, 29, 0.08);
+    filter: saturate(0.65) contrast(1.04);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
     transition: transform 420ms ease, box-shadow 420ms ease;
+  }
+
+  .portrait-wrap::after {
+    position: absolute;
+    inset: 0.6rem 2.1rem 0.6rem 0.6rem;
+    border: 1px solid rgba(232, 227, 213, 0.16);
+    background:
+      linear-gradient(180deg, transparent, rgba(11, 14, 20, 0.36)),
+      radial-gradient(circle at 84% 20%, rgba(199, 91, 58, 0.22), transparent 11rem);
+    content: "";
+    pointer-events: none;
+    mix-blend-mode: screen;
   }
 
   .portrait-wrap:hover img {
     transform: translateY(-4px);
-    box-shadow: 0 24px 60px rgba(36, 33, 29, 0.1);
+    box-shadow: 0 34px 92px rgba(0, 0, 0, 0.42);
   }
 
   .index-strip {
@@ -301,9 +333,34 @@ const socialLinks = [
     border-left: 1px solid var(--line);
     padding-left: 0.7rem;
     color: var(--muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--mono);
     font-size: 0.72rem;
     text-transform: lowercase;
+  }
+
+  .man-page {
+    display: grid;
+    gap: 0.4rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.9rem;
+    background:
+      linear-gradient(180deg, rgba(17, 21, 29, 0.86), rgba(11, 14, 20, 0.86));
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.55;
+  }
+
+  .man-page p {
+    margin: 0;
+  }
+
+  .man-page span {
+    display: inline-block;
+    min-width: 5.7rem;
+    color: var(--phosphor);
+    letter-spacing: 0.08em;
   }
 
   h2 {
@@ -337,13 +394,13 @@ const socialLinks = [
 
   .artifact {
     display: grid;
-    grid-template-columns: 3.5rem 6rem minmax(0, 1fr);
+    grid-template-columns: 5.5rem 6rem minmax(0, 1fr);
     gap: 1rem;
     border-bottom: 1px solid var(--line);
     padding: 1.1rem 0;
     color: inherit;
     text-decoration: none;
-    transition: background-color 180ms ease, padding-left 180ms ease;
+    transition: background-color 180ms ease, border-color 180ms ease, padding-left 180ms ease;
   }
 
   .artifact:hover h3,
@@ -354,15 +411,19 @@ const socialLinks = [
 
   .artifact:hover {
     padding-left: 0.65rem;
-    background: rgba(255, 255, 255, 0.42);
+    background: rgba(199, 91, 58, 0.055);
   }
 
   .artifact-index,
   .artifact-label,
   .writing-row time {
     color: var(--muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: var(--mono);
     font-size: 0.78rem;
+  }
+
+  .artifact-label {
+    color: var(--accent-strong);
   }
 
   .artifact h3 {
@@ -393,17 +454,19 @@ const socialLinks = [
 
   .context-list span {
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 8px;
     padding: 0.85rem 0.9rem;
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(232, 227, 213, 0.035);
     color: var(--muted);
+    font-family: var(--mono);
     font-size: 0.92rem;
     transition: transform 180ms ease, background-color 180ms ease;
   }
 
   .context-list span:hover {
     transform: translateY(-2px);
-    background: var(--paper-strong);
+    border-color: rgba(199, 91, 58, 0.38);
+    background: rgba(199, 91, 58, 0.06);
   }
 
   .writing-heading {
@@ -416,6 +479,7 @@ const socialLinks = [
   .writing-heading > a {
     align-self: end;
     color: var(--accent-strong);
+    font-family: var(--mono);
     font-weight: 650;
     text-decoration: none;
   }
@@ -441,7 +505,7 @@ const socialLinks = [
 
   .writing-row:hover {
     padding-left: 0.65rem;
-    background: rgba(255, 255, 255, 0.42);
+    background: rgba(200, 168, 107, 0.055);
   }
 
   .writing-row span {
@@ -471,6 +535,7 @@ const socialLinks = [
 
   .social-links a {
     color: var(--accent-strong);
+    font-family: var(--mono);
     font-size: 0.94rem;
     font-weight: 650;
     text-decoration: none;
@@ -484,11 +549,11 @@ const socialLinks = [
   .newsletter-form {
     display: grid;
     gap: 0.95rem;
-    border-radius: 18px;
+    border-radius: 10px;
     padding: 1.1rem;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.64));
-    box-shadow: 0 20px 60px rgba(36, 33, 29, 0.06);
+      linear-gradient(180deg, rgba(17, 21, 29, 0.9), rgba(11, 14, 20, 0.74));
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
   }
 
   .contact-form {
@@ -526,10 +591,10 @@ const socialLinks = [
   .contact-form :global(.field input),
   .contact-form :global(.field textarea),
   .newsletter-form :global(.field input) {
-    border: 1px solid transparent;
-    border-radius: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
     padding: 0.9rem 0.95rem;
-    background: var(--wash);
+    background: rgba(11, 14, 20, 0.76);
     color: var(--ink);
     outline: none;
     transition:
@@ -541,15 +606,15 @@ const socialLinks = [
   .contact-form :global(.field input::placeholder),
   .contact-form :global(.field textarea::placeholder),
   .newsletter-form :global(.field input::placeholder) {
-    color: rgba(110, 103, 95, 0.72);
+    color: rgba(163, 154, 137, 0.7);
   }
 
   .contact-form :global(.field input:focus),
   .contact-form :global(.field textarea:focus),
   .newsletter-form :global(.field input:focus) {
-    border-color: rgba(52, 89, 79, 0.34);
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(74, 116, 104, 0.11);
+    border-color: rgba(199, 91, 58, 0.64);
+    background: rgba(11, 14, 20, 0.94);
+    box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
   }
 
   .newsletter-form {
@@ -578,6 +643,10 @@ const socialLinks = [
 
     .portrait-wrap {
       grid-template-columns: 1fr;
+    }
+
+    .portrait-wrap::after {
+      inset: 0.6rem;
     }
 
     .index-strip {

@@ -12,7 +12,7 @@ const posts = (await getCollection('blog-posts'))
   description="Short posts, essays, notes, and opinions by Caio Amaral about software, productivity, design, history, creativity, and human-computer interaction."
 >
   <section class="posts-hero page-shell">
-    <p class="eyebrow">Blog</p>
+    <p class="eyebrow">~/posts</p>
     <h1>Writing, notes, and short observations.</h1>
     <p>
       A living archive for software, productivity, design, learning, media, and the ideas I want to keep in circulation.
@@ -99,6 +99,7 @@ const posts = (await getCollection('blog-posts'))
 
   label span {
     color: var(--muted);
+    font-family: var(--mono);
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -106,17 +107,18 @@ const posts = (await getCollection('blog-posts'))
 
   input {
     width: 100%;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    padding: 1rem 0;
-    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.85rem 0.95rem;
+    background: rgba(17, 21, 29, 0.64);
     color: var(--ink);
     font-size: 1.1rem;
     outline: none;
   }
 
   input:focus {
-    border-color: var(--ink);
+    border-color: rgba(199, 91, 58, 0.64);
+    box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
   }
 
   .posts {

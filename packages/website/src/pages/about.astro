@@ -17,7 +17,7 @@ const principles = [
 >
   <section class="about-hero page-shell">
     <div>
-      <p class="eyebrow">About Caio</p>
+      <p class="eyebrow">~/about</p>
       <h1>Software, interfaces, and the habit of paying attention.</h1>
     </div>
     <img src="/photos/profile/bw/4x5.png" alt="Caio Amaral in black and white" width="640" height="800" />
@@ -106,6 +106,8 @@ const principles = [
     border-radius: 8px;
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    filter: grayscale(1) contrast(1.08);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
   }
 
   .story {
@@ -152,7 +154,7 @@ const principles = [
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 1rem;
-    background: var(--paper-strong);
+    background: linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
   }
 
   .principles p {

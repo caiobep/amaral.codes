@@ -10,7 +10,7 @@ export interface Props {
 
 const {
   title = 'Caio Amaral',
-  description = 'Caio Amaral is a software engineer and product-minded builder creating accessible, thoughtful tools for people who want technology to amplify their work.',
+  description = 'Caio Amaral keeps a public archive of software work, notes, small tools, and writing about interfaces, computing, productivity, and personal systems.',
   image = '/photos/profile/4x5.png',
   ...rest
 } = Astro.props
@@ -34,13 +34,16 @@ const navItems = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="theme-color" content="#0B0E14" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="mask-icon" href="/favicon.svg" color="#111111" />
     <link rel="alternate" type="application/rss+xml" title="Caio Amaral RSS" href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
@@ -78,16 +81,20 @@ const navItems = [
 
     <style is:global>
       :root {
-        color-scheme: light;
-        --ink: #24211d;
-        --muted: #6e675f;
-        --paper: #fbfaf7;
-        --paper-strong: #ffffff;
-        --line: #e5dfd5;
-        --accent: #4a7468;
-        --accent-strong: #34594f;
-        --wash: #f1eee8;
-        --display: "New York", "Iowan Old Style", Charter, "Palatino Linotype", Palatino, ui-serif, serif;
+        color-scheme: dark;
+        --ink: #e8e3d5;
+        --muted: #a39a89;
+        --paper: #0b0e14;
+        --paper-strong: #11151d;
+        --line: #1b2230;
+        --accent: #c75b3a;
+        --accent-strong: #c8a86b;
+        --wash: #151b26;
+        --phosphor: #8bbf82;
+        --teal: #3e6b73;
+        --plum: #6b5b95;
+        --display: "Cormorant Garamond", "EB Garamond", "Iowan Old Style", Georgia, serif;
+        --mono: "JetBrains Mono", "Berkeley Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
       }
 
       * {
@@ -98,7 +105,7 @@ const navItems = [
         background: var(--paper);
         color: var(--ink);
         font-family:
-          "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system,
+          Inter, "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
           BlinkMacSystemFont, "Segoe UI", sans-serif;
         scroll-behavior: smooth;
       }
@@ -106,9 +113,37 @@ const navItems = [
       body {
         min-height: 100vh;
         margin: 0;
-        background: var(--paper);
+        background:
+          radial-gradient(circle at 78% 12%, rgba(199, 91, 58, 0.12), transparent 28rem),
+          radial-gradient(circle at 8% 92%, rgba(62, 107, 115, 0.14), transparent 30rem),
+          var(--paper);
         font-size: 17px;
         line-height: 1.65;
+      }
+
+      body::before,
+      body::after {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        content: "";
+      }
+
+      body::before {
+        opacity: 0.36;
+        background-image:
+          linear-gradient(rgba(232, 227, 213, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(232, 227, 213, 0.025) 1px, transparent 1px),
+          radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px);
+        background-size: 100% 4px, 4px 100%, 18px 18px;
+      }
+
+      body::after {
+        height: 1px;
+        opacity: 0.22;
+        background: linear-gradient(90deg, transparent, rgba(139, 191, 130, 0.42), transparent);
+        animation: scanline 9s linear infinite;
       }
 
       a {
@@ -135,7 +170,7 @@ const navItems = [
         left: 0.75rem;
         z-index: 20;
         transform: translateY(-160%);
-        border: 1px solid var(--ink);
+        border: 1px solid var(--accent);
         border-radius: 999px;
         padding: 0.7rem 1rem;
         background: var(--paper-strong);
@@ -146,75 +181,113 @@ const navItems = [
       }
 
       .site-nav {
-        position: sticky;
-        top: 0;
+        position: fixed;
+        inset: 0 auto 0 0;
         z-index: 10;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
         gap: 1rem;
-        width: min(1080px, calc(100% - 40px));
-        margin: 0 auto;
-        padding: 1rem 0;
-        background: rgba(251, 250, 247, 0.86);
+        width: 220px;
+        height: 100vh;
+        margin: 0;
+        border-right: 1px solid var(--line);
+        padding: 2rem 1.25rem;
+        background: rgba(11, 14, 20, 0.82);
         backdrop-filter: blur(14px);
       }
 
       .brand {
         display: grid;
-        gap: 0.08rem;
+        gap: 0.18rem;
         text-decoration: none;
       }
 
       .brand-name {
-        font-size: 1rem;
-        font-weight: 650;
+        font-family: var(--display);
+        font-size: 1.5rem;
+        font-weight: 500;
         line-height: 1.1;
       }
 
       .brand-domain {
         color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-family: var(--mono);
         font-size: 0.72rem;
         line-height: 1.1;
       }
 
       .site-nav ul {
         display: flex;
-        align-items: center;
-        gap: 0.1rem;
-        margin: 0;
+        align-items: stretch;
+        width: 100%;
+        gap: 0.25rem;
+        margin: 2.2rem 0 0;
         padding: 0;
         list-style: none;
+        flex-direction: column;
       }
 
       .site-nav a:not(.brand) {
-        display: inline-flex;
+        display: flex;
+        position: relative;
         border-radius: 999px;
-        padding: 0.45rem 0.58rem;
+        padding: 0.45rem 0;
         color: var(--muted);
-        font-size: 0.86rem;
-        font-weight: 520;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        font-weight: 500;
         text-decoration: none;
+      }
+
+      .site-nav a:not(.brand)::before {
+        width: 1.7rem;
+        color: var(--accent);
+        content: "~/";
+      }
+
+      .site-nav a:not(.brand)::after {
+        position: absolute;
+        right: 0;
+        bottom: 0.22rem;
+        left: 1.7rem;
+        height: 1px;
+        transform: scaleX(0);
+        transform-origin: left;
+        background: var(--accent);
+        content: "";
+        transition: transform 200ms ease;
       }
 
       .site-nav a:not(.brand):hover,
       .site-nav a:not(.brand):focus-visible {
-        background: var(--wash);
+        background: transparent;
         color: var(--ink);
         outline: none;
       }
 
+      .site-nav a:not(.brand):hover::after,
+      .site-nav a:not(.brand):focus-visible::after {
+        transform: scaleX(1);
+      }
+
+      main,
+      .footer {
+        margin-left: 220px;
+      }
+
       .page-shell {
-        width: min(1080px, calc(100% - 40px));
+        width: min(1120px, calc(100% - 64px));
         margin: 0 auto;
       }
 
       .eyebrow {
         color: var(--accent-strong);
+        font-family: var(--mono);
         font-size: 0.76rem;
-        font-weight: 650;
-        letter-spacing: 0.05em;
+        font-weight: 600;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
@@ -223,9 +296,10 @@ const navItems = [
         align-items: center;
         gap: 0.8rem;
         color: var(--muted);
+        font-family: var(--mono);
         font-size: 0.78rem;
-        font-weight: 650;
-        letter-spacing: 0.05em;
+        font-weight: 600;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
@@ -250,8 +324,9 @@ const navItems = [
         justify-content: center;
         min-height: 2.45rem;
         border: 1px solid transparent;
-        border-radius: 10px;
+        border-radius: 999px;
         padding: 0.58rem 0.9rem;
+        font-family: var(--mono);
         font-size: 0.9rem;
         font-weight: 600;
         text-decoration: none;
@@ -263,13 +338,13 @@ const navItems = [
       }
 
       .button {
-        background: var(--ink);
-        color: #fff;
+        background: var(--accent);
+        color: #120d0a;
       }
 
       .button-secondary {
         border-color: var(--line);
-        background: rgba(255, 255, 255, 0.72);
+        background: rgba(232, 227, 213, 0.04);
         color: var(--ink);
       }
 
@@ -280,10 +355,11 @@ const navItems = [
 
       .button:hover {
         background: var(--accent-strong);
+        color: #12100c;
       }
 
       .button-secondary:hover {
-        border-color: rgba(52, 89, 79, 0.35);
+        border-color: rgba(200, 168, 107, 0.48);
         background: var(--wash);
       }
 
@@ -291,7 +367,7 @@ const navItems = [
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--paper-strong);
-        box-shadow: 0 12px 30px rgba(36, 33, 29, 0.05);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
       }
 
       .field {
@@ -301,6 +377,7 @@ const navItems = [
 
       .field span {
         color: var(--muted);
+        font-family: var(--mono);
         font-size: 0.86rem;
         font-weight: 700;
       }
@@ -311,8 +388,15 @@ const navItems = [
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 0.85rem 0.9rem;
-        background: var(--paper-strong);
+        background: rgba(11, 14, 20, 0.62);
         color: var(--ink);
+      }
+
+      .field input:focus,
+      .field textarea:focus {
+        border-color: rgba(199, 91, 58, 0.72);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
       }
 
       .field textarea {
@@ -356,6 +440,16 @@ const navItems = [
         }
       }
 
+      @keyframes scanline {
+        from {
+          transform: translateY(-5vh);
+        }
+
+        to {
+          transform: translateY(105vh);
+        }
+      }
+
       main {
         animation: pageFadeIn 420ms ease both;
       }
@@ -395,11 +489,23 @@ const navItems = [
 
       @media (max-width: 720px) {
         .site-nav {
-          position: static;
+          position: sticky;
+          inset: auto;
+          top: 0;
           align-items: flex-start;
           flex-direction: column;
           gap: 0.65rem;
+          width: min(1120px, calc(100% - 32px));
+          height: auto;
+          margin: 0 auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
           padding: 0.9rem 0 0.5rem;
+        }
+
+        main,
+        .footer {
+          margin-left: 0;
         }
 
         .site-nav ul {
@@ -414,6 +520,10 @@ const navItems = [
           padding: 0.25rem 0;
           font-size: 0.76rem;
           font-weight: 560;
+        }
+
+        .site-nav a:not(.brand)::before {
+          display: none;
         }
 
         .brand {

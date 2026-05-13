@@ -36,15 +36,17 @@ const excerpt = summary && summary !== 'undefined'
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 1rem;
-    background: var(--paper-strong);
+    background:
+      linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
     color: inherit;
     text-decoration: none;
-    transition: transform 180ms ease, box-shadow 180ms ease;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
   }
 
   .post:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(36, 33, 29, 0.05);
+    border-color: rgba(199, 91, 58, 0.48);
+    box-shadow: 0 20px 58px rgba(0, 0, 0, 0.28);
   }
 
   article {
@@ -56,6 +58,7 @@ const excerpt = summary && summary !== 'undefined'
 
   time {
     color: var(--accent-strong);
+    font-family: var(--mono);
     font-size: 0.74rem;
     font-weight: 750;
     text-transform: uppercase;
