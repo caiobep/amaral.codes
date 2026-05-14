@@ -42,6 +42,66 @@ const isNotionUrl = (url) => {
   }
 }
 
+const terminalAtelierCodeTheme = {
+  name: 'terminal-atelier',
+  type: 'dark',
+  colors: {
+    'editor.background': '#0B0E14',
+    'editor.foreground': '#E8E3D5',
+  },
+  tokenColors: [
+    {
+      scope: ['comment', 'punctuation.definition.comment'],
+      settings: {
+        foreground: '#7A7466',
+        fontStyle: 'italic',
+      },
+    },
+    {
+      scope: ['keyword', 'storage', 'storage.type', 'support.type'],
+      settings: {
+        foreground: '#C75B3A',
+      },
+    },
+    {
+      scope: ['string', 'constant.other.symbol'],
+      settings: {
+        foreground: '#8BBF82',
+      },
+    },
+    {
+      scope: ['constant.numeric', 'constant.language', 'variable.language'],
+      settings: {
+        foreground: '#C8A86B',
+      },
+    },
+    {
+      scope: ['entity.name.function', 'support.function', 'variable.function'],
+      settings: {
+        foreground: '#D7B879',
+      },
+    },
+    {
+      scope: ['entity.name.type', 'entity.name.class', 'support.class'],
+      settings: {
+        foreground: '#9CB8A4',
+      },
+    },
+    {
+      scope: ['entity.name.tag', 'punctuation.definition.tag'],
+      settings: {
+        foreground: '#C75B3A',
+      },
+    },
+    {
+      scope: ['entity.other.attribute-name', 'variable.parameter'],
+      settings: {
+        foreground: '#C8A86B',
+      },
+    },
+  ],
+}
+
 const sanitizeImportedNotionArtifacts = () => {
   const cleanNode = (node) => {
     if (!Array.isArray(node.children)) return
@@ -77,6 +137,9 @@ export default defineConfig({
   site: 'https://amaral.codes',
   integrations: [tailwind(), mdx({ wrap: true, remarkPlugins: [sanitizeImportedNotionArtifacts] }), sitemap()],
   markdown: {
+    shikiConfig: {
+      theme: terminalAtelierCodeTheme,
+    },
     remarkPlugins: [sanitizeImportedNotionArtifacts],
   },
 })
