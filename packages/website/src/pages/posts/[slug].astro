@@ -39,12 +39,12 @@ const { title, date, tags, summary } = post.data
 </Layout>
 
 <script>
-  const enhanceBookmarks = () => {
+  const enhanceExternalCards = () => {
     document.querySelectorAll('.content p').forEach((paragraph) => {
       const links = paragraph.querySelectorAll('a')
-      const text = paragraph.textContent?.trim().toLowerCase()
+      const text = paragraph.textContent?.trim()
 
-      if (links.length !== 1 || text !== 'bookmark') return
+      if (links.length !== 1 || !text) return
 
       const link = links[0]
       let domain = link.href
@@ -56,16 +56,16 @@ const { title, date, tags, summary } = post.data
       }
 
       const card = document.createElement('a')
-      card.className = 'bookmark-card'
+      card.className = 'external-card'
       card.href = link.href
       card.target = '_blank'
       card.rel = 'noopener noreferrer'
 
       const label = document.createElement('span')
-      label.textContent = 'bookmark'
+      label.textContent = 'external link'
 
       const title = document.createElement('strong')
-      title.textContent = domain
+      title.textContent = text === domain ? domain : text
 
       card.append(label, title)
 
@@ -73,8 +73,8 @@ const { title, date, tags, summary } = post.data
     })
   }
 
-  document.addEventListener('astro:page-load', enhanceBookmarks)
-  enhanceBookmarks()
+  document.addEventListener('astro:page-load', enhanceExternalCards)
+  enhanceExternalCards()
 </script>
 
 <style>
@@ -160,7 +160,7 @@ const { title, date, tags, summary } = post.data
     font-weight: 700;
   }
 
-  .content :global(.bookmark-card) {
+  .content :global(.external-card) {
     display: grid;
     gap: 0.35rem;
     margin: 1.25rem 0;
@@ -177,13 +177,13 @@ const { title, date, tags, summary } = post.data
       box-shadow 180ms ease;
   }
 
-  .content :global(.bookmark-card:hover) {
+  .content :global(.external-card:hover) {
     border-color: rgba(199, 91, 58, 0.48);
     transform: translateY(-2px);
     box-shadow: 0 20px 58px rgba(0, 0, 0, 0.28);
   }
 
-  .content :global(.bookmark-card span) {
+  .content :global(.external-card span) {
     color: var(--accent-strong);
     font-family: var(--mono);
     font-size: 0.72rem;
@@ -192,12 +192,17 @@ const { title, date, tags, summary } = post.data
     text-transform: uppercase;
   }
 
-  .content :global(.bookmark-card strong) {
+  .content :global(.external-card strong) {
     color: var(--ink);
     font-family: var(--mono);
     font-size: 0.95rem;
     font-weight: 600;
     overflow-wrap: anywhere;
+  }
+
+  .content :global(.archived-reference) {
+    color: var(--accent-strong);
+    font-weight: 700;
   }
 
   .content :global(img) {
