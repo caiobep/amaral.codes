@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content'
+import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
 import Layout from '../layouts/Layout.astro'
 
 const posts = (await getCollection('blog-posts'))
@@ -39,7 +40,7 @@ const artifacts = [
   {
     title: 'Publishing archive',
     label: 'SYS-004',
-    detail: 'A Notion-to-Astro workflow for moving notes, references, and essays into a public place without turning the site into a content machine.',
+    detail: 'A small publishing workflow for moving notes, references, and essays into a place I can maintain over time.',
     href: '/projects',
     index: 'system',
   },
@@ -62,7 +63,7 @@ const socialLinks = [
       <p class="eyebrow">~/index</p>
       <h1><span>Notes</span> from a small archive.</h1>
       <p>
-        I’m Caio. This is a public room for things I keep returning to: software, interfaces, productivity, movies, books, tools, and the smaller observations that usually disappear inside private apps.
+        I’m Caio. This is where I keep things I return to: software, interfaces, productivity, movies, books, tools, and smaller observations that are easier to lose than to publish.
       </p>
       <div class="hero-links">
         <a href="/posts">Open archive</a>
@@ -86,8 +87,8 @@ const socialLinks = [
 
   <section class="page-shell artifact-board" aria-labelledby="artifact-title">
     <div class="board-heading">
-      <p class="section-label">Selected shelves</p>
-      <h2 id="artifact-title">Not everything here is a portfolio piece.</h2>
+      <p class="section-label">What lives here</p>
+      <h2 id="artifact-title">Writing, reviews, software notes, and work.</h2>
     </div>
 
     <div class="artifact-grid">
@@ -104,17 +105,13 @@ const socialLinks = [
 
   <section class="page-shell work-proof" aria-labelledby="proof-title">
     <div>
-      <p class="section-label">Past work</p>
-      <h2 id="proof-title">Contexts, kept anonymous on purpose.</h2>
+      <p class="section-label">Work history</p>
+      <h2 id="proof-title">Places I have worked with.</h2>
+      <p>
+        A few public names from my work history. Project details stay with the teams.
+      </p>
     </div>
-    <div class="context-list" aria-label="Work contexts">
-      <span>Financial products</span>
-      <span>Media platforms</span>
-      <span>Aerospace systems</span>
-      <span>Insurance workflows</span>
-      <span>Internal tools</span>
-      <span>Design systems</span>
-    </div>
+    <CompaniesIveWorkedWith />
   </section>
 
   <section class="page-shell writing-section" aria-labelledby="writing-title">
@@ -170,7 +167,7 @@ const socialLinks = [
   <section class="page-shell newsletter-section" aria-labelledby="newsletter-title">
     <div>
       <p class="section-label">Newsletter</p>
-      <h2 id="newsletter-title">Occasional notes, reviews, and links. No cadence theater.</h2>
+      <h2 id="newsletter-title">Occasional notes, reviews, and links.</h2>
     </div>
     <form class="newsletter-form panel" id="newsletter-form">
       <label class="field">
@@ -418,27 +415,11 @@ const socialLinks = [
     align-items: start;
   }
 
-  .context-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
-  }
-
-  .context-list span {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.85rem 0.9rem;
-    background: rgba(232, 227, 213, 0.035);
+  .work-proof p:not(.section-label) {
+    max-width: 26rem;
+    margin: 1rem 0 0;
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.92rem;
-    transition: transform 180ms ease, background-color 180ms ease;
-  }
-
-  .context-list span:hover {
-    transform: translateY(-2px);
-    border-color: rgba(199, 91, 58, 0.38);
-    background: rgba(199, 91, 58, 0.06);
+    line-height: 1.65;
   }
 
   .writing-heading {
@@ -602,10 +583,6 @@ const socialLinks = [
     .contact-section,
     .newsletter-section {
       grid-template-columns: 1fr;
-    }
-
-    .context-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .hero {

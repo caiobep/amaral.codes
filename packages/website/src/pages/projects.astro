@@ -1,24 +1,25 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
 
 const projects = [
   {
-    title: 'Product interfaces for complex workflows',
+    title: 'Product interfaces and internal tools',
     category: 'PRJ-001',
-    summary: 'Interfaces for teams operating in finance, media, aerospace, insurance, and enterprise environments where clarity and reliability matter.',
-    impact: 'Design systems, front-end architecture, workflow analysis, implementation, and delivery collaboration.',
+    summary: 'Front-end work for teams with real operational constraints: forms, dashboards, workflows, design systems, and product surfaces people use repeatedly.',
+    impact: 'Interface implementation, front-end architecture, accessibility, delivery collaboration, and maintenance.',
   },
   {
     title: 'Personal publishing pipeline',
     category: 'SYS-002',
-    summary: 'A Notion-connected content workflow for turning notes, imported writing, references, and short opinions into durable posts.',
+    summary: 'A publishing workflow for turning notes, references, and short opinions into durable posts.',
     impact: 'Content collections, Markdown generation, RSS-ready structure, and a stronger habit loop for publishing.',
   },
   {
     title: 'Digital garden and archive assistant',
     category: 'LAB-003',
-    summary: 'A site-native assistant concept for finding posts, projects, and ideas through questions instead of navigation alone.',
-    impact: 'Static prototype today, ready for a retrieval-backed LLM endpoint later.',
+    summary: 'A site-native search and assistant direction for finding posts, projects, links, reviews, and recurring ideas through questions.',
+    impact: 'Archive structure, search behavior, content metadata, and a path toward retrieval-backed experiments.',
   },
   {
     title: 'Knowledge and productivity systems',
@@ -57,15 +58,12 @@ const projects = [
   </section>
 
   <section class="page-shell contexts">
-    <p class="section-label">Contexts, anonymized</p>
-    <div>
-      <span>Financial products</span>
-      <span>Media platforms</span>
-      <span>Aerospace systems</span>
-      <span>Insurance workflows</span>
-      <span>Internal tooling</span>
-      <span>Design systems</span>
-    </div>
+    <p class="section-label">Work history</p>
+    <h2>Places I have worked with.</h2>
+    <p>
+      Public logos only. The work itself ranges from product interfaces and internal tools to design systems and delivery work.
+    </p>
+    <CompaniesIveWorkedWith />
   </section>
 
   <section class="page-shell cta">
@@ -153,21 +151,20 @@ const projects = [
     border-top: 1px solid var(--line);
   }
 
-  .contexts > div {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin-top: 1.5rem;
+  .contexts h2 {
+    max-width: 18ch;
+    margin: 0.75rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 400;
+    line-height: 1.08;
   }
 
-  .contexts span {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.85rem 0.9rem;
-    background: rgba(232, 227, 213, 0.035);
+  .contexts > p:not(.section-label) {
+    max-width: 42rem;
+    margin: 1rem 0 1.8rem;
     color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.92rem;
+    line-height: 1.65;
   }
 
   .cta {

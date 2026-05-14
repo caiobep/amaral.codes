@@ -26,22 +26,40 @@ const companies = [
 
 <style>
   .companies {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem 1.6rem;
-    margin: 2rem auto 0;
-    filter: grayscale(1);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.75rem;
+    width: 100%;
   }
 
   .companies :global(a) {
     display: grid;
-    min-width: 8.75rem;
-    min-height: 5rem;
+    min-height: 5.4rem;
     place-items: center;
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 0.8rem;
-    background: rgba(255, 253, 247, 0.66);
+    padding: 0.9rem;
+    background:
+      linear-gradient(180deg, rgba(232, 227, 213, 0.08), rgba(17, 21, 29, 0.72));
+    filter: grayscale(1) contrast(0.92);
+    opacity: 0.78;
+    transition:
+      border-color 180ms ease,
+      filter 180ms ease,
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .companies :global(a:hover) {
+    border-color: rgba(200, 168, 107, 0.44);
+    filter: grayscale(0.15) contrast(1);
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  .companies :global(img) {
+    max-width: 7.8rem;
+    max-height: 3.4rem;
+    object-fit: contain;
   }
 </style>
