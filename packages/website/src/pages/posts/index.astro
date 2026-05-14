@@ -52,6 +52,9 @@ const shelves = [
       <span>Search archive</span>
       <input type="search" placeholder="Search notes, reviews, links, and essays" id="search-post" autocomplete="off" />
     </label>
+    <p class="search-status" aria-live="polite">
+      Showing <span id="visible-post-count">{posts.length}</span> of {posts.length} entries.
+    </p>
   </section>
 
   <section class="posts page-shell" aria-label="All archive entries">
@@ -61,26 +64,59 @@ const shelves = [
         summary={post.data.summary}
         date={post.data.date}
         pathname={post.slug}
+        tags={post.data.tags?.map((tag) => tag.name)}
       />
     ))}
   </section>
+
+  <p class="empty-state page-shell" hidden>No entries match that search.</p>
 </Layout>
 
 <script>
   const initializePosts = () => {
     const postsContainer = document.querySelector('.posts')
     const searchInput = document.querySelector('#search-post')
+    const visiblePostCount = document.querySelector('#visible-post-count')
+    const emptyState = document.querySelector('.empty-state')
+
+    const normalize = (value) =>
+      value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
 
     const filterPosts = () => {
       if (!(searchInput instanceof HTMLInputElement) || !postsContainer) return
-      const query = searchInput.value.toLowerCase()
+      const query = normalize(searchInput.value.trim())
+      let visibleCount = 0
+
       postsContainer.querySelectorAll('.post').forEach((post) => {
-        const content = post instanceof HTMLElement ? post.dataset.title?.toLowerCase() || '' : ''
-        post.classList.toggle('hidden', !content.includes(query))
+        const content = post instanceof HTMLElement ? normalize(post.dataset.search || post.textContent || '') : ''
+        const isVisible = !query || content.includes(query)
+
+        post.classList.toggle('hidden', !isVisible)
+        if (isVisible) visibleCount += 1
       })
+
+      if (visiblePostCount) visiblePostCount.textContent = String(visibleCount)
+      if (emptyState instanceof HTMLElement) emptyState.hidden = visibleCount !== 0
+
+      const url = new URL(window.location.href)
+      if (query) {
+        url.searchParams.set('q', searchInput.value.trim())
+      } else {
+        url.searchParams.delete('q')
+      }
+      window.history.replaceState({}, '', url)
     }
 
     searchInput?.addEventListener('input', filterPosts)
+
+    if (searchInput instanceof HTMLInputElement) {
+      searchInput.value = new URLSearchParams(window.location.search).get('q') || ''
+      filterPosts()
+    }
+
     window.addEventListener('keydown', (event) => {
       const command = event.metaKey || event.ctrlKey
       if (command && event.key.toLowerCase() === 'k' && searchInput instanceof HTMLInputElement) {
@@ -117,6 +153,8 @@ const shelves = [
   }
 
   .search-section {
+    display: grid;
+    gap: 0.85rem;
     padding: 1rem 0 2rem;
   }
 
@@ -179,6 +217,19 @@ const shelves = [
   input:focus {
     border-color: rgba(199, 91, 58, 0.64);
     box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
+  }
+
+  .search-status,
+  .empty-state {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .empty-state {
+    padding: 0 0 5rem;
   }
 
   .posts {

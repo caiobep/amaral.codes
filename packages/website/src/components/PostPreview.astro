@@ -4,9 +4,10 @@ interface Props {
   title: string
   date?: string
   summary?: string
+  tags?: string[]
 }
 
-const { title, summary, pathname, date } = Astro.props
+const { title, summary, pathname, date, tags = [] } = Astro.props
 
 const postUrl = `/posts/${pathname}`
 const readableDate = date
@@ -19,9 +20,16 @@ const readableDate = date
 const excerpt = summary && summary !== 'undefined'
   ? summary
   : 'A note from the archive about software, productivity, creativity, or the systems around them.'
+const searchIndex = [
+  title,
+  excerpt,
+  readableDate,
+  pathname.replaceAll('-', ' ').replaceAll('_', ' '),
+  ...tags,
+].join(' ')
 ---
 
-<a href={postUrl} class="post" data-title={`${title} ${excerpt}`}>
+<a href={postUrl} class="post" data-search={searchIndex}>
   <article>
     <time datetime={date}>{readableDate}</time>
     <h2>{title}</h2>
