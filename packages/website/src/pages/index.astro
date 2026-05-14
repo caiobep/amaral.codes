@@ -16,25 +16,32 @@ const featuredPosts = posts
 
 const artifacts = [
   {
+    title: 'Notes and essays',
+    label: 'TXT-001',
+    detail: 'A public place for opinions, field notes, references, and the thoughts I want to keep outside private apps.',
+    href: '/posts',
+    index: 'thoughts',
+  },
+  {
+    title: 'Reviews and logs',
+    label: 'REV-002',
+    detail: 'The same archive can hold movie notes, app impressions, book fragments, and Letterboxd-style reviews when something is worth writing down.',
+    href: '/posts',
+    index: 'reviews',
+  },
+  {
     title: 'Interface systems',
-    label: 'PRJ-001',
+    label: 'PRJ-003',
     detail: 'Front-end architecture, interaction work, accessibility, and design-system implementation across complex product environments.',
     href: '/projects',
     index: 'work',
   },
   {
     title: 'Publishing archive',
-    label: 'SYS-002',
+    label: 'SYS-004',
     detail: 'A Notion-to-Astro workflow for moving notes, references, and essays into a public place without turning the site into a content machine.',
     href: '/projects',
     index: 'system',
-  },
-  {
-    title: 'Notes under revision',
-    label: 'TXT-003',
-    detail: 'Short writing about capture habits, computing, interfaces, studying, and the attempt to keep a life from drifting into noise.',
-    href: '/posts',
-    index: 'notes',
   },
 ]
 
@@ -48,18 +55,18 @@ const socialLinks = [
 
 <Layout
   title="Caio Amaral"
-  description="A public archive for Caio Amaral: software work, projects, notes, and writing about interfaces, computing, productivity, and personal systems."
+  description="A public archive for Caio Amaral: notes, reviews, software work, projects, and writing about interfaces, computing, productivity, media, and personal systems."
 >
   <section class="hero page-shell">
     <div class="hero-copy">
       <p class="eyebrow">~/index</p>
-      <h1><span>Order</span> out of small systems.</h1>
+      <h1><span>Notes</span> from a small archive.</h1>
       <p>
-        I’m Caio. This is a public room for software work, notes, and tools I keep returning to: interfaces, accessibility, productivity, computing, and the discipline required to make ideas visible.
+        I’m Caio. This is a public room for things I keep returning to: software, interfaces, productivity, movies, books, tools, and the smaller observations that usually disappear inside private apps.
       </p>
       <div class="hero-links">
-        <a href="/projects">Projects</a>
-        <a href="/posts">Posts</a>
+        <a href="/posts">Open archive</a>
+        <a href="/projects">Work</a>
         <a href="#contact">Contact</a>
       </div>
     </div>
@@ -79,8 +86,8 @@ const socialLinks = [
 
   <section class="page-shell artifact-board" aria-labelledby="artifact-title">
     <div class="board-heading">
-      <p class="section-label">Selected artifacts</p>
-      <h2 id="artifact-title">Open the work before the explanation.</h2>
+      <p class="section-label">Selected shelves</p>
+      <h2 id="artifact-title">Not everything here is a portfolio piece.</h2>
     </div>
 
     <div class="artifact-grid">
@@ -113,10 +120,10 @@ const socialLinks = [
   <section class="page-shell writing-section" aria-labelledby="writing-title">
     <div class="writing-heading">
       <div>
-        <p class="section-label">Writing</p>
-        <h2 id="writing-title">Notes from the archive.</h2>
+        <p class="section-label">Archive</p>
+        <h2 id="writing-title">Recent entries from the public notebook.</h2>
       </div>
-      <a href="/posts">All posts</a>
+      <a href="/posts">All entries</a>
     </div>
 
     <div class="writing-list">
@@ -134,7 +141,7 @@ const socialLinks = [
       <p class="section-label">Contact</p>
       <h2 id="contact-title">Leave a note at the desk.</h2>
       <p>
-        I’m usually interested in interface work, accessibility, publishing workflows, personal systems, and people who care about craft without making it loud.
+        Send something if a post, review, project, or idea here connects. It does not need to be work-related.
       </p>
       <div class="social-links">
         {socialLinks.map(([label, href]) => (
@@ -163,7 +170,7 @@ const socialLinks = [
   <section class="page-shell newsletter-section" aria-labelledby="newsletter-title">
     <div>
       <p class="section-label">Newsletter</p>
-      <h2 id="newsletter-title">Occasional notes. No cadence theater.</h2>
+      <h2 id="newsletter-title">Occasional notes, reviews, and links. No cadence theater.</h2>
     </div>
     <form class="newsletter-form panel" id="newsletter-form">
       <label class="field">

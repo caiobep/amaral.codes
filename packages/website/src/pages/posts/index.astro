@@ -5,28 +5,56 @@ import Layout from '../../layouts/Layout.astro'
 
 const posts = (await getCollection('blog-posts'))
   .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+
+const shelves = [
+  {
+    title: 'Essays',
+    detail: 'Longer thoughts about software, systems, learning, and the way tools shape behavior.',
+  },
+  {
+    title: 'Notes',
+    detail: 'Shorter observations, unfinished ideas, references, and things worth keeping in public.',
+  },
+  {
+    title: 'Reviews',
+    detail: 'Movies, books, apps, games, talks, and anything else that deserves more than a private rating.',
+  },
+  {
+    title: 'Links',
+    detail: 'External material with enough context that future me can remember why it mattered.',
+  },
+]
 ---
 
 <Layout
-  title="Posts"
-  description="Short posts, essays, notes, and opinions by Caio Amaral about software, productivity, design, history, creativity, and human-computer interaction."
+  title="Archive"
+  description="A public archive of essays, notes, reviews, links, and observations by Caio Amaral."
 >
   <section class="posts-hero page-shell">
-    <p class="eyebrow">~/posts</p>
-    <h1>Writing, notes, and short observations.</h1>
+    <p class="eyebrow">~/archive</p>
+    <h1>Essays, notes, reviews, and short observations.</h1>
     <p>
-      A living archive for software, productivity, design, learning, media, and the ideas I want to keep in circulation.
+      This is where a software note, a productivity reflection, a movie review, a book fragment, or a link with context can all live without needing to become a polished article.
     </p>
+  </section>
+
+  <section class="shelves page-shell" aria-label="Archive shelves">
+    {shelves.map((shelf) => (
+      <article>
+        <h2>{shelf.title}</h2>
+        <p>{shelf.detail}</p>
+      </article>
+    ))}
   </section>
 
   <section class="search-section page-shell" aria-label="Search posts">
     <label>
-      <span>Search posts</span>
-      <input type="search" placeholder="Search by title or summary" id="search-post" autocomplete="off" />
+      <span>Search archive</span>
+      <input type="search" placeholder="Search notes, reviews, links, and essays" id="search-post" autocomplete="off" />
     </label>
   </section>
 
-  <section class="posts page-shell" aria-label="All posts">
+  <section class="posts page-shell" aria-label="All archive entries">
     {posts.map((post) => (
       <PostPreview
         title={post.data.title}
@@ -92,6 +120,38 @@ const posts = (await getCollection('blog-posts'))
     padding: 1rem 0 2rem;
   }
 
+  .shelves {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 0 1.5rem;
+  }
+
+  .shelves article {
+    min-height: 9.5rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.95rem;
+    background: linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
+  }
+
+  .shelves h2 {
+    margin: 0 0 0.5rem;
+    color: var(--accent-strong);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .shelves p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
   label {
     display: grid;
     gap: 0.5rem;
@@ -133,13 +193,15 @@ const posts = (await getCollection('blog-posts'))
   }
 
   @media (max-width: 980px) {
-    .posts {
+    .posts,
+    .shelves {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 640px) {
-    .posts {
+    .posts,
+    .shelves {
       grid-template-columns: 1fr;
     }
 
