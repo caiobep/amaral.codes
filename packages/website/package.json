@@ -5,7 +5,6 @@
   "author": "Caio Amaral Correa <caiobep@me.com>",
   "private": true,
   "scripts": {
-    "dev:cms": "node scripts/commands/dev-cms-preview.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build --force",
@@ -46,7 +45,6 @@
   },
   "devDependencies": {
     "@barney-media/crap-typescript": "^0.4.2",
-    "@payloadcms/live-preview": "3.88.0",
     "@playwright/test": "^1.62.0",
     "@vitest/coverage-v8": "^4.1.10",
     "chrome-launcher": "^1.2.1",

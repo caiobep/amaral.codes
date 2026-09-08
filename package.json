@@ -10,8 +10,6 @@
     "packages/*"
   ],
   "scripts": {
-    "cms:dev": "node packages/cms/scripts/dev.mjs",
-    "quality:cms": "npm run quality -w @amaral.codes/cms",
     "build": "npm run quality && npm run build:site",
     "build:production": "npm run content:sync && npm run verify:publication && npm run build:production-content -w @amaral.codes/website",
     "build:site": "npm run build -w @amaral.codes/website",
@@ -28,8 +26,8 @@
     "quality:contract": "npm run quality -w @amaral.codes/content-contract",
     "quality:content": "npm run quality -w @amaral.codes/content-sync",
     "quality:website": "npm run quality -w @amaral.codes/website",
-    "quality": "npm run quality:hygiene && npm run quality:contract && npm run quality:content && npm run quality:website && npm run quality:cms",
-    "test:browser": "npm run test:browser -w @amaral.codes/website && npm run test:browser -w @amaral.codes/cms",
+    "quality": "npm run quality:hygiene && npm run quality:contract && npm run quality:content && npm run quality:website",
+    "test:browser": "npm run test:browser -w @amaral.codes/website",
     "test": "npm run quality",
     "perf": "npm run perf -w @amaral.codes/website",
     "perf:ci": "npm run perf:ci -w @amaral.codes/website",

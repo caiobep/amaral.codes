@@ -13,11 +13,10 @@ import { resolvePublicAssetUrl } from '../lib/assets'
 
 interface Props {
   podcast: NonNullable<EntryData['podcast']>
-  preview?: boolean
 }
 
-const { podcast, preview = false } = Astro.props
-const audioUrl = podcast.audioUrl && !preview ? resolvePublicAssetUrl(podcast.audioUrl) : podcast.audioUrl
+const { podcast } = Astro.props
+const audioUrl = podcast.audioUrl ? resolvePublicAssetUrl(podcast.audioUrl) : undefined
 const episodeLabel = podcast.episode
   ? `${podcast.show} · ${podcast.episode}`
   : podcast.show

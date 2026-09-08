@@ -14,10 +14,9 @@ import { createPodcastStructuredData } from '../lib/structured-data'
 interface Props {
   entry: CollectionEntry<'entries'>
   nextReads?: readonly CollectionEntry<'entries'>[]
-  preview?: boolean
 }
 
-const { entry, nextReads = [], preview = false } = Astro.props
+const { entry, nextReads = [] } = Astro.props
 const { title, date, language: entryLanguage, summary, category, podcast, talk } = entry.data
 const language = entryLanguage ?? talk?.language ?? 'en'
 const hasSummary = Boolean(summary)
@@ -55,10 +54,8 @@ const podcastStructuredData = createPodcastStructuredData(entry.data, canonicalU
   activeNav="posts"
   swipePreviousHref="/posts"
   structuredData={podcastStructuredData}
-  markdownAlternate={preview ? undefined : `/posts/${entry.id}.md`}
-  robots={preview ? 'noindex,nofollow' : undefined}
+  markdownAlternate={`/posts/${entry.id}.md`}
 >
-  {preview ? <slot name="preview" /> : null}
   <article class="article page-shell">
     <header>
       <a href={backLink.href} class="back-link">{backLink.label}</a>
@@ -67,14 +64,12 @@ const podcastStructuredData = createPodcastStructuredData(entry.data, canonicalU
           <span>{category}</span>
           <time datetime={date}>{formatPostDate(date, { month: 'long', day: 'numeric', year: 'numeric' })}</time>
         </div>
-        {!preview ? (
-          <ShareButton
-            title={title}
-            text={hasSummary ? summary : undefined}
-            url={canonicalUrl}
-            variant="text"
-          />
-        ) : null}
+        <ShareButton
+          title={title}
+          text={hasSummary ? summary : undefined}
+          url={canonicalUrl}
+          variant="text"
+        />
       </div>
       <h1>{title}</h1>
       {hasSummary ? <p class="dek">{summary}</p> : null}
@@ -87,14 +82,14 @@ const podcastStructuredData = createPodcastStructuredData(entry.data, canonicalU
         : null}
     </header>
 
-    {podcast ? <PodcastPlayer podcast={podcast} preview={preview} /> : null}
+    {podcast ? <PodcastPlayer podcast={podcast} /> : null}
     {talk ? <TalkDetails talk={talk} /> : null}
 
     <div class="content" data-reveal>
       <slot />
     </div>
 
-    {!preview ? <NextReads entries={nextReads} /> : null}
+    <NextReads entries={nextReads} />
   </article>
 </Layout>
 

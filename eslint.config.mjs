@@ -28,8 +28,6 @@ export default defineConfig(
       '**/.astro/**',
       '**/.next/**',
       '**/.local/**',
-      '**/payload-types.ts',
-      '**/admin/importMap.js',
       '**/coverage/**',
       '**/dist/**',
       '**/node_modules/**',
@@ -49,7 +47,7 @@ export default defineConfig(
     rules: sharedRules,
   },
   {
-    files: ['packages/{cms,content-contract,content-sync}/**/*.{ts,tsx}'],
+    files: ['packages/{content-contract,content-sync}/**/*.{ts,tsx}'],
     extends: [
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,

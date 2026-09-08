@@ -20,9 +20,6 @@ tmp/
 # Build and framework output
 **/.astro/
 **/.next/
-/packages/cms/next-env.d.ts
-/packages/cms/src/payload-types.ts
-/packages/cms/src/app/(payload)/admin/importMap.js
 **/dist/
 **/.output/
 **/coverage/

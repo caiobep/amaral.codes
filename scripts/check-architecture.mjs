@@ -15,7 +15,6 @@ const PIPELINE_ROOTS = {
   domainRoot: path.join(PIPELINE_ROOT, 'domain'),
 }
 const WORKSPACE_DEPENDENCY_POLICY = {
-  '@amaral.codes/cms': ['@amaral.codes/content-contract'],
   '@amaral.codes/content-contract': [],
   '@amaral.codes/content-sync': ['@amaral.codes/content-contract'],
   '@amaral.codes/website': ['@amaral.codes/content-contract'],

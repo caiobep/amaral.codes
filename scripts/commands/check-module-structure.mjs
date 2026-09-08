@@ -11,7 +11,6 @@ const SOURCE_ROOTS = [
   'scripts',
   'packages/content-sync/src',
   'packages/content-contract/src',
-  'packages/cms/src',
   'packages/website/scripts',
   'packages/website/src',
 ]
@@ -50,5 +49,4 @@ function isAuthoredModule(filePath) {
   return /\.(?:mjs|ts)$/.test(filePath)
     && !/\.(?:test|spec)\.(?:mjs|ts)$/.test(filePath)
     && !filePath.includes(`${path.sep}.astro${path.sep}`)
-    && !filePath.endsWith(`${path.sep}payload-types.ts`)
 }
