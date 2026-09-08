@@ -1,0 +1,33 @@
+{
+  "name": "@amaral.codes/content-contract",
+  "version": "0.0.0",
+  "description": "Technology-free public content contract for amaral.codes",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/metadata/index.ts",
+    "./content-id": "./src/content-id/index.ts",
+    "./public-url": "./src/public-url/index.ts"
+  },
+  "scripts": {
+    "lint": "npm run lint:eslint && npm run lint:typecheck",
+    "lint:eslint": "eslint \"src/**/*.ts\"",
+    "lint:typecheck": "tsc --noEmit",
+    "quality": "npm run lint && npm run test:coverage && npm run quality:crap",
+    "quality:crap": "npm run quality:crap:analyze && npm run quality:crap:assert",
+    "quality:crap:analyze": "crap-typescript --package-manager npm --test-runner vitest --threshold 6 --format json --output coverage/crap.json src",
+    "quality:crap:assert": "node ../../scripts/commands/assert-crap-report.mjs coverage/crap.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@barney-media/crap-typescript": "^0.4.2",
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.10"
+  },
+  "license": "MIT"
+}

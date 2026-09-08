@@ -1,179 +1,425 @@
 ---
+import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
 import Layout from '../layouts/Layout.astro'
+import { createPageStructuredData } from '../lib/structured-data'
+const pageDescription = 'About Caio Amaral, his work in software, and the interests behind amaral.codes.'
+const structuredData = createPageStructuredData({
+  description: pageDescription,
+  pathname: Astro.url.pathname,
+  title: 'About',
+  type: 'ProfilePage',
+}, Astro.site)
 
-const yearsAsSoftwareEngineer = new Date().getFullYear() - 2016
-
-const principles = [
-  'Interfaces should make the next step clear.',
-  'Good software respects existing workflows.',
-  'Accessibility is product quality.',
-  'Useful ideas need a place to be revisited.',
-]
 ---
 
 <Layout
   title="About"
-  description="About Caio Amaral: a software engineer from São Paulo focused on human-computer interaction, accessible software, productivity, and thoughtful digital tools."
+  description={pageDescription}
+  structuredData={structuredData}
 >
-  <section class="about-hero page-shell">
-    <div>
-      <p class="eyebrow">~/about</p>
-      <h1>Software, interfaces, and the habit of paying attention.</h1>
-    </div>
-    <img src="/photos/profile/bw/4x5.png" alt="Caio Amaral in black and white" width="640" height="800" />
-  </section>
-
-  <section class="story page-shell">
-    <p>
-      I grew up in a small city in São Paulo with a lot of interests that did not always have an obvious place to land: software, music, history, productivity, interfaces, and the way tools shape how people think.
-    </p>
-    <p>
-      Over time, that made me more interested in how people communicate what they care about. I started noticing how often good conversations depend on making enough of yourself visible for others to connect with it.
-    </p>
-    <p>
-      That shaped the way I think about software. Good interfaces can make unfamiliar things approachable. They can help people learn, collaborate, and express intent with less friction.
-    </p>
-  </section>
-
-  <section class="page-shell split">
-    <div>
-      <p class="section-label">Work</p>
-      <h2>{yearsAsSoftwareEngineer}+ years building practical software for real workflows.</h2>
-    </div>
-    <div>
+  <section class="about-hero page-shell" data-reveal>
+    <div class="hero-copy">
+      <p class="eyebrow">About</p>
+      <h1>Most of my interests start with software and end up somewhere else.</h1>
       <p>
-        My work sits between engineering, product thinking, design systems, accessibility, and human-computer interaction. I like building tools that feel clear after they exist: software that supports the work instead of competing with it.
+        I usually start with a tool or a piece of software, then follow the question into reliability, accessibility, habits, or whatever else it touches.
       </p>
-      <a class="button" href="/projects">Explore projects</a>
+      <a class="cv-link" href="/resume/CV.pdf" target="_blank" rel="noopener noreferrer">
+        View my CV <span aria-hidden="true">↗</span>
+      </a>
     </div>
+
+    <figure data-portrait-motion>
+      <img
+        src="/photos/profile/about-portrait-1080.webp"
+        srcset="/photos/profile/about-portrait-480.webp 480w, /photos/profile/about-portrait-720.webp 720w, /photos/profile/about-portrait-1080.webp 1080w"
+        sizes="(max-width: 680px) calc(100vw - 32px), (max-width: 820px) 37vw, (max-width: 1000px) 512px, min(336px, 27vw)"
+        alt="Caio Amaral sitting at a table"
+        width="1080"
+        height="1350"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </figure>
   </section>
 
-  <section class="page-shell principles">
-    <p class="section-label">Principles</p>
-    <div>
-      {principles.map((principle) => (
-        <article>
-          <p>{principle}</p>
-        </article>
-      ))}
+  <section class="story page-shell" aria-labelledby="story-title" data-reveal>
+    <div class="story-heading">
+      <p class="section-label">Why this site exists</p>
+      <h2 id="story-title">A place for the interests I used to keep quiet.</h2>
     </div>
-  </section>
-
-  <section class="page-shell split">
-    <div>
-      <p class="section-label">Publishing</p>
-      <h2>A public place for work and notes.</h2>
-    </div>
-    <div>
+    <div class="story-copy">
       <p>
-        I want this site to hold short opinions, longer essays, project notes, links, old ideas, and new experiments. Some posts will be polished. Others will be closer to field notes. The point is to make the work easier to find and return to.
+        I grew up in a small city and spent a lot of time online following computers, music, design, and whatever else had caught my attention. For a long time I treated those interests as subjects to tone down in conversation.
       </p>
-      <a class="button-secondary" href="/posts">Read the blog</a>
+      <p>
+        I often responded by shortening the explanation or not bringing it up at all. That made conversations easier, but also less honest.
+      </p>
+      <p>
+        This site is where I let the explanation run a little longer. Writing helps me understand what I think, keep useful ideas from disappearing, and find people who care about the same things.
+      </p>
     </div>
+  </section>
+
+  <section class="work-context page-shell" aria-labelledby="work-context-title" data-reveal>
+    <div class="work-heading">
+      <div>
+        <p class="section-label">Work context</p>
+        <h2 id="work-context-title">Some of the places the work took me.</h2>
+      </div>
+      <p>
+        This is a mix of employers, products, and client teams. I keep them together because each belongs to a chapter of the work.
+      </p>
+    </div>
+    <CompaniesIveWorkedWith annotated />
+  </section>
+
+  <section class="interests-band" aria-labelledby="interests-title" data-reveal>
+    <div class="page-shell interests">
+      <div>
+        <p class="section-label">What ends up here</p>
+        <h2 id="interests-title">Whatever I keep thinking about.</h2>
+      </div>
+      <div class="interest-copy" data-stagger>
+        <p>
+          I notice interfaces that stay out of the way, and reliability problems that survive the obvious fix.
+        </p>
+        <p>
+          I also try more personal tools and organizational systems than I keep. Writing down why I left one behind is usually more useful than documenting the setup.
+        </p>
+        <p>
+          Not everything needs to become a software lesson. Movies, music, books, and photos live here because I wanted to remember them.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="next page-shell" data-reveal>
+    <div>
+      <p class="section-label">Continue reading</p>
+      <h2>The notes are the better introduction.</h2>
+    </div>
+    <a class="button" href="/posts">Browse all notes</a>
   </section>
 </Layout>
 
 <style>
   .about-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.65fr);
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: center;
-    padding: 4rem 0;
+    grid-template-columns: minmax(0, 1.36fr) minmax(18rem, 0.64fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+    padding: clamp(4.25rem, 7vw, 6.25rem) 0 clamp(3.75rem, 6vw, 5.5rem);
   }
 
-  h1 {
-    max-width: 13ch;
-    margin: 0.8rem 0 0;
+  .about-hero .eyebrow {
+    margin-bottom: 0.8rem;
+  }
+
+  .about-hero h1 {
+    max-width: 12ch;
+    margin: 0 0 1.35rem;
     font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.4rem);
+    font-size: clamp(3.5rem, 5.7vw, 5.6rem);
     font-weight: 400;
-    line-height: 1;
+    line-height: 0.96;
     letter-spacing: 0;
   }
 
-  h2 {
-    margin: 0.8rem 0 0;
-    font-family: var(--display);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.05;
+  .hero-copy > p:not(.eyebrow) {
+    max-width: 39rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.65;
   }
 
-  .about-hero img {
-    width: 100%;
-    border: 1px solid var(--line);
+  .cv-link {
+    display: inline-flex;
+    gap: 0.45rem;
+    align-items: center;
+    margin-top: 1.4rem;
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.28rem;
+  }
+
+  .cv-link span {
+    transition: transform 180ms var(--ease);
+  }
+
+  figure {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
     border-radius: 8px;
     aspect-ratio: 4 / 5;
+    background-color: var(--accent-soft);
+    background-image: url('/textures/material-noise.webp');
+    background-size: 240px 240px;
+    background-blend-mode: soft-light;
+  }
+
+  figure::after {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--border-subtle);
+    border-radius: inherit;
+    content: "";
+    pointer-events: none;
+  }
+
+  figure img {
+    position: absolute;
+    inset: -7px;
+    width: calc(100% + 14px);
+    max-width: none;
+    height: calc(100% + 14px);
+    transform:
+      translateX(var(--portrait-x, 0px))
+      translateY(var(--portrait-y, 0px));
     object-fit: cover;
-    filter: grayscale(1) contrast(1.08);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+    object-position: center 35%;
+    filter: grayscale(1) contrast(1.03);
+    mix-blend-mode: var(--portrait-blend);
+    transition: transform 480ms var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cv-link:hover span {
+      transform: translate(2px, -2px);
+    }
+
+    figure:hover img {
+      transform:
+        translateX(var(--portrait-x, 0px))
+        translateY(var(--portrait-y, 0px))
+        scale(1.015);
+    }
   }
 
   .story {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.25rem;
-    padding: 2rem 0 4.5rem;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+    border-top: 1px solid var(--line);
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
   }
 
-  .story p,
-  .split p {
+  .story-heading {
+    grid-column: 1 / span 6;
+  }
+
+  .story h2,
+  .work-context h2,
+  .interests h2,
+  .next h2 {
+    max-width: 14ch;
+    margin: 0.6rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .story-copy {
+    grid-column: 5 / span 7;
+    max-width: 43rem;
+    margin-top: clamp(3.5rem, 7vw, 6.5rem);
+  }
+
+  .story-copy p {
+    margin: 0 0 1.25rem;
     color: var(--muted);
-    font-size: 1.02rem;
-    line-height: 1.7;
+    font-size: 1.08rem;
+    line-height: 1.75;
   }
 
-  .split {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(2rem, 5vw, 4rem);
-    padding: 4.5rem 0;
+  .story-copy p:first-child {
+    color: var(--ink);
+    font-size: 1.2rem;
+  }
+
+  .work-context {
     border-top: 1px solid var(--line);
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
   }
 
-  .split .button,
-  .split .button-secondary {
-    margin-top: 1rem;
-  }
-
-  .principles {
-    padding: 4.5rem 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .principles > div {
+  .work-heading {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
+    grid-template-columns: minmax(0, 1.45fr) minmax(15rem, 0.55fr);
+    gap: clamp(2rem, 7vw, 7rem);
+    align-items: end;
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
   }
 
-  .principles article {
-    min-height: 10rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1rem;
-    background: linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
+  .work-heading > p {
+    margin: 0 0 0.35rem;
+    border-left: 1px solid var(--accent);
+    padding-left: 1rem;
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.65;
   }
 
-  .principles p {
+  .interests-band {
+    background-color: var(--accent-soft);
+    background-image: url('/textures/material-noise.webp');
+    background-size: 260px 260px;
+    background-blend-mode: soft-light;
+  }
+
+  .interests {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+    padding: clamp(4.5rem, 8vw, 7rem) 0;
+  }
+
+  .interests > div:first-child {
+    grid-column: 1 / span 5;
+  }
+
+  .interest-copy {
+    display: grid;
+    grid-column: 5 / span 8;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    max-width: 43rem;
+  }
+
+  .interest-copy p {
+    grid-column: 1 / span 6;
     margin: 0;
-    font-size: 1.04rem;
-    font-weight: 650;
-    line-height: 1.45;
+    border-top: 1px solid var(--line);
+    padding: 1.15rem 0 2rem;
+    color: var(--text-secondary);
+    font-size: 1.08rem;
+    line-height: 1.72;
   }
 
-  @media (max-width: 900px) {
-    .about-hero,
+  .interest-copy p:first-child {
+    grid-column: 1 / span 7;
+    color: var(--ink);
+    font-size: 1.22rem;
+  }
+
+  .interest-copy p:nth-child(2) {
+    grid-column: 2 / span 7;
+  }
+
+  .interest-copy p:nth-child(3) {
+    grid-column: 1 / span 6;
+    padding-bottom: 0;
+  }
+
+  .next {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    border-top: 1px solid var(--line);
+    padding: 4rem 0 1rem;
+  }
+
+  @media (max-width: 1000px) {
+    .about-hero {
+      grid-template-columns: minmax(0, 1.2fr) minmax(17rem, 0.8fr);
+      gap: clamp(1.75rem, 4vw, 3rem);
+    }
+
+    figure {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 681px) and (max-width: 820px) {
+    .about-hero {
+      grid-template-columns: minmax(0, 1.18fr) minmax(16rem, 0.82fr);
+      gap: 1.75rem;
+      padding-top: 3.5rem;
+    }
+
+    .hero-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    figure {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: center;
+      width: 100%;
+    }
+
+    .about-hero h1 {
+      font-size: clamp(3rem, 6.7vw, 3.7rem);
+    }
+
+  }
+
+  @media (max-width: 680px) {
+    .about-hero {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding-top: 3.25rem;
+    }
+
+    .about-hero > .eyebrow,
+    .hero-copy,
+    figure {
+      grid-column: 1;
+    }
+
+    .about-hero > .eyebrow {
+      padding-top: 0;
+    }
+
+    .about-hero h1 {
+      font-size: clamp(3rem, 13.5vw, 3.5rem);
+    }
+
     .story,
-    .split,
-    .principles > div {
+    .interests {
       grid-template-columns: 1fr;
     }
 
-    h1 {
-      font-size: clamp(2.7rem, 12vw, 4.4rem);
+    .story-heading,
+    .story-copy,
+    .interests > div:first-child,
+    .interest-copy,
+    .interest-copy p,
+    .interest-copy p:first-child,
+    .interest-copy p:nth-child(2),
+    .interest-copy p:nth-child(3) {
+      grid-column: 1;
+    }
+
+    .story-copy {
+      margin-top: 2.5rem;
+    }
+
+    .work-heading {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    .work-heading > p {
+      max-width: 34rem;
+    }
+
+    .interest-copy {
+      display: block;
+      margin-top: 2.5rem;
+    }
+
+    .next {
+      align-items: flex-start;
+      flex-direction: column;
     }
   }
+
 </style>

@@ -1,0 +1,466 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import PodcastPlayer from './PodcastPlayer.astro'
+import NextReads from './NextReads.astro'
+import ShareButton from './ShareButton.astro'
+import TalkDetails from './TalkDetails.astro'
+import Layout from '../layouts/Layout.astro'
+import { createArticleDescription } from '../lib/article-description'
+import { getEntryTopics } from '../lib/content'
+import { formatPostDate } from '../lib/date'
+import { createCanonicalUrl } from '../lib/site'
+import { createPodcastStructuredData } from '../lib/structured-data'
+
+interface Props {
+  entry: CollectionEntry<'entries'>
+  nextReads?: readonly CollectionEntry<'entries'>[]
+  preview?: boolean
+}
+
+const { entry, nextReads = [], preview = false } = Astro.props
+const { title, date, language: entryLanguage, summary, category, podcast, talk } = entry.data
+const language = entryLanguage ?? talk?.language ?? 'en'
+const hasSummary = Boolean(summary)
+const description = createArticleDescription({
+  contentHtml: entry.rendered?.html ?? '',
+  summary,
+  title,
+})
+const visibleTopics = getEntryTopics(entry)
+const categoryBackLinks = {
+  podcast: { href: '/posts?category=podcast', label: 'All podcasts' },
+  review: { href: '/posts?category=review', label: 'All reviews' },
+  talk: { href: '/posts?category=talk', label: 'All talks' },
+} as const
+const backLink = categoryBackLinks[category as keyof typeof categoryBackLinks] ?? {
+  href: '/posts',
+  label: 'All notes',
+}
+const canonicalUrl = createCanonicalUrl(Astro.url.pathname, Astro.site)
+const podcastStructuredData = createPodcastStructuredData(entry.data, canonicalUrl)
+---
+
+<Layout
+  title={title}
+  description={description}
+  image="/social/article-default.jpg"
+  imageAlt="Editorial card for Caio Amaral's notes"
+  imageHeight={630}
+  imageType="image/jpeg"
+  imageWidth={1200}
+  ogType="article"
+  publishedTime={date}
+  language={language}
+  twitterCard="summary_large_image"
+  activeNav="posts"
+  swipePreviousHref="/posts"
+  structuredData={podcastStructuredData}
+  markdownAlternate={preview ? undefined : `/posts/${entry.id}.md`}
+  robots={preview ? 'noindex,nofollow' : undefined}
+>
+  {preview ? <slot name="preview" /> : null}
+  <article class="article page-shell">
+    <header>
+      <a href={backLink.href} class="back-link">{backLink.label}</a>
+      <div class="article-meta-row">
+        <div class="article-meta">
+          <span>{category}</span>
+          <time datetime={date}>{formatPostDate(date, { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+        </div>
+        {!preview ? (
+          <ShareButton
+            title={title}
+            text={hasSummary ? summary : undefined}
+            url={canonicalUrl}
+            variant="text"
+          />
+        ) : null}
+      </div>
+      <h1>{title}</h1>
+      {hasSummary ? <p class="dek">{summary}</p> : null}
+      {visibleTopics.length
+        ? (
+        <ul class="tag-list" aria-label="Topics">
+          {visibleTopics.map((topic) => <li>{topic}</li>)}
+        </ul>
+          )
+        : null}
+    </header>
+
+    {podcast ? <PodcastPlayer podcast={podcast} preview={preview} /> : null}
+    {talk ? <TalkDetails talk={talk} /> : null}
+
+    <div class="content" data-reveal>
+      <slot />
+    </div>
+
+    {!preview ? <NextReads entries={nextReads} /> : null}
+  </article>
+</Layout>
+
+<script>
+  import '../scripts/article'
+</script>
+
+<style>
+  .article {
+    --article-gap: clamp(2rem, 5vw, 4rem);
+    --article-measure: 39rem;
+    --article-rail: clamp(8.5rem, 14vw, 10rem);
+
+    padding: clamp(3.25rem, 6vw, 5.5rem) 0 3.5rem;
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: var(--article-rail) minmax(0, 1fr);
+    gap: 0.8rem var(--article-gap);
+    align-items: start;
+    padding-bottom: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  .back-link {
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    justify-self: start;
+    border-bottom: 1px solid currentColor;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .back-link::before {
+    margin-right: 0.4rem;
+    content: "←";
+  }
+
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .article-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .article-meta span {
+    color: var(--accent-strong);
+  }
+
+  .article-meta span::after {
+    margin-left: 0.7rem;
+    color: var(--line-strong);
+    content: "/";
+  }
+
+  h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(3.25rem, 5.2vw, 5.2rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+
+  .dek {
+    max-width: var(--article-measure);
+    margin: 0.55rem 0 0;
+    color: var(--muted);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.9rem;
+    margin: 0.45rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  .tag-list li::before {
+    color: var(--accent);
+    content: "#";
+  }
+
+  .content {
+    width: min(
+      calc(100% - var(--article-rail) - var(--article-gap)),
+      var(--article-measure)
+    );
+    margin: clamp(1.5rem, 2.5vw, 2.25rem) 0 0
+      calc(var(--article-rail) + var(--article-gap));
+    color: var(--ink);
+    font-size: 1.125rem;
+    line-height: 1.72;
+  }
+
+  .article :global(.podcast-player) + .content {
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .content :global(p),
+  .content :global(ul),
+  .content :global(ol),
+  .content :global(blockquote),
+  .content :global(table) {
+    margin: 0 0 1.4em;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    padding-left: 1.35rem;
+  }
+
+  .content :global(li) {
+    margin: 0.45rem 0;
+    padding-left: 0.25rem;
+  }
+
+  .content :global(h1),
+  .content :global(h2),
+  .content :global(h3),
+  .content :global(h4) {
+    color: var(--ink);
+    line-height: 1.15;
+  }
+
+  .content :global(h2) {
+    margin: 2.6rem 0 0.8rem;
+    font-family: var(--display);
+    font-size: 2.25rem;
+    font-weight: 400;
+  }
+
+  .content :global(h3) {
+    margin: 2.1rem 0 0.65rem;
+    font-size: 1.35rem;
+  }
+
+  .content :global(h4) {
+    margin: 1.9rem 0 0.6rem;
+    font-size: 1.05rem;
+  }
+
+  .content :global(a) {
+    color: var(--accent-strong);
+    font-weight: 650;
+    text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .content :global(blockquote) {
+    border-left: 3px solid var(--accent);
+    padding: 0.2rem 0 0.2rem 1.35rem;
+    color: var(--text-secondary);
+    font-family: var(--display);
+    font-size: 1.45rem;
+    font-style: italic;
+    line-height: 1.45;
+  }
+
+  .content :global(blockquote p) {
+    margin: 0;
+  }
+
+  .content :global(hr) {
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .content :global(.external-card) {
+    display: grid;
+    gap: 0.25rem;
+    margin: 1.5rem 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    background: var(--paper-strong);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .content :global(.external-card:hover) {
+      border-color: var(--line-strong);
+      background: var(--accent-faint);
+    }
+  }
+
+  .content :global(.external-card span) {
+    color: var(--accent-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .content :global(.external-card strong) {
+    color: var(--ink);
+    font-size: 0.98rem;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+
+  .content :global(img) {
+    width: auto;
+    max-width: 100%;
+    max-height: min(72vh, 640px);
+    height: auto;
+    margin: 2rem auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    object-fit: contain;
+    background: var(--paper-strong);
+    box-shadow: 0 14px 40px var(--image-shadow);
+  }
+
+  .content :global(figure) {
+    margin: 2rem 0;
+  }
+
+  .content :global(figcaption) {
+    margin-top: -1.25rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .content :global(iframe) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .content :global(table) {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+
+  .content :global(th),
+  .content :global(td) {
+    border-bottom: 1px solid var(--line);
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+  }
+
+  .content :global(th) {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .content :global(:not(pre) > code) {
+    border-radius: 4px;
+    padding: 0.12rem 0.32rem;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-family: var(--mono);
+    font-size: 0.88em;
+    font-weight: 600;
+  }
+
+  .content :global(pre) {
+    overflow-x: auto;
+    margin: 1.8rem 0;
+    border: 1px solid #2b302d;
+    border-radius: 7px;
+    padding: 1.25rem 1.35rem;
+    background: #151719 !important;
+    color: #f2f5ef;
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    line-height: 1.7;
+    tab-size: 2;
+    box-shadow: 0 16px 45px rgba(23, 25, 24, 0.12);
+    scrollbar-color: #525a55 #202421;
+  }
+
+  .content :global(pre code) {
+    display: block;
+    min-width: max-content;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  .content :global(pre .line) {
+    min-height: 1.7em;
+  }
+
+  @media (max-width: 680px) {
+    .article {
+      padding-top: 2.75rem;
+    }
+
+    header {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .back-link {
+      grid-column: 1;
+      grid-row: auto;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-meta-row {
+      grid-column: 1;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 13vw, 3.5rem);
+    }
+
+    .content {
+      width: 100%;
+      margin-left: 0;
+      font-size: 1.0625rem;
+      line-height: 1.72;
+    }
+
+    .content :global(h2) {
+      font-size: 1.85rem;
+    }
+
+    .content :global(img) {
+      max-height: 56vh;
+      margin: 1.5rem auto;
+    }
+
+    .content :global(pre) {
+      margin-right: -0.25rem;
+      margin-left: -0.25rem;
+      padding: 1rem;
+      font-size: 0.8rem;
+    }
+  }
+</style>

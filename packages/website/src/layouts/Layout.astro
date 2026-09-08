@@ -1,569 +1,251 @@
 ---
-import { ViewTransitions } from 'astro:transitions'
+import '../styles/global/fonts.css'
+import '../styles/global/theme.css'
+import '../styles/global/base.css'
+import '../styles/global/motion.css'
+import '../styles/global/header-search.css'
 import Footer from '../components/Footer.astro'
+import HeaderSearch from '../components/HeaderSearch.astro'
+import { createArticleStructuredData } from '../lib/structured-data'
+import { createCanonicalUrl, requireSite } from '../lib/site'
 
 export interface Props {
   title?: string
   description?: string
   image?: string
+  imageAlt?: string
+  imageHeight?: number
+  imageType?: string
+  imageWidth?: number
+  language?: 'en' | 'pt-BR'
+  ogType?: 'article' | 'website'
+  publishedTime?: string
+  twitterCard?: 'summary' | 'summary_large_image'
+  activeNav?: 'home' | 'posts' | 'projects' | 'about' | 'contact'
+  swipePreviousHref?: string
+  robots?: string
+  footerFlush?: boolean
+  hideFooter?: boolean
+  structuredData?: Record<string, unknown>
+  markdownAlternate?: string
 }
 
 const {
   title = 'Caio Amaral',
-  description = 'Caio Amaral keeps a public archive of software work, notes, small tools, and writing about interfaces, computing, productivity, and personal systems.',
-  image = '/photos/profile/4x5.png',
+  description = 'Caio Amaral writes about software, interfaces, productivity, media, and useful digital tools.',
+  image = '/photos/profile/home-portrait-900.webp',
+  imageAlt = 'Portrait of Caio Amaral',
+  imageHeight = 1125,
+  imageType = 'image/webp',
+  imageWidth = 900,
+  language = 'en',
+  ogType = 'website',
+  publishedTime,
+  twitterCard = 'summary',
+  activeNav: activeNavOverride,
+  swipePreviousHref,
+  robots = 'index,follow',
+  footerFlush = false,
+  hideFooter = false,
+  structuredData,
+  markdownAlternate,
   ...rest
 } = Astro.props
 
-const siteUrl = 'https://amaral.codes'
-const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
+const site = requireSite(Astro.site)
+const authorUrl = new URL('/about/', site).toString()
+const canonicalUrl = createCanonicalUrl(Astro.url.pathname, site)
 const pageTitle = title === 'Caio Amaral' ? title : `${title} | Caio Amaral`
-const socialImage = new URL(image, siteUrl).toString()
+const socialImage = new URL(image, site).toString()
+const openGraphLocale = language === 'pt-BR' ? 'pt_BR' : 'en_CA'
+const currentPath = Astro.url.pathname
+const defaultArticleData = ogType === 'article' && publishedTime
+  ? createArticleStructuredData({
+      datePublished: publishedTime,
+      description,
+      image: socialImage,
+      language,
+      pathname: Astro.url.pathname,
+      title,
+    }, site)
+  : undefined
+const pageStructuredData = structuredData ?? defaultArticleData
+const serializedStructuredData = pageStructuredData
+  ? JSON.stringify(pageStructuredData).replaceAll('<', '\\u003c')
+  : undefined
 
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/posts', label: 'Archive' },
-  { href: '#contact', label: 'Contact' },
-]
+  { id: 'home', href: '/', label: 'Home' },
+  { id: 'projects', href: '/projects', label: 'Projects' },
+  { id: 'posts', href: '/posts', label: 'Notes' },
+  { id: 'about', href: '/about', label: 'About' },
+  { id: 'contact', href: '/contact', label: 'Contact' },
+] as const
+
+const inferredActiveNav = navItems.find((item) => (
+  item.href === '/'
+    ? currentPath === '/'
+    : currentPath === item.href || currentPath.startsWith(`${item.href}/`)
+))?.id
+
+const activeNav = activeNavOverride ?? inferredActiveNav
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={language}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0B0E14" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ffffff" data-theme-color />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        let storedTheme = null
+        let storedPalette = null
+
+        try {
+          storedTheme = localStorage.getItem('amaral-theme')
+          localStorage.removeItem('amaral-palette')
+          storedPalette = sessionStorage.getItem('amaral-palette')
+        } catch {
+          // System preference remains available when storage is blocked.
+        }
+
+        const theme = storedTheme === 'light' || storedTheme === 'dark'
+          ? storedTheme
+          : prefersDark ? 'dark' : 'light'
+        const palettes = [
+          'ember',
+          'cobalt',
+          'graphite',
+          'garnet',
+          'ochre',
+          'plum',
+          'lagoon',
+        ]
+        const palette = palettes.includes(storedPalette)
+          ? storedPalette
+          : palettes[Math.floor(Math.random() * palettes.length)] ?? 'cobalt'
+
+        try {
+          sessionStorage.setItem('amaral-palette', palette)
+        } catch {
+          // The random palette still applies for the current page.
+        }
+
+        root.dataset.theme = theme
+        root.dataset.palette = palette
+        root.style.colorScheme = theme
+        document.querySelector('[data-theme-color]')?.setAttribute(
+          'content',
+          theme === 'dark' ? '#0f1413' : '#ffffff',
+        )
+      })()
+    </script>
     <meta name="generator" content={Astro.generator} />
+    <meta name="author" content="Caio Amaral" />
     <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Caio Amaral" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="mask-icon" href="/favicon.svg" color="#111111" />
+    <link rel="describedby" href="/llms.txt" />
+    {markdownAlternate
+      ? <link rel="alternate" type="text/markdown" href={markdownAlternate} />
+      : null}
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg?v=3" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=3" />
+    <link rel="mask-icon" href="/favicon.svg?v=3" color="#174b47" />
     <link rel="alternate" type="application/rss+xml" title="Caio Amaral RSS" href="/rss.xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <meta property="og:type" content="website" />
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {currentPath === '/'
+      ? (
+          <>
+            <link rel="preload" href="/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin />
+            <link rel="preload" href="/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+          </>
+        )
+      : null}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Caio Amaral" />
+    <meta property="og:locale" content={openGraphLocale} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImage} />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:image:type" content={imageType} />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
+    {publishedTime ? <meta property="article:published_time" content={publishedTime} /> : null}
+    {ogType === 'article' ? <meta property="article:author" content={authorUrl} /> : null}
+    <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:creator" content="@caicorre" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    {serializedStructuredData
+      ? <script type="application/ld+json" set:html={serializedStructuredData}></script>
+      : null}
     <title>{pageTitle}</title>
-    <ViewTransitions />
   </head>
 
   <body>
     <a class="skip-link" href="#content">Skip to content</a>
+    <div class="site-header-slot">
+      <header class="site-header">
+        <div class="site-header-inner">
+          <a href="/" class="brand" aria-label="Caio Amaral home">
+            <span>Caio Amaral</span>
+          </a>
 
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="/" class="brand" aria-label="Caio Amaral home">
-        <span class="brand-name">Caio Amaral</span>
-        <span class="brand-domain">amaral.codes</span>
-      </a>
+          <nav class="site-nav" aria-label="Primary navigation">
+            <ul>
+              {navItems.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    data-nav-id={item.id === 'contact' ? undefined : item.id}
+                    aria-current={item.id === activeNav ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-      <ul>
-        {navItems.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
-        ))}
-      </ul>
-    </nav>
+          <div class="header-actions">
+            <HeaderSearch current={currentPath.startsWith('/search')} />
+          </div>
+        </div>
+      </header>
+    </div>
 
-    <main id="content" {...rest}>
+    <main
+      id="content"
+      tabindex="-1"
+      data-swipe-previous-href={swipePreviousHref}
+      {...rest}
+    >
       <slot />
     </main>
 
-    <Footer />
-
-    <style is:global>
-      :root {
-        color-scheme: dark;
-        --ink: #e8e3d5;
-        --muted: #a39a89;
-        --paper: #0b0e14;
-        --paper-strong: #11151d;
-        --line: #1b2230;
-        --accent: #c75b3a;
-        --accent-strong: #c8a86b;
-        --wash: #151b26;
-        --phosphor: #8bbf82;
-        --teal: #3e6b73;
-        --plum: #6b5b95;
-        --display: "Cormorant Garamond", "EB Garamond", "Iowan Old Style", Georgia, serif;
-        --mono: "JetBrains Mono", "Berkeley Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html {
-        background: var(--paper);
-        color: var(--ink);
-        font-family:
-          Inter, "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
-          BlinkMacSystemFont, "Segoe UI", sans-serif;
-        scroll-behavior: smooth;
-      }
-
-      body {
-        min-height: 100vh;
-        margin: 0;
-        background:
-          radial-gradient(circle at 78% 12%, rgba(199, 91, 58, 0.12), transparent 28rem),
-          radial-gradient(circle at 8% 92%, rgba(62, 107, 115, 0.14), transparent 30rem),
-          var(--paper);
-        font-size: 17px;
-        line-height: 1.65;
-      }
-
-      body::before,
-      body::after {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        content: "";
-      }
-
-      body::before {
-        opacity: 0.58;
-        background-image:
-          linear-gradient(rgba(232, 227, 213, 0.035) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(232, 227, 213, 0.025) 1px, transparent 1px),
-          radial-gradient(circle at 20% 10%, rgba(232, 227, 213, 0.08) 0 1px, transparent 1px),
-          radial-gradient(circle at 70% 30%, rgba(199, 91, 58, 0.055) 0 1px, transparent 1px),
-          radial-gradient(circle at 40% 80%, rgba(0, 0, 0, 0.34) 0 1px, transparent 1px);
-        background-position: 0 0, 0 0, 0 0, 7px 11px, 3px 5px;
-        background-size: 100% 4px, 4px 100%, 17px 17px, 23px 23px, 13px 13px;
-        mix-blend-mode: screen;
-      }
-
-      body::after {
-        height: 1px;
-        opacity: 0.22;
-        background: linear-gradient(90deg, transparent, rgba(139, 191, 130, 0.42), transparent);
-        animation: scanline 9s linear infinite;
-      }
-
-      a {
-        color: inherit;
-        text-decoration-thickness: 0.08em;
-        text-underline-offset: 0.22em;
-      }
-
-      img,
-      video {
-        max-width: 100%;
-        display: block;
-      }
-
-      button,
-      input,
-      textarea {
-        font: inherit;
-      }
-
-      .skip-link {
-        position: absolute;
-        top: 0.75rem;
-        left: 0.75rem;
-        z-index: 20;
-        transform: translateY(-160%);
-        border: 1px solid var(--accent);
-        border-radius: 999px;
-        padding: 0.7rem 1rem;
-        background: var(--paper-strong);
-      }
-
-      .skip-link:focus {
-        transform: translateY(0);
-      }
-
-      .site-nav {
-        position: fixed;
-        inset: 0 auto 0 0;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 1rem;
-        width: 220px;
-        height: 100vh;
-        margin: 0;
-        border-right: 1px solid var(--line);
-        padding: 2rem 1.25rem;
-        background: rgba(11, 14, 20, 0.82);
-        backdrop-filter: blur(14px);
-      }
-
-      .brand {
-        display: grid;
-        gap: 0.18rem;
-        text-decoration: none;
-      }
-
-      .brand-name {
-        font-family: var(--display);
-        font-size: 1.5rem;
-        font-weight: 500;
-        line-height: 1.1;
-      }
-
-      .brand-domain {
-        color: var(--muted);
-        font-family: var(--mono);
-        font-size: 0.72rem;
-        line-height: 1.1;
-      }
-
-      .site-nav ul {
-        display: flex;
-        align-items: stretch;
-        width: 100%;
-        gap: 0.25rem;
-        margin: 2.2rem 0 0;
-        padding: 0;
-        list-style: none;
-        flex-direction: column;
-      }
-
-      .site-nav a:not(.brand) {
-        display: flex;
-        position: relative;
-        border-radius: 999px;
-        padding: 0.45rem 0;
-        color: var(--muted);
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        font-weight: 500;
-        text-decoration: none;
-      }
-
-      .site-nav a:not(.brand)::before {
-        width: 1.7rem;
-        color: var(--accent);
-        content: "~/";
-      }
-
-      .site-nav a:not(.brand)::after {
-        position: absolute;
-        right: 0;
-        bottom: 0.22rem;
-        left: 1.7rem;
-        height: 1px;
-        transform: scaleX(0);
-        transform-origin: left;
-        background: var(--accent);
-        content: "";
-        transition: transform 200ms ease;
-      }
-
-      .site-nav a:not(.brand):hover,
-      .site-nav a:not(.brand):focus-visible {
-        background: transparent;
-        color: var(--ink);
-        outline: none;
-      }
-
-      .site-nav a:not(.brand):hover::after,
-      .site-nav a:not(.brand):focus-visible::after {
-        transform: scaleX(1);
-      }
-
-      main,
-      .footer {
-        margin-left: 220px;
-      }
-
-      .page-shell {
-        width: min(1120px, calc(100% - 64px));
-        margin: 0 auto;
-      }
-
-      .eyebrow {
-        color: var(--accent-strong);
-        font-family: var(--mono);
-        font-size: 0.76rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .section-label {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--muted);
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .section-label::before {
-        display: block;
-        width: 2rem;
-        height: 1px;
-        content: "";
-        background: var(--line);
-      }
-
-      .button-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-      }
-
-      .button,
-      .button-secondary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 2.45rem;
-        border: 1px solid transparent;
-        border-radius: 999px;
-        padding: 0.58rem 0.9rem;
-        font-family: var(--mono);
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition:
-          background-color 160ms ease,
-          border-color 160ms ease,
-          color 160ms ease,
-          transform 160ms ease;
-      }
-
-      .button {
-        background: var(--accent);
-        color: #120d0a;
-      }
-
-      .button-secondary {
-        border-color: var(--line);
-        background: rgba(232, 227, 213, 0.04);
-        color: var(--ink);
-      }
-
-      .button:hover,
-      .button-secondary:hover {
-        transform: translateY(-1px);
-      }
-
-      .button:hover {
-        background: var(--accent-strong);
-        color: #12100c;
-      }
-
-      .button-secondary:hover {
-        border-color: rgba(200, 168, 107, 0.48);
-        background: var(--wash);
-      }
-
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--paper-strong);
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
-      }
-
-      .field {
-        display: grid;
-        gap: 0.35rem;
-      }
-
-      .field span {
-        color: var(--muted);
-        font-family: var(--mono);
-        font-size: 0.86rem;
-        font-weight: 700;
-      }
-
-      .field input,
-      .field textarea {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 0.85rem 0.9rem;
-        background: rgba(11, 14, 20, 0.62);
-        color: var(--ink);
-      }
-
-      .field input:focus,
-      .field textarea:focus {
-        border-color: rgba(199, 91, 58, 0.72);
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
-      }
-
-      .field textarea {
-        min-height: 8rem;
-        resize: vertical;
-      }
-
-      @keyframes pageFadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes softReveal {
-        from {
-          opacity: 0;
-          transform: translateY(18px);
-          filter: blur(6px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-          filter: blur(0);
-        }
-      }
-
-      @keyframes lineGrow {
-        from {
-          transform: scaleX(0);
-        }
-
-        to {
-          transform: scaleX(1);
-        }
-      }
-
-      @keyframes scanline {
-        from {
-          transform: translateY(-5vh);
-        }
-
-        to {
-          transform: translateY(105vh);
-        }
-      }
-
-      main {
-        animation: pageFadeIn 420ms ease both;
-      }
-
-      main > section {
-        animation: softReveal 640ms ease both;
-        animation-delay: 80ms;
-      }
-
-      main > section:nth-of-type(2) {
-        animation-delay: 150ms;
-      }
-
-      main > section:nth-of-type(3) {
-        animation-delay: 220ms;
-      }
-
-      main > section:nth-of-type(4) {
-        animation-delay: 290ms;
-      }
-
-      .section-label::before {
-        transform-origin: left;
-        animation: lineGrow 520ms ease both;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          animation-duration: 1ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 1ms !important;
-        }
-      }
-
-      @media (max-width: 720px) {
-        .site-nav {
-          position: sticky;
-          inset: auto;
-          top: 0;
-          align-items: flex-start;
-          flex-direction: column;
-          gap: 0.85rem;
-          width: 100%;
-          height: auto;
-          margin: 0 auto;
-          border-right: 0;
-          border-bottom: 1px solid var(--line);
-          padding: 0.95rem 1rem 0.85rem;
-          background: rgba(11, 14, 20, 0.92);
-        }
-
-        main,
-        .footer {
-          margin-left: 0;
-        }
-
-        .brand-name {
-          font-size: 1.42rem;
-        }
-
-        .site-nav ul {
-          display: flex;
-          flex-direction: row;
-          overflow-x: auto;
-          scrollbar-width: none;
-          width: 100%;
-          gap: 0.45rem;
-          margin-top: 0;
-          padding: 0;
-        }
-
-        .site-nav ul::-webkit-scrollbar {
-          display: none;
-        }
-
-        .site-nav a:not(.brand) {
-          flex: 0 0 auto;
-          border: 1px solid var(--line);
-          border-radius: 999px;
-          padding: 0.4rem 0.62rem;
-          background: rgba(232, 227, 213, 0.035);
-          font-size: 0.72rem;
-          font-weight: 560;
-        }
-
-        .site-nav a:not(.brand)::before {
-          display: none;
-        }
-
-        .site-nav a:not(.brand)::after {
-          display: none;
-        }
-
-        .site-nav a:not(.brand):hover,
-        .site-nav a:not(.brand):focus-visible {
-          border-color: rgba(199, 91, 58, 0.44);
-          background: rgba(199, 91, 58, 0.08);
-        }
-
-        .page-shell {
-          width: min(1120px, calc(100% - 32px));
-        }
-
-        .brand {
-          gap: 0.02rem;
-        }
-      }
-    </style>
+    {hideFooter ? null : <Footer flush={footerFlush} />}
+
+    <script>
+      import '../scripts/layout/index'
+    </script>
   </body>
 </html>

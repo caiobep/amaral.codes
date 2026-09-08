@@ -1,668 +1,279 @@
 ---
-import { getCollection } from 'astro:content'
+import '../styles/pages/home.css'
+import '../styles/pages/home-notebook.css'
+import '../styles/pages/home-responsive.css'
 import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
+import { homepageEasterEggHeadlines, homepageHeadlines } from '../data/homepage-headlines'
 import Layout from '../layouts/Layout.astro'
+import {
+  formatTechnologies,
+  getEntryIndex,
+  getProjectHref,
+  getProjectIndex,
+  isExternalProject,
+} from '../lib/content'
+import { formatPostDate } from '../lib/date'
+import { getEntryHref } from '../lib/routes'
+import { createPageStructuredData } from '../lib/structured-data'
 
-const posts = (await getCollection('blog-posts'))
-  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+const { featuredEntries } = await getEntryIndex()
+const { featuredProjects } = await getProjectIndex()
+const [primaryProject, ...secondaryProjects] = featuredProjects
+const primaryProjectHref = primaryProject ? getProjectHref(primaryProject) : undefined
+const primaryProjectExternal = primaryProject ? isExternalProject(primaryProject) : false
+const primaryVisual = primaryProject?.data.visual
+const primarySrcset = primaryVisual?.type === 'image'
+  ? primaryVisual.sources.map((source) => `${source.src} ${String(source.width)}w`).join(', ')
+  : undefined
+const fallbackHeadline = homepageHeadlines[0]
+const showHomepagePortrait = false
+const pageDescription = 'Caio Amaral’s online home for the things he makes and the ideas he wants to keep.'
+const structuredData = createPageStructuredData({
+  description: pageDescription,
+  pathname: Astro.url.pathname,
+  title: 'Caio Amaral',
+  type: 'WebPage',
+}, Astro.site)
 
-const featuredPosts = posts
-  .filter((post) => [
-    'my_journey_with_productivity_tools',
-    'window_managers_in_macos',
-    'projects_over_categories',
-    'the_capture_habit',
-  ].includes(post.slug))
-  .slice(0, 4)
-
-const artifacts = [
-  {
-    title: 'Notes and essays',
-    label: 'TXT-001',
-    detail: 'A public place for opinions, field notes, references, and the thoughts I want to keep outside private apps.',
-    href: '/posts',
-    index: 'thoughts',
-  },
-  {
-    title: 'Reviews and logs',
-    label: 'REV-002',
-    detail: 'The same archive can hold movie notes, app impressions, book fragments, and Letterboxd-style reviews when something is worth writing down.',
-    href: '/posts',
-    index: 'reviews',
-  },
-  {
-    title: 'Interface systems',
-    label: 'PRJ-003',
-    detail: 'Front-end architecture, interaction work, accessibility, and design-system implementation across complex product environments.',
-    href: '/projects',
-    index: 'work',
-  },
-  {
-    title: 'Publishing archive',
-    label: 'SYS-004',
-    detail: 'A small publishing workflow for moving notes, references, and essays into a place I can maintain over time.',
-    href: '/projects',
-    index: 'system',
-  },
-]
-
-const socialLinks = [
-  ['GitHub', 'https://github.com/caiobep'],
-  ['LinkedIn', 'https://ca.linkedin.com/in/caiobep/'],
-  ['X / Twitter', 'https://twitter.com/caicorre'],
-  ['Mastodon', 'https://mstdn.social/@caicorre'],
-]
 ---
 
 <Layout
   title="Caio Amaral"
-  description="A public archive for Caio Amaral: notes, reviews, software work, projects, and writing about interfaces, computing, productivity, media, and personal systems."
+  description={pageDescription}
+  footerFlush
+  class="home-sequence"
+  structuredData={structuredData}
 >
-  <section class="hero page-shell">
-    <div class="hero-copy">
-      <p class="eyebrow">~/index</p>
-      <h1><span>Notes</span> from a small archive.</h1>
-      <p>
-        I’m Caio. This is where I keep things I return to: software, interfaces, productivity, movies, books, tools, and smaller observations that are easier to lose than to publish.
-      </p>
-      <div class="hero-links">
-        <a href="/posts">Open archive</a>
-        <a href="/projects">Work</a>
-        <a href="#contact">Contact</a>
+  <section class="hero" data-home-slide>
+    <div class:list={['hero-grid page-shell', { 'hero-grid-no-portrait': !showHomepagePortrait }]} data-hero>
+      <div class="hero-copy">
+        <div class="hero-sentence">
+          <h1
+            data-rotating-headline
+            data-headlines={JSON.stringify(homepageHeadlines)}
+            data-easter-egg-headlines={JSON.stringify(homepageEasterEggHeadlines)}
+            data-headline-length={fallbackHeadline.emphasis.length > 44
+              ? 'long'
+              : fallbackHeadline.emphasis.length > 32 ? 'medium' : 'short'}
+          >
+            <span data-headline-lead>{fallbackHeadline.lead}</span><span data-headline-emphasis>
+              {fallbackHeadline.emphasis}
+            </span>
+          </h1>
+          <p class="hero-summary">
+            This is my online home for software I’ve made, notes I’m still thinking through, and useful things I don’t want to lose.
+          </p>
+        </div>
+        <script is:inline>
+          (() => {
+            const headline = document.querySelector('[data-rotating-headline]')
+            if (!(headline instanceof HTMLElement)) return
+
+            let regularVariants
+            let easterEggVariants
+            try {
+              regularVariants = JSON.parse(headline.dataset.headlines ?? '[]')
+              easterEggVariants = JSON.parse(headline.dataset.easterEggHeadlines ?? '[]')
+            } catch {
+              return
+            }
+            if (!Array.isArray(regularVariants) || regularVariants.length < 2) return
+            if (!Array.isArray(easterEggVariants)) easterEggVariants = []
+
+            const storageKey = 'amaral-home-headline'
+            let previousHeadline = ''
+            try {
+              previousHeadline = sessionStorage.getItem(storageKey) ?? ''
+            } catch {
+              // A random variant still works when storage is unavailable.
+            }
+
+            const getHeadlineKey = variant => `${String(variant?.lead ?? '')}\u0000${String(variant?.emphasis ?? '')}`
+            const useEasterEgg = easterEggVariants.length > 0 && Math.random() >= 0.92
+            const preferredVariants = useEasterEgg ? easterEggVariants : regularVariants
+            let candidates = preferredVariants.filter(variant => getHeadlineKey(variant) !== previousHeadline)
+            if (candidates.length === 0) {
+              candidates = regularVariants.filter(variant => getHeadlineKey(variant) !== previousHeadline)
+            }
+            const variant = candidates[Math.floor(Math.random() * candidates.length)]
+            const lead = headline.querySelector('[data-headline-lead]')
+            const emphasis = headline.querySelector('[data-headline-emphasis]')
+            if (!variant || !(lead instanceof HTMLElement) || !(emphasis instanceof HTMLElement)) return
+
+            lead.textContent = String(variant.lead ?? '')
+            const emphasisText = String(variant.emphasis ?? '')
+            headline.dataset.headlineLength = emphasisText.length > 44
+              ? 'long'
+              : emphasisText.length > 32 ? 'medium' : 'short'
+            const words = emphasisText.split(' ')
+            emphasis.replaceChildren(...words.flatMap((word, index) => {
+              const element = document.createElement('span')
+              element.className = 'headline-word'
+              element.style.setProperty('--headline-word-index', String(index))
+              element.textContent = word
+              return index === words.length - 1
+                ? [element]
+                : [element, document.createTextNode(' ')]
+            }))
+            emphasis.dataset.headlineAnimated = 'true'
+            try {
+              sessionStorage.setItem(storageKey, getHeadlineKey(variant))
+            } catch {
+              // The selected headline does not depend on storage succeeding.
+            }
+          })()
+        </script>
       </div>
+
+      {showHomepagePortrait && (
+        <div class="portrait-stage" data-portrait-motion>
+          <img
+            src="/photos/profile/home-portrait-900.webp"
+            srcset="/photos/profile/home-portrait-480.webp 480w, /photos/profile/home-portrait-720.webp 720w, /photos/profile/home-portrait-900.webp 900w"
+            sizes="(max-width: 660px) calc(100vw - 2.5rem), (max-width: 900px) min(34rem, calc(100vw - 4rem)), min(34vw, 28rem)"
+            alt="Caio Amaral"
+            width="900"
+            height="1125"
+            decoding="async"
+          />
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="notebook page-shell" aria-labelledby="notebook-title" data-home-slide data-reveal>
+    <div class="section-heading">
+      <div>
+        <p class="section-label">Notes</p>
+        <h2 id="notebook-title">Recent notes.</h2>
+      </div>
+      <a href="/posts">See all notes</a>
     </div>
 
-    <div class="atelier-panel" aria-label="Site index">
-      <div class="portrait-wrap">
-        <img src="/photos/profile/4x5.png" alt="Caio Amaral" width="640" height="800" />
-        <div class="index-strip" aria-hidden="true">
-          <span>interfaces</span>
-          <span>notes</span>
-          <span>systems</span>
-          <span>archive</span>
+    <div class="editorial-grid">
+      {featuredEntries[0] && (
+        <a
+          class="lead-story"
+          href={getEntryHref(featuredEntries[0].id)}
+          data-lead-story-motion
+        >
+          <div class="story-meta">
+            <span>{featuredEntries[0].data.category}</span>
+            <time datetime={featuredEntries[0].data.date}>
+              {formatPostDate(featuredEntries[0].data.date, { month: 'short', year: 'numeric' })}
+            </time>
+          </div>
+          <h3>{featuredEntries[0].data.title}</h3>
+          <div class="lead-story-footer">
+            <p>{featuredEntries[0].data.summary}</p>
+            <span class="story-action">Open note</span>
+          </div>
+        </a>
+      )}
+
+      <div class="story-list">
+        {featuredEntries.slice(1).map((entry) => (
+          <a href={getEntryHref(entry.id)}>
+            <div class="story-meta">
+              <span>{entry.data.category}</span>
+              <time datetime={entry.data.date}>
+                {formatPostDate(entry.data.date, { month: 'short', year: 'numeric' })}
+              </time>
+            </div>
+            <h3>{entry.data.title}</h3>
+            <p>{entry.data.summary}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="work-band" aria-labelledby="work-title" data-home-slide>
+    <div class="page-shell" data-reveal>
+      <div class="work-heading">
+        <div>
+          <p class="section-label">Featured projects</p>
+          <h2 id="work-title">Things I’ve made.</h2>
+        </div>
+        <a href="/projects">All projects</a>
+      </div>
+
+      <div class="project-showcase" data-stagger>
+        {primaryProject && primaryProjectHref
+          ? (
+            <a
+              class="featured-project"
+              href={primaryProjectHref}
+              target={primaryProjectExternal ? '_blank' : undefined}
+              rel={primaryProjectExternal ? 'noopener noreferrer' : undefined}
+            >
+              <div class="featured-project-visual">
+                {primaryVisual?.type === 'image'
+                  ? (
+                      <img
+                        src={primaryVisual.src}
+                        srcset={primarySrcset}
+                        sizes="(max-width: 900px) calc(100vw - 4rem), min(58vw, 46rem)"
+                        alt={primaryVisual.alt}
+                        width={primaryVisual.width}
+                        height={primaryVisual.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )
+                  : null}
+              </div>
+              <div class="featured-project-copy">
+                <span>{primaryProject.data.category}</span>
+                <h3>{primaryProject.data.title}</h3>
+                <p>{primaryProject.data.summary}</p>
+                <strong>{formatTechnologies(primaryProject)}</strong>
+              </div>
+            </a>
+            )
+          : null}
+
+        <div class="project-links">
+        {secondaryProjects.slice(0, 2).map((project) => {
+          const external = isExternalProject(project)
+
+          return (
+            <a
+              href={getProjectHref(project)}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+            >
+              <div>
+                <span>{project.data.category}</span>
+                <h3>{project.data.title}</h3>
+                <p>{project.data.summary}</p>
+              </div>
+              <strong>{formatTechnologies(project)}</strong>
+            </a>
+          )
+        })}
         </div>
       </div>
     </div>
   </section>
 
-  <section class="page-shell artifact-board" aria-labelledby="artifact-title">
-    <div class="board-heading">
-      <p class="section-label">What lives here</p>
-      <h2 id="artifact-title">Writing, reviews, software notes, and work.</h2>
-    </div>
-
-    <div class="artifact-grid">
-      {artifacts.map((artifact) => (
-        <a href={artifact.href} class="artifact">
-          <span class="artifact-index">{artifact.index}</span>
-          <span class="artifact-label">{artifact.label}</span>
-          <h3>{artifact.title}</h3>
-          <p>{artifact.detail}</p>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <section class="page-shell work-proof" aria-labelledby="proof-title">
-    <div>
-      <p class="section-label">Work history</p>
-      <h2 id="proof-title">Places I have worked with.</h2>
-      <p>
-        A few public names from my work history. Project details stay with the teams.
-      </p>
+  <section class="work-context page-shell" aria-labelledby="work-context-title" data-home-slide data-reveal>
+    <div class="section-heading">
+      <div>
+        <p class="section-label">Work context</p>
+        <h2 id="work-context-title">Teams and products I’ve worked with.</h2>
+      </div>
+      <a href="/projects">See projects</a>
     </div>
     <CompaniesIveWorkedWith />
   </section>
 
-  <section class="page-shell writing-section" aria-labelledby="writing-title">
-    <div class="writing-heading">
-      <div>
-        <p class="section-label">Archive</p>
-        <h2 id="writing-title">Recent entries from the public notebook.</h2>
-      </div>
-      <a href="/posts">All entries</a>
-    </div>
-
-    <div class="writing-list">
-      {featuredPosts.map((post) => (
-        <a href={`/posts/${post.slug}`} class="writing-row">
-          <time datetime={post.data.date}>{new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</time>
-          <span>{post.data.title}</span>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <section class="page-shell contact-section" id="contact" aria-labelledby="contact-title">
-    <div>
+  <section class="closing page-shell" data-home-slide data-reveal>
+    <div class="contact-copy">
       <p class="section-label">Contact</p>
-      <h2 id="contact-title">Leave a note at the desk.</h2>
-      <p>
-        Send something if a post, review, project, or idea here connects. It does not need to be work-related.
-      </p>
-      <div class="social-links">
-        {socialLinks.map(([label, href]) => (
-          <a href={href} target="_blank" rel="noopener noreferrer">{label}</a>
-        ))}
-      </div>
+      <h2>Tell me what brought you here.</h2>
+      <p>If you’re hiring, building something, or have a question, a little context is enough.</p>
+      <a class="button" href="/contact">Get in touch</a>
     </div>
-
-    <form class="contact-form panel" id="contact-form">
-      <label class="field">
-        <span>Name</span>
-        <input name="name" autocomplete="name" placeholder="Your name" required />
-      </label>
-      <label class="field">
-        <span>Email</span>
-        <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
-      </label>
-      <label class="field">
-        <span>Message</span>
-        <textarea name="message" placeholder="What should I know?" required></textarea>
-      </label>
-      <button class="button" type="submit">Send email</button>
-    </form>
-  </section>
-
-  <section class="page-shell newsletter-section" aria-labelledby="newsletter-title">
-    <div>
-      <p class="section-label">Newsletter</p>
-      <h2 id="newsletter-title">Occasional notes, reviews, and links.</h2>
-    </div>
-    <form class="newsletter-form panel" id="newsletter-form">
-      <label class="field">
-        <span>Email address</span>
-        <input name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
-      </label>
-      <button class="button-secondary" type="submit">Subscribe</button>
-    </form>
   </section>
 </Layout>
-
-<script>
-  const initializeHomepage = () => {
-    document.querySelector('#contact-form')?.addEventListener('submit', (event) => {
-      event.preventDefault()
-      const form = event.currentTarget
-      if (!(form instanceof HTMLFormElement)) return
-      const data = new FormData(form)
-      const subject = encodeURIComponent(`Message from ${data.get('name')}`)
-      const body = encodeURIComponent(`${data.get('message')}\n\nFrom: ${data.get('name')} <${data.get('email')}>`)
-      window.location.href = `mailto:caiobep@me.com?subject=${subject}&body=${body}`
-    }, { once: true })
-
-    document.querySelector('#newsletter-form')?.addEventListener('submit', (event) => {
-      event.preventDefault()
-      const form = event.currentTarget
-      if (!(form instanceof HTMLFormElement)) return
-      const email = new FormData(form).get('email')
-      const subject = encodeURIComponent('Newsletter signup')
-      const body = encodeURIComponent(`Please add ${email} to the newsletter list.`)
-      window.location.href = `mailto:caiobep@me.com?subject=${subject}&body=${body}`
-    }, { once: true })
-  }
-
-  document.addEventListener('astro:page-load', initializeHomepage)
-  initializeHomepage()
-</script>
-
-<style>
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
-    gap: clamp(2rem, 7vw, 5.5rem);
-    align-items: center;
-    min-height: 100vh;
-    padding: 4rem 0 5.5rem;
-  }
-
-  .hero h1 {
-    max-width: 11ch;
-    margin: 0.7rem 0 1.05rem;
-    font-family: var(--display);
-    font-size: clamp(4rem, 8vw, 7.6rem);
-    font-weight: 400;
-    line-height: 0.96;
-    letter-spacing: 0;
-  }
-
-  .hero h1 span {
-    color: var(--accent-strong);
-    font-style: italic;
-  }
-
-  .hero p:not(.eyebrow) {
-    max-width: 38rem;
-    margin: 0;
-    color: var(--muted);
-    font-size: clamp(1rem, 1.35vw, 1.12rem);
-    line-height: 1.68;
-  }
-
-  .hero-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1.55rem;
-  }
-
-  .hero-links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    position: relative;
-    min-height: 2.45rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 0.54rem 0.86rem;
-    background: rgba(232, 227, 213, 0.035);
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 0.88rem;
-    font-weight: 560;
-    text-decoration: none;
-    transition:
-      background-color 160ms ease,
-      border-color 160ms ease,
-      transform 160ms ease;
-  }
-
-  .hero-links a::after {
-    content: "→";
-    color: var(--accent);
-    font-size: 0.9rem;
-    transition: transform 160ms ease;
-  }
-
-  .hero-links a:hover {
-    border-color: rgba(199, 91, 58, 0.52);
-    background: rgba(199, 91, 58, 0.1);
-    transform: translateY(-1px);
-  }
-
-  .hero-links a:hover::after {
-    transform: translateX(2px);
-  }
-
-  .portrait-wrap {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem;
-    align-items: stretch;
-  }
-
-  .portrait-wrap img {
-    width: 100%;
-    max-height: 620px;
-    border-radius: 2px;
-    object-fit: cover;
-    filter: saturate(0.65) contrast(1.04);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
-    transition: transform 420ms ease, box-shadow 420ms ease;
-  }
-
-  .portrait-wrap::after {
-    position: absolute;
-    inset: 0.6rem 2.1rem 0.6rem 0.6rem;
-    border: 1px solid rgba(232, 227, 213, 0.16);
-    background:
-      linear-gradient(180deg, transparent, rgba(11, 14, 20, 0.36)),
-      radial-gradient(circle at 84% 20%, rgba(199, 91, 58, 0.22), transparent 11rem);
-    content: "";
-    pointer-events: none;
-    mix-blend-mode: screen;
-  }
-
-  .portrait-wrap:hover img {
-    transform: translateY(-4px);
-    box-shadow: 0 34px 92px rgba(0, 0, 0, 0.42);
-  }
-
-  .index-strip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    writing-mode: vertical-rl;
-    border-left: 1px solid var(--line);
-    padding-left: 0.7rem;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    text-transform: lowercase;
-  }
-
-  h2 {
-    margin: 0.8rem 0 0;
-    font-family: var(--display);
-    font-size: clamp(2rem, 4vw, 3.4rem);
-    font-weight: 400;
-    line-height: 1.08;
-  }
-
-  .artifact-board,
-  .work-proof,
-  .writing-section,
-  .contact-section,
-  .newsletter-section {
-    padding: 4.5rem 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .artifact-board {
-    display: grid;
-    grid-template-columns: minmax(0, 0.62fr) minmax(0, 1.38fr);
-    gap: clamp(2rem, 6vw, 5rem);
-  }
-
-  .artifact-grid {
-    display: grid;
-    gap: 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .artifact {
-    display: grid;
-    grid-template-columns: 5.5rem 6rem minmax(0, 1fr);
-    gap: 1rem;
-    border-bottom: 1px solid var(--line);
-    padding: 1.1rem 0;
-    color: inherit;
-    text-decoration: none;
-    transition: background-color 180ms ease, border-color 180ms ease, padding-left 180ms ease;
-  }
-
-  .artifact:hover h3,
-  .writing-row:hover span,
-  .hero-links a:hover {
-    text-decoration: none;
-  }
-
-  .artifact:hover {
-    padding-left: 0.65rem;
-    background: rgba(199, 91, 58, 0.055);
-  }
-
-  .artifact-index,
-  .artifact-label,
-  .writing-row time {
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.78rem;
-  }
-
-  .artifact-label {
-    color: var(--accent-strong);
-  }
-
-  .artifact h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-
-  .artifact p {
-    grid-column: 3;
-    margin: -0.25rem 0 0;
-    color: var(--muted);
-    line-height: 1.62;
-  }
-
-  .work-proof {
-    display: grid;
-    grid-template-columns: minmax(0, 0.45fr) minmax(0, 1.55fr);
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: start;
-  }
-
-  .work-proof p:not(.section-label) {
-    max-width: 26rem;
-    margin: 1rem 0 0;
-    color: var(--muted);
-    line-height: 1.65;
-  }
-
-  .writing-heading {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .writing-heading > a {
-    align-self: end;
-    color: var(--accent-strong);
-    font-family: var(--mono);
-    font-weight: 650;
-    text-decoration: none;
-  }
-
-  .writing-heading > a::after {
-    content: " →";
-  }
-
-  .writing-list {
-    border-top: 1px solid var(--line);
-  }
-
-  .writing-row {
-    display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr);
-    gap: 1rem;
-    border-bottom: 1px solid var(--line);
-    padding: 1rem 0;
-    color: inherit;
-    text-decoration: none;
-    transition: background-color 180ms ease, padding-left 180ms ease;
-  }
-
-  .writing-row:hover {
-    padding-left: 0.65rem;
-    background: rgba(200, 168, 107, 0.055);
-  }
-
-  .writing-row span {
-    font-size: clamp(1.15rem, 2vw, 1.55rem);
-    line-height: 1.25;
-  }
-
-  .contact-section,
-  .newsletter-section {
-    display: grid;
-    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: start;
-  }
-
-  .contact-section p {
-    max-width: 34rem;
-    color: var(--muted);
-  }
-
-  .social-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: 1.2rem;
-  }
-
-  .social-links a {
-    color: var(--accent-strong);
-    font-family: var(--mono);
-    font-size: 0.94rem;
-    font-weight: 650;
-    text-decoration: none;
-  }
-
-  .social-links a:hover {
-    text-decoration: underline;
-  }
-
-  .contact-form,
-  .newsletter-form {
-    display: grid;
-    gap: 0.95rem;
-    border-radius: 10px;
-    padding: 1.1rem;
-    background:
-      linear-gradient(180deg, rgba(17, 21, 29, 0.9), rgba(11, 14, 20, 0.74));
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
-  }
-
-  .contact-form {
-    align-self: start;
-  }
-
-  .contact-form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .contact-form .field:nth-child(3),
-  .contact-form button {
-    grid-column: 1 / -1;
-  }
-
-  .contact-form button,
-  .newsletter-form button {
-    justify-self: start;
-  }
-
-  .contact-form :global(.field),
-  .newsletter-form :global(.field) {
-    gap: 0.42rem;
-  }
-
-  .contact-form :global(.field span),
-  .newsletter-form :global(.field span) {
-    color: var(--muted);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .contact-form :global(.field input),
-  .contact-form :global(.field textarea),
-  .newsletter-form :global(.field input) {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.9rem 0.95rem;
-    background: rgba(11, 14, 20, 0.76);
-    color: var(--ink);
-    outline: none;
-    transition:
-      background-color 160ms ease,
-      border-color 160ms ease,
-      box-shadow 160ms ease;
-  }
-
-  .contact-form :global(.field input::placeholder),
-  .contact-form :global(.field textarea::placeholder),
-  .newsletter-form :global(.field input::placeholder) {
-    color: rgba(163, 154, 137, 0.7);
-  }
-
-  .contact-form :global(.field input:focus),
-  .contact-form :global(.field textarea:focus),
-  .newsletter-form :global(.field input:focus) {
-    border-color: rgba(199, 91, 58, 0.64);
-    background: rgba(11, 14, 20, 0.94);
-    box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
-  }
-
-  .newsletter-form {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    align-self: center;
-  }
-
-  @media (max-width: 900px) {
-    .hero,
-    .artifact-board,
-    .work-proof,
-    .contact-section,
-    .newsletter-section {
-      grid-template-columns: 1fr;
-    }
-
-    .hero {
-      min-height: auto;
-      padding: 2rem 0 3.5rem;
-    }
-
-    .portrait-wrap {
-      grid-template-columns: 1fr;
-    }
-
-    .portrait-wrap::after {
-      inset: 0.6rem;
-    }
-
-    .index-strip {
-      writing-mode: horizontal-tb;
-      border-top: 1px solid var(--line);
-      border-left: 0;
-      padding: 0.6rem 0 0;
-    }
-  }
-
-  @media (max-width: 560px) {
-    .artifact-board,
-    .work-proof,
-    .writing-section,
-    .contact-section,
-    .newsletter-section {
-      padding: 3rem 0;
-    }
-
-    .hero {
-      padding-top: 1.2rem;
-    }
-
-    .hero h1 {
-      max-width: 8.8ch;
-      font-size: clamp(3rem, 14vw, 4.7rem);
-    }
-
-    .hero-links {
-      gap: 0.5rem;
-    }
-
-    .artifact {
-      grid-template-columns: 2.6rem minmax(0, 1fr);
-      gap: 0.55rem 0.8rem;
-    }
-
-    .artifact-label {
-      justify-self: end;
-    }
-
-    .artifact h3,
-    .artifact p {
-      grid-column: 1 / -1;
-    }
-
-    .writing-heading {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .writing-heading > a {
-      align-self: start;
-    }
-
-    .writing-row {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
-    }
-
-    .contact-form,
-    .newsletter-form {
-      grid-template-columns: 1fr;
-    }
-
-    .context-list {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>

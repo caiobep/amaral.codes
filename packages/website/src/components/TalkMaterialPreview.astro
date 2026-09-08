@@ -1,0 +1,355 @@
+---
+import { ChevronLeft, ChevronRight, Download, Expand, Eye } from '@lucide/astro'
+import type { EntryData } from '../content/schemas'
+
+type TalkMaterial = NonNullable<EntryData['talk']>['materials'][number]
+
+interface Props {
+  material: TalkMaterial
+  previewId: string
+}
+
+const { material, previewId } = Astro.props
+const frameId = `${previewId}-frame`
+const preview = material.preview
+---
+
+<section
+  class="material-preview"
+  data-talk-material-preview
+  data-pdf-url={material.url}
+  aria-label={`${material.label} preview`}
+>
+  <div
+    class="preview-stage"
+    style={`--preview-ratio: ${preview?.width ?? 4} / ${preview?.height ?? 3}`}
+  >
+    {preview
+      ? (
+        <img
+          src={preview.src}
+          width={preview.width}
+          height={preview.height}
+          alt={`First slide from ${material.label.toLowerCase()}`}
+          loading="lazy"
+          decoding="async"
+          data-preview-poster
+        />
+        )
+      : null}
+    <div
+      class="preview-frame"
+      id={frameId}
+      tabindex="0"
+      aria-label={`${material.label} slide viewer`}
+      data-preview-frame-container
+      data-swipe-ignore
+      hidden
+    >
+      <canvas
+        role="img"
+        aria-label={`Slide 1 from ${material.label.toLowerCase()}`}
+        data-preview-canvas
+        hidden
+      ></canvas>
+      <div class="preview-loading" role="status" data-preview-loading>
+        <span class="preview-spinner" aria-hidden="true" data-preview-spinner></span>
+        <span data-preview-status>Loading slides...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-navigation" aria-label="Slide navigation" data-preview-navigation hidden>
+    <button type="button" aria-label="Previous slide" data-preview-previous disabled>
+      <ChevronLeft aria-hidden="true" />
+    </button>
+    <span class="preview-page" aria-live="polite">
+      <span data-preview-page>1</span>
+      <span aria-hidden="true">/</span>
+      <span data-preview-total>–</span>
+    </span>
+    <button type="button" aria-label="Next slide" data-preview-next disabled>
+      <ChevronRight aria-hidden="true" />
+    </button>
+  </div>
+
+  <div class="preview-toolbar">
+    <div class="preview-caption">
+      <span>Slide deck</span>
+      <p>PDF · Loads on demand</p>
+    </div>
+    <div class="preview-actions">
+      <button
+        type="button"
+        class="preview-toggle"
+        aria-controls={frameId}
+        aria-expanded="false"
+        data-preview-toggle
+      >
+        <Eye aria-hidden="true" />
+        <span data-preview-toggle-label>Preview slides</span>
+      </button>
+      <a href={material.url} target="_blank" rel="noreferrer">
+        <Expand aria-hidden="true" />
+        <span>Open full screen</span>
+      </a>
+      <a href={material.url} download>
+        <Download aria-hidden="true" />
+        <span>Download PDF</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .material-preview {
+    width: min(100%, 740px);
+    margin: 0 auto;
+    border-bottom: 1px solid var(--line);
+    padding: clamp(1.25rem, 3vw, 2rem) 0;
+  }
+
+  .preview-stage {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: var(--preview-ratio);
+    border: 1px solid var(--line);
+    background: var(--paper-strong);
+  }
+
+  .preview-stage img,
+  .preview-frame,
+  .preview-frame canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .preview-stage img {
+    display: block;
+    object-fit: contain;
+  }
+
+  .preview-frame {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--paper-strong);
+    outline: 0;
+  }
+
+  .preview-frame[hidden] {
+    display: none;
+  }
+
+  .preview-frame canvas {
+    display: block;
+    object-fit: contain;
+  }
+
+  .preview-frame canvas[hidden] {
+    display: none;
+  }
+
+  .preview-frame:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--accent-strong);
+  }
+
+  .preview-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 650;
+  }
+
+  .preview-loading[hidden] {
+    display: none;
+  }
+
+  .preview-spinner {
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid var(--line-strong);
+    border-top-color: var(--accent-strong);
+    border-radius: 50%;
+    animation: preview-spin 700ms linear infinite;
+  }
+
+  .preview-navigation {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.75rem auto 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    padding: 0.25rem;
+    background: var(--paper-strong);
+  }
+
+  .preview-navigation[hidden] {
+    display: none;
+  }
+
+  .preview-navigation button {
+    display: grid;
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .preview-navigation button:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+
+  .preview-navigation button:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: -2px;
+  }
+
+  .preview-navigation :global(svg) {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .preview-page {
+    min-width: 4.5rem;
+    color: var(--ink);
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding-top: 0.85rem;
+  }
+
+  .preview-caption span {
+    color: var(--accent-strong);
+    font-size: 0.66rem;
+    font-weight: 750;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .preview-caption p {
+    margin: 0.15rem 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+  }
+
+  .preview-actions a,
+  .preview-toggle {
+    display: inline-flex;
+    min-height: 2.55rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.48rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    padding: 0 0.75rem;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .preview-toggle {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+
+  .preview-actions :global(svg) {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex: 0 0 auto;
+    stroke-width: 1.8;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .preview-actions a:hover {
+      border-color: var(--accent-strong);
+      color: var(--accent-strong);
+    }
+
+    .preview-toggle:hover {
+      border-color: var(--accent-strong);
+      background: var(--accent-strong);
+    }
+
+    .preview-navigation button:not(:disabled):hover {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+  }
+
+  @keyframes preview-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @media (max-width: 620px) {
+    .material-preview {
+      padding-top: 1rem;
+    }
+
+    .preview-toolbar {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .preview-actions {
+      display: grid;
+      width: 100%;
+      grid-template-columns: 1fr 1fr;
+      justify-content: stretch;
+    }
+
+    .preview-toggle {
+      grid-column: 1 / -1;
+    }
+
+    .preview-actions a,
+    .preview-toggle {
+      min-height: 2.8rem;
+      padding-inline: 0.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preview-spinner {
+      animation: none;
+    }
+  }
+</style>

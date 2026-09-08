@@ -1,263 +1,136 @@
 ---
-import { getCollection } from 'astro:content'
-import PostPreview from '../../components/PostPreview.astro'
+import '../../styles/pages/posts.css'
+import {
+  Files,
+  FileText,
+  Headphones,
+  Link2,
+  Notebook,
+  Presentation,
+  Search,
+  Star,
+  Video,
+  X,
+} from '@lucide/astro'
+import PageIntro from '../../components/PageIntro.astro'
+import EntryPreview from '../../components/EntryPreview.astro'
 import Layout from '../../layouts/Layout.astro'
+import { getEntryIndex, getEntryTopics, ENTRY_CATEGORY_OPTIONS } from '../../lib/content'
+import { createPageStructuredData } from '../../lib/structured-data'
 
-const posts = (await getCollection('blog-posts'))
-  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+const {
+  counts,
+  entries,
+} = await getEntryIndex()
 
-const shelves = [
-  {
-    title: 'Essays',
-    detail: 'Longer thoughts about software, systems, learning, and the way tools shape behavior.',
-  },
-  {
-    title: 'Notes',
-    detail: 'Shorter observations, unfinished ideas, references, and things worth keeping in public.',
-  },
-  {
-    title: 'Reviews',
-    detail: 'Movies, books, apps, games, talks, and anything else that deserves more than a private rating.',
-  },
-  {
-    title: 'Links',
-    detail: 'External material with enough context that future me can remember why it mattered.',
-  },
+const filters = [
+  { value: 'all', label: 'All', count: entries.length, icon: Files },
+  ...ENTRY_CATEGORY_OPTIONS.map(({ value, label }) => ({
+    value,
+    label,
+    count: counts[value],
+    icon: {
+      essay: FileText,
+      link: Link2,
+      note: Notebook,
+      podcast: Headphones,
+      review: Star,
+      talk: Presentation,
+      video: Video,
+    }[value],
+  })).filter(({ count }) => count > 0),
 ]
+const pageDescription = 'Essays, notes, reviews, links, and observations by Caio Amaral.'
+const structuredData = createPageStructuredData({
+  description: pageDescription,
+  pathname: Astro.url.pathname,
+  title: 'Notes',
+  type: 'CollectionPage',
+}, Astro.site)
 ---
 
 <Layout
-  title="Archive"
-  description="A public archive of essays, notes, reviews, links, and observations by Caio Amaral."
+  title="Notes"
+  description={pageDescription}
+  structuredData={structuredData}
 >
-  <section class="posts-hero page-shell">
-    <p class="eyebrow">~/archive</p>
-    <h1>Essays, notes, reviews, and short observations.</h1>
-    <p>
-      This is where a software note, a productivity reflection, a movie review, a book fragment, or a link with context can all live without needing to become a polished article.
-    </p>
-  </section>
+  <PageIntro
+    title="Notes, podcasts, and talks."
+    summary="Software, tools, media, and things I wanted to remember."
+    variant="compact"
+  />
 
-  <section class="shelves page-shell" aria-label="Archive shelves">
-    {shelves.map((shelf) => (
-      <article>
-        <h2>{shelf.title}</h2>
-        <p>{shelf.detail}</p>
-      </article>
-    ))}
-  </section>
-
-  <section class="search-section page-shell" aria-label="Search posts">
-    <label>
-      <span>Search archive</span>
-      <input type="search" placeholder="Search notes, reviews, links, and essays" id="search-post" autocomplete="off" />
+  <section id="post-index" class="search-section page-shell" role="search" aria-label="Find notes" data-reveal data-stagger>
+    <div class="library-index-copy">
+      <p>Library index</p>
+      <span>Search the collection or browse by type.</span>
+    </div>
+    <label class="post-search">
+      <span class="control-label">Search the library</span>
+      <span class="post-search-field">
+        <Search aria-hidden="true" size={18} stroke-width={1.8} />
+        <input
+          type="search"
+          placeholder="Title, topic, or date..."
+          id="search-post"
+          autocomplete="off"
+          aria-controls="post-results"
+        />
+        <button type="button" class="post-search-clear" aria-label="Clear note search" data-clear-post-query hidden>
+          <X aria-hidden="true" />
+        </button>
+      </span>
     </label>
+    <fieldset class="post-filters">
+      <legend>Browse the shelves</legend>
+      <div class="post-filter-options">
+        {filters.map((filter) => {
+          const FilterIcon = filter.icon
+
+          return (
+            <button
+              type="button"
+              data-filter={filter.value}
+              aria-controls="post-results"
+              aria-pressed={filter.value === 'all' ? 'true' : 'false'}
+            >
+              <FilterIcon aria-hidden="true" />
+              <span>{filter.label}</span>
+              <strong>{filter.count}</strong>
+            </button>
+          )
+        })}
+      </div>
+    </fieldset>
     <p class="search-status" aria-live="polite">
-      Showing <span id="visible-post-count">{posts.length}</span> of {posts.length} entries.
+      Showing <span id="visible-post-count">{entries.length}</span> entries.
     </p>
   </section>
 
-  <section class="posts page-shell" aria-label="All archive entries">
-    {posts.map((post) => (
-      <PostPreview
-        title={post.data.title}
-        summary={post.data.summary}
-        date={post.data.date}
-        pathname={post.slug}
-        tags={post.data.tags?.map((tag) => tag.name)}
+  <section id="post-results" class="posts page-shell" aria-label="Note results">
+    {entries.map((entry) => (
+      <EntryPreview
+        title={entry.data.title}
+        summary={entry.data.summary}
+        date={entry.data.date}
+        pathname={entry.id}
+        tags={getEntryTopics(entry)}
+        category={entry.data.category}
       />
     ))}
+    <div class="empty-state" hidden>
+      <p>No matches</p>
+      <h2>Nothing matches that search.</h2>
+      <span>Try a broader term, switch filters, or clear the search.</span>
+      <button type="button" data-clear-search>Clear search</button>
+    </div>
+    <div class="end-state" data-end-state>
+      <p>That’s all for now.</p>
+      <span>You’ve reached the end of these results.</span>
+    </div>
   </section>
-
-  <p class="empty-state page-shell" hidden>No entries match that search.</p>
 </Layout>
 
 <script>
-  const initializePosts = () => {
-    const postsContainer = document.querySelector('.posts')
-    const searchInput = document.querySelector('#search-post')
-    const visiblePostCount = document.querySelector('#visible-post-count')
-    const emptyState = document.querySelector('.empty-state')
-
-    const normalize = (value) =>
-      value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-
-    const filterPosts = () => {
-      if (!(searchInput instanceof HTMLInputElement) || !postsContainer) return
-      const query = normalize(searchInput.value.trim())
-      let visibleCount = 0
-
-      postsContainer.querySelectorAll('.post').forEach((post) => {
-        const content = post instanceof HTMLElement ? normalize(post.dataset.search || post.textContent || '') : ''
-        const isVisible = !query || content.includes(query)
-
-        post.classList.toggle('hidden', !isVisible)
-        if (isVisible) visibleCount += 1
-      })
-
-      if (visiblePostCount) visiblePostCount.textContent = String(visibleCount)
-      if (emptyState instanceof HTMLElement) emptyState.hidden = visibleCount !== 0
-
-      const url = new URL(window.location.href)
-      if (query) {
-        url.searchParams.set('q', searchInput.value.trim())
-      } else {
-        url.searchParams.delete('q')
-      }
-      window.history.replaceState({}, '', url)
-    }
-
-    searchInput?.addEventListener('input', filterPosts)
-
-    if (searchInput instanceof HTMLInputElement) {
-      searchInput.value = new URLSearchParams(window.location.search).get('q') || ''
-      filterPosts()
-    }
-
-    window.addEventListener('keydown', (event) => {
-      const command = event.metaKey || event.ctrlKey
-      if (command && event.key.toLowerCase() === 'k' && searchInput instanceof HTMLInputElement) {
-        event.preventDefault()
-        searchInput.focus()
-      }
-    })
-  }
-
-  document.addEventListener('astro:page-load', initializePosts)
-  initializePosts()
+  import '../../scripts/posts'
 </script>
-
-<style>
-  .posts-hero {
-    max-width: 820px;
-    padding: 4rem 0 2rem;
-  }
-
-  h1 {
-    margin: 0.8rem 0 1rem;
-    font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.4rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: 0;
-  }
-
-  .posts-hero p:last-child {
-    max-width: 48rem;
-    color: var(--muted);
-    font-size: 1.08rem;
-    line-height: 1.7;
-  }
-
-  .search-section {
-    display: grid;
-    gap: 0.85rem;
-    padding: 1rem 0 2rem;
-  }
-
-  .shelves {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.75rem;
-    padding: 1rem 0 1.5rem;
-  }
-
-  .shelves article {
-    min-height: 9.5rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.95rem;
-    background: linear-gradient(180deg, rgba(17, 21, 29, 0.94), rgba(11, 14, 20, 0.72));
-  }
-
-  .shelves h2 {
-    margin: 0 0 0.5rem;
-    color: var(--accent-strong);
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .shelves p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.92rem;
-    line-height: 1.55;
-  }
-
-  label {
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  label span {
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  input {
-    width: 100%;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.85rem 0.95rem;
-    background: rgba(17, 21, 29, 0.64);
-    color: var(--ink);
-    font-size: 1.1rem;
-    outline: none;
-  }
-
-  input:focus {
-    border-color: rgba(199, 91, 58, 0.64);
-    box-shadow: 0 0 0 4px rgba(199, 91, 58, 0.12);
-  }
-
-  .search-status,
-  .empty-state {
-    margin: 0;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-
-  .empty-state {
-    padding: 0 0 5rem;
-  }
-
-  .posts {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-    padding-bottom: 5rem;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  @media (max-width: 980px) {
-    .posts,
-    .shelves {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 640px) {
-    .posts,
-    .shelves {
-      grid-template-columns: 1fr;
-    }
-
-    h1 {
-      font-size: clamp(2.7rem, 12vw, 4.4rem);
-    }
-  }
-</style>

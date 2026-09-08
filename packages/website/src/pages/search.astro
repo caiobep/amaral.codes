@@ -1,0 +1,306 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const filters = [
+  { value: 'all', label: 'All' },
+  { value: 'writing', label: 'Notes' },
+  { value: 'project', label: 'Projects' },
+] as const
+---
+
+<Layout
+  title="Search"
+  description="Search Caio Amaral's notes and projects."
+  robots="noindex,follow"
+>
+  <section class="search-workspace page-shell" aria-labelledby="search-label" data-search-root data-reveal>
+    <h1 class="search-page-title">Search</h1>
+    <form class="search-form" role="search" data-search-form>
+      <label for="site-search" id="search-label">Search the site</label>
+      <div class="search-field">
+        <input
+          id="site-search"
+          name="query"
+          type="search"
+          placeholder="Try a title, topic, or phrase"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          enterkeyhint="search"
+          data-search-input
+        />
+        <button type="button" class="clear-search" data-clear-search hidden>Clear</button>
+      </div>
+    </form>
+
+    <div class="search-filters" aria-label="Filter search results">
+      <div class="search-filter-options">
+        {filters.map((filter) => (
+          <button
+            type="button"
+            data-search-filter={filter.value}
+            aria-pressed={filter.value === 'all' ? 'true' : 'false'}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <p class="search-status" data-search-status aria-live="polite">
+      Type at least two characters to search.
+    </p>
+
+    <ol class="search-results" data-search-results aria-label="Search results"></ol>
+  </section>
+</Layout>
+
+<script>
+  import '../scripts/search'
+</script>
+
+<style is:global>
+  .search-workspace {
+    min-height: calc(100svh - 4.5rem);
+    padding: clamp(3.5rem, 10vh, 7rem) 0 clamp(4rem, 8vw, 7rem);
+  }
+
+  .search-page-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .search-form {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.28fr) minmax(0, 1.72fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+
+  .search-form > label,
+  .search-status {
+    color: var(--muted);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .search-field {
+    position: relative;
+  }
+
+  .search-field input {
+    width: 100%;
+    height: 4.25rem;
+    border: 0;
+    border-bottom: 2px solid var(--ink);
+    border-radius: 0;
+    padding: 0 5rem 0 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1;
+    outline: none;
+    transition: border-color 180ms ease;
+  }
+
+  .search-field input::placeholder {
+    color: var(--placeholder);
+    opacity: 1;
+  }
+
+  .search-field input::-webkit-search-cancel-button {
+    display: none;
+    appearance: none;
+  }
+
+  .search-field input:focus {
+    border-color: var(--focus-ring);
+  }
+
+  .clear-search {
+    position: absolute;
+    right: 0;
+    bottom: 0.75rem;
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0 0.25rem;
+    background: transparent;
+    color: var(--accent-strong);
+    cursor: pointer;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+  }
+
+  .search-filters {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.28fr) minmax(0, 1.72fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    margin-top: 1.5rem;
+  }
+
+  .search-filter-options {
+    display: flex;
+    grid-column: 2;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .search-filters button {
+    min-height: 2.45rem;
+    border: 1px solid var(--line-strong);
+    padding: 0 0.9rem;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 650;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+
+  .search-filters button[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper-strong);
+  }
+
+  .search-status {
+    margin: 2.25rem 0 1rem;
+  }
+
+  .search-results {
+    margin: 0;
+    border-top: 1px solid var(--line);
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-results li {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .search-results a {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.28fr) minmax(0, 1.72fr) 1.5rem;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    padding: 1.65rem 0;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 180ms ease;
+  }
+
+  .search-results a > p:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .search-results a > p:first-child span:first-child {
+    color: var(--accent-strong);
+  }
+
+  .search-results h2 {
+    margin: 0;
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.2;
+  }
+
+  .search-results h2 + p {
+    max-width: 46rem;
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    font-size: 0.93rem;
+    line-height: 1.55;
+  }
+
+  .search-results i {
+    grid-column: 3;
+    grid-row: 1;
+    color: var(--accent-strong);
+    font-style: normal;
+    transition: transform 220ms var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .search-results a:hover {
+      background: var(--accent-faint);
+    }
+
+    .search-results a:hover i {
+      transform: translateX(3px);
+    }
+
+    .search-filters button:hover {
+      border-color: var(--accent-strong);
+      color: var(--accent-strong);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .search-workspace {
+      min-height: calc(100svh - 7rem);
+      padding-top: 2.5rem;
+    }
+
+    .search-form {
+      grid-template-columns: 1fr;
+      gap: 0.65rem;
+    }
+
+    .search-field input {
+      height: 3.75rem;
+      padding-right: 4rem;
+      font-size: 1.65rem;
+    }
+
+    .search-filters {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .search-filter-options {
+      grid-column: 1;
+    }
+
+    .search-results a {
+      grid-template-columns: minmax(0, 1fr) 1.25rem;
+      gap: 0.55rem 1rem;
+      padding: 1.35rem 0;
+    }
+
+    .search-results a > p:first-child,
+    .search-results a > div {
+      grid-column: 1;
+    }
+
+    .search-results a > p:first-child {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+    }
+
+    .search-results i {
+      grid-column: 2;
+      grid-row: 2;
+    }
+  }
+</style>

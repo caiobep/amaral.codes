@@ -2,12 +2,8 @@
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
     "types": ["node"],
-    "lib": ["esnext", "es6"],
+    "lib": ["esnext"],
     "skipLibCheck": true,
     "esModuleInterop": true
-  },
-  "ts-node": {
-    "transpileOnly": true,
-    "files": true
   }
 }

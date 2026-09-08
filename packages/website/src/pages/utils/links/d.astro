@@ -1,23 +1,32 @@
-
 ---
 ---
 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="robots" content="noindex, nofollow" /> 
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
   </head>
-  <body>
+  <body data-redirect-state="redirecting">
     <div>
-      <h1>Redirecting...</h1>
+      <h1 data-redirect-status>Redirecting...</h1>
+      <p data-redirect-detail hidden>The destination is missing or is not allowed.</p>
     </div>
   </body>
-  
-  <script lang="ts">
-    const searchParams = new URLSearchParams(window.location.search);
-    const deeplink = searchParams.get('l');
-    window.location.href = deeplink
+
+  <script>
+    import { getDeeplinkRedirect } from '../../../lib/redirects'
+
+    const searchParams = new URLSearchParams(window.location.search)
+    const target = getDeeplinkRedirect(searchParams, window.location.origin)
+    if (target) {
+      window.location.assign(target)
+    } else {
+      document.title = 'Invalid link'
+      document.body.dataset.redirectState = 'invalid'
+      document.querySelector('[data-redirect-status]')?.replaceChildren('This link is invalid.')
+      document.querySelector('[data-redirect-detail]')?.removeAttribute('hidden')
+    }
   </script>
 </html>

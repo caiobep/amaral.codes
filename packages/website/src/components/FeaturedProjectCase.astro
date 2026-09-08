@@ -1,0 +1,88 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { render } from 'astro:content'
+import { formatTechnologies, getProjectHref, isExternalProject } from '../lib/content'
+
+interface Props {
+  project: CollectionEntry<'projects'>
+  index: number
+}
+
+const { project, index } = Astro.props
+const { Content } = await render(project)
+const href = getProjectHref(project)
+const external = isExternalProject(project)
+const visual = project.data.visual
+const imageSrcset = visual?.type === 'image' && visual.sources.length > 0
+  ? visual.sources.map((source) => `${source.src} ${String(source.width)}w`).join(', ')
+  : undefined
+const projectSearchText = [
+  project.data.title,
+  project.data.summary,
+  project.data.category,
+  ...project.data.technologies,
+  project.body ?? '',
+].join(' ')
+---
+
+<article
+  class="project-case"
+  data-project
+  data-project-label={project.data.category.toLocaleLowerCase('en')}
+  data-project-search={projectSearchText}
+>
+  <a
+    class="project-visual"
+    href={href}
+    target={external ? '_blank' : undefined}
+    rel={external ? 'noopener noreferrer' : undefined}
+    aria-label={`View ${project.data.title}`}
+  >
+    {visual?.type === 'image'
+      ? (
+          <img
+            src={visual.src}
+            srcset={imageSrcset}
+            sizes="(max-width: 760px) calc(100vw - 2rem), (max-width: 1180px) calc(100vw - 4rem), min(48vw, 47rem)"
+            alt={visual.alt}
+            width={visual.width}
+            height={visual.height}
+            loading={index === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchpriority={index === 0 ? 'high' : 'auto'}
+          />
+        )
+      : visual?.type === 'code'
+        ? <pre><code>{visual.lines.join('\n')}</code></pre>
+        : null}
+  </a>
+
+  <div class="project-details">
+    <div class="project-meta">
+      <span>{String(index + 1).padStart(2, '0')}</span>
+      <span>{project.data.category}</span>
+      <span>{formatTechnologies(project)}</span>
+    </div>
+    <h2>
+      <a
+        href={href}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noopener noreferrer' : undefined}
+      >{project.data.title}</a>
+    </h2>
+    <p class="project-summary">{project.data.summary}</p>
+
+    <div class="project-story">
+      <Content />
+    </div>
+
+    <a
+      class="repository-link"
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
+      {project.data.externalLabel ?? 'Read project notes'}
+    </a>
+  </div>
+</article>

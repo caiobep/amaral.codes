@@ -1,203 +1,194 @@
 ---
+import '../styles/pages/projects.css'
+import '../styles/pages/project-controls.css'
+import FeaturedProjectCase from '../components/FeaturedProjectCase.astro'
+import PageIntro from '../components/PageIntro.astro'
 import Layout from '../layouts/Layout.astro'
-import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
+import { Search } from '@lucide/astro'
+import {
+  formatTechnologies,
+  getProjectHref,
+  getProjectIndex,
+  isExternalProject,
+} from '../lib/content'
+import { createPageStructuredData } from '../lib/structured-data'
 
-const projects = [
-  {
-    title: 'Product interfaces and internal tools',
-    category: 'PRJ-001',
-    summary: 'Front-end work for teams with real operational constraints: forms, dashboards, workflows, design systems, and product surfaces people use repeatedly.',
-    impact: 'Interface implementation, front-end architecture, accessibility, delivery collaboration, and maintenance.',
-  },
-  {
-    title: 'Personal publishing pipeline',
-    category: 'SYS-002',
-    summary: 'A publishing workflow for turning notes, references, and short opinions into durable posts.',
-    impact: 'Content collections, Markdown generation, RSS-ready structure, and a stronger habit loop for publishing.',
-  },
-  {
-    title: 'Digital garden and archive assistant',
-    category: 'LAB-003',
-    summary: 'A site-native search and assistant direction for finding posts, projects, links, reviews, and recurring ideas through questions.',
-    impact: 'Archive structure, search behavior, content metadata, and a path toward retrieval-backed experiments.',
-  },
-  {
-    title: 'Knowledge and productivity systems',
-    category: 'TXT-004',
-    summary: 'Writing and experiments around PARA, spaced studying, capture habits, project organization, and how people keep ideas moving.',
-    impact: 'Essays, reusable workflows, and practical patterns for personal operating systems.',
-  },
+const {
+  featuredProjects,
+  otherSoftwareProjects,
+  physicalProjects,
+  projects,
+} = await getProjectIndex()
+const projectLabels = Array.from(new Set(
+  projects.map((project) => project.data.category),
+)).sort((left, right) => left.localeCompare(right, 'en'))
+const labelFilters = [
+  { label: 'All', value: 'all' },
+  ...projectLabels.map((label) => ({
+    label,
+    value: label.toLocaleLowerCase('en'),
+  })),
 ]
+const pageDescription = 'Things Caio Amaral has made: macOS widgets, command-line tools, dotfiles, and experiments built to solve small problems or understand how something works.'
+const structuredData = createPageStructuredData({
+  description: pageDescription,
+  pathname: Astro.url.pathname,
+  title: 'Projects',
+  type: 'CollectionPage',
+}, Astro.site)
 ---
 
 <Layout
   title="Projects"
-  description="Selected projects and work directions from Caio Amaral, including product engineering, publishing systems, digital gardens, and productivity tooling."
+  description={pageDescription}
+  structuredData={structuredData}
 >
-  <section class="projects-hero page-shell">
-    <p class="eyebrow">~/projects</p>
-    <h1>Selected work and active directions.</h1>
-    <p>
-      A concise view of the work this site should make easier to find: product interfaces, publishing tools, personal systems, and experiments around how people interact with software.
-    </p>
-  </section>
+  <PageIntro
+    eyebrow="Projects"
+    title="Things I’ve made."
+    summary="Most began with a small annoyance, a missing tool, or something I wanted to understand."
+  />
 
-  <section class="page-shell project-list" aria-label="Selected projects">
-    {projects.map((project) => (
-      <article class="project-row">
+  <section class="project-index" aria-label="Find projects">
+    <div class="project-controls page-shell" data-project-controls>
+      <div class="project-index-title">
+        <span>Project index</span>
+        <strong>Find a project</strong>
+      </div>
+      <label class="project-search">
+        <span class="control-label">Search</span>
+        <span class="project-search-field">
+          <Search aria-hidden="true" size={18} stroke-width={1.8} />
+          <input
+            type="search"
+            id="search-projects"
+            aria-label="Search projects"
+            placeholder="Name, tool, or problem"
+            autocomplete="off"
+          />
+        </span>
+      </label>
+      <fieldset class="project-filters">
+        <legend>Labels</legend>
         <div>
-          <p>{project.category}</p>
-          <h2>{project.title}</h2>
+          {labelFilters.map((filter) => (
+            <button
+              type="button"
+              data-project-filter={filter.value}
+              aria-pressed={filter.value === 'all' ? 'true' : 'false'}
+            >
+              <span>{filter.label}</span>
+            </button>
+          ))}
         </div>
-        <div>
-          <p>{project.summary}</p>
-          <strong>{project.impact}</strong>
-        </div>
-      </article>
-    ))}
+      </fieldset>
+    </div>
   </section>
 
-  <section class="page-shell contexts">
-    <p class="section-label">Work history</p>
-    <h2>Places I have worked with.</h2>
-    <p>
-      Public logos only. The work itself ranges from product interfaces and internal tools to design systems and delivery work.
-    </p>
-    <CompaniesIveWorkedWith />
-  </section>
+  <div id="project-results">
+    <section class="project-empty-state page-shell" hidden>
+      <p class="section-label">No matches</p>
+      <h2>Nothing matches that search.</h2>
+      <span>Try another term, choose a different label, or clear the filters.</span>
+      <button type="button" data-clear-project-search>Clear filters</button>
+    </section>
 
-  <section class="page-shell cta">
-    <h2>Have a product or workflow that needs a clearer shape?</h2>
-    <a class="button" href="/#contact">Write me</a>
+    <section class="project-band" aria-label="Featured projects" data-project-group data-reveal>
+      <div class="page-shell project-cases" data-stagger>
+        {featuredProjects.map((project, index) => (
+          <FeaturedProjectCase project={project} index={index} />
+        ))}
+      </div>
+    </section>
+
+    <section class="page-shell more-projects" aria-labelledby="more-projects-title" data-project-group data-reveal>
+      <div class="more-projects-heading">
+        <p class="section-label">Also made</p>
+        <h2 id="more-projects-title">A few smaller experiments.</h2>
+      </div>
+      <div class="project-list" data-stagger>
+        {otherSoftwareProjects.map((project) => {
+          const external = isExternalProject(project)
+          const searchText = [
+            project.data.title,
+            project.data.summary,
+            project.data.category,
+            ...project.data.technologies,
+          ].join(' ')
+
+          return (
+            <a
+              class="project-row"
+              href={getProjectHref(project)}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+              data-project
+              data-project-label={project.data.category.toLocaleLowerCase('en')}
+              data-project-search={searchText}
+            >
+              <div class="project-title">
+                <span>{project.data.category}</span>
+                <h3>{project.data.title}</h3>
+              </div>
+              <div class="project-copy">
+                <p>{project.data.summary}</p>
+                <strong>{formatTechnologies(project)}</strong>
+              </div>
+              <span class="project-arrow" aria-hidden="true">{external ? '↗' : '→'}</span>
+            </a>
+          )
+        })}
+      </div>
+    </section>
+
+    {physicalProjects.length > 0 && (
+      <section id="physical-projects" class="physical-projects" aria-labelledby="physical-projects-title" data-project-group data-reveal>
+        <div class="page-shell physical-projects-inner">
+          <div>
+            <p class="section-label">Physical projects</p>
+            <h2 id="physical-projects-title">Things that leave the screen.</h2>
+          </div>
+          <div class="physical-project-list">
+            {physicalProjects.map((project) => {
+              const external = isExternalProject(project)
+              const searchText = [
+                project.data.title,
+                project.data.summary,
+                project.data.category,
+                ...project.data.technologies,
+              ].join(' ')
+
+              return (
+                <a
+                  href={getProjectHref(project)}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
+                  data-project
+                  data-project-label={project.data.category.toLocaleLowerCase('en')}
+                  data-project-search={searchText}
+                >
+                  <span>{project.data.category}</span>
+                  <h3>{project.data.title}</h3>
+                  <p>{project.data.summary}</p>
+                  <strong>{formatTechnologies(project)}</strong>
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    )}
+  </div>
+
+  <section class="page-shell cta" data-reveal>
+    <div>
+      <p class="section-label">The rest</p>
+      <h2>There’s more on GitHub, in various states of done.</h2>
+    </div>
+    <a class="button-secondary" href="https://github.com/caiobep" target="_blank" rel="noopener noreferrer">Browse GitHub</a>
   </section>
 </Layout>
 
-<style>
-  .projects-hero {
-    max-width: 820px;
-    padding: 4rem 0 3rem;
-  }
-
-  h1 {
-    margin: 0.8rem 0 1rem;
-    font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.4rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: 0;
-  }
-
-  .projects-hero p:last-child {
-    max-width: 48rem;
-    color: var(--muted);
-    font-size: 1.08rem;
-    line-height: 1.7;
-  }
-
-  .project-list {
-    display: grid;
-    gap: 0;
-  }
-
-  .project-row {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(1.5rem, 5vw, 4rem);
-    border-top: 1px solid var(--line);
-    padding: 1.8rem 0;
-  }
-
-  .project-row:last-child {
-    border-bottom: 1px solid var(--line);
-  }
-
-  .project-row h2 {
-    max-width: 18ch;
-    margin: 0.3rem 0 0;
-    font-family: var(--display);
-    font-size: clamp(1.8rem, 3.2vw, 3rem);
-    font-weight: 400;
-    line-height: 1.08;
-  }
-
-  .project-row p:first-child {
-    margin: 0;
-    color: var(--accent-strong);
-    font-family: var(--mono);
-    font-size: 0.74rem;
-    font-weight: 750;
-    text-transform: uppercase;
-  }
-
-  .project-row div:last-child p {
-    margin-top: 0;
-    color: var(--muted);
-    font-size: 1.02rem;
-    line-height: 1.7;
-  }
-
-  .project-row strong {
-    display: block;
-    max-width: 36rem;
-    line-height: 1.45;
-  }
-
-  .contexts,
-  .cta {
-    padding: 4.5rem 0;
-  }
-
-  .contexts {
-    border-top: 1px solid var(--line);
-  }
-
-  .contexts h2 {
-    max-width: 18ch;
-    margin: 0.75rem 0 0;
-    font-family: var(--display);
-    font-size: clamp(2rem, 4vw, 3.4rem);
-    font-weight: 400;
-    line-height: 1.08;
-  }
-
-  .contexts > p:not(.section-label) {
-    max-width: 42rem;
-    margin: 1rem 0 1.8rem;
-    color: var(--muted);
-    line-height: 1.65;
-  }
-
-  .cta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    border-top: 1px solid var(--line);
-  }
-
-  .cta h2 {
-    max-width: 18ch;
-    margin: 0;
-    font-family: var(--display);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.05;
-  }
-
-  @media (max-width: 820px) {
-    .project-row,
-    .cta {
-      grid-template-columns: 1fr;
-      align-items: start;
-      flex-direction: column;
-    }
-
-    h1 {
-      font-size: clamp(2.7rem, 12vw, 4.4rem);
-    }
-
-    .contexts > div {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+<script>
+  import '../scripts/project-filters'
+</script>

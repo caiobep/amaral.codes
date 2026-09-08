@@ -1,0 +1,20 @@
+{
+  "maximumDropRatio": 0.1,
+  "collections": {
+    "entries": {
+      "expectedDocuments": 55,
+      "label": "editorial entries",
+      "snapshotPath": "packages/website/src/content/entries/synced/editorial"
+    },
+    "podcasts": {
+      "expectedDocuments": 13,
+      "label": "podcasts",
+      "snapshotPath": "packages/website/src/content/entries/synced/podcasts"
+    },
+    "projects": {
+      "expectedDocuments": 6,
+      "label": "projects",
+      "snapshotPath": "packages/website/src/content/projects/synced"
+    }
+  }
+}

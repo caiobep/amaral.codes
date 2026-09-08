@@ -1,0 +1,111 @@
+---
+const title = 'Offline | Caio Amaral'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-viewport />
+    <script is:inline>
+      if (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true
+      ) {
+        document.querySelector('[data-viewport]')?.setAttribute(
+          'content',
+          'width=device-width, initial-scale=1.0, viewport-fit=cover',
+        )
+      }
+    </script>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --ink: #151a19;
+        --muted: #5f6965;
+        --paper: #fff;
+        --line: #aeb9b4;
+        --accent: #174b47;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        padding: 2rem;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(100%, 40rem);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: clamp(2.5rem, 8vw, 5rem) 0;
+      }
+
+      p {
+        max-width: 34rem;
+        margin: 1rem 0 0;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.7;
+      }
+
+      p:first-child {
+        margin: 0 0 1.2rem;
+        color: var(--accent);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 10ch;
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(3.25rem, 12vw, 6rem);
+        font-weight: 400;
+        line-height: 0.96;
+      }
+
+      a {
+        display: inline-block;
+        margin-top: 2rem;
+        border-bottom: 1px solid currentColor;
+        color: var(--ink);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #edf3ef;
+          --muted: #a6b2ad;
+          --paper: #0f1413;
+          --line: #465550;
+          --accent: #9adfcd;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>Offline</p>
+      <h1>The connection dropped.</h1>
+      <p>Pages you have already visited may still be available. Reconnect and try this page again.</p>
+      <a href="/">Return home</a>
+    </main>
+  </body>
+</html>

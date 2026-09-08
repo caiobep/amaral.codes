@@ -1,65 +1,163 @@
 ---
 import ImageLink from './ImageLink.astro'
 
-const companies = [
-  ['https://www.bancobmg.com.br', '/photos/clients/bmg.webp', 'Banco BMG'],
-  ['https://embraer.com', '/photos/clients/embraer.webp', 'Embraer'],
-  ['https://www.itv.com', '/photos/clients/itv.webp', 'ITV'],
-  ['https://www.lambda3.com.br', '/photos/clients/lambda3.webp', 'Lambda3'],
-  ['https://www.linkedin.com/company/resource-it-solutions/', '/photos/clients/resource.webp', 'Resource IT'],
-  ['https://www.santander.com.br', '/photos/clients/santander.webp', 'Santander'],
-  ['https://www.ticket.com.br', '/photos/clients/ticket.webp', 'Ticket'],
-  ['https://tmamerica.com/', '/photos/clients/tokio-marine.webp', 'Tokio Marine'],
-  ['https://vigil.global', '/photos/clients/vigil.webp', 'Vigil'],
-  ['https://xpinc.com', '/photos/clients/xpinc.webp', 'XP Inc.'],
-  ['https://xpi.com.br', '/photos/clients/xpprivate.webp', 'XP Private'],
-  ['https://xpi.us', '/photos/clients/xpinvestments.webp', 'XP Securities'],
-  ['https://findmypast.co.uk', '/photos/clients/findmypast.webp', 'Findmypast'],
+interface Props {
+  annotated?: boolean
+}
+
+type Company = readonly [
+  href: string,
+  src: string,
+  alt: string,
+  visualScale: number,
+  tone?: 'silhouette',
 ]
+
+const companies = [
+  // Reverse chronological by career chapter; product and client marks follow their associated team.
+  ['https://www.rdbrck.com', '/photos/clients/redbrick.svg', 'Redbrick', 1.14],
+  ['https://shift.com', '/photos/clients/shift.svg', 'Shift Browser', 0.82],
+  ['https://qz.com', '/photos/clients/quartz.svg', 'Quartz', 1.04],
+  ['https://vigil.global', '/photos/clients/vigil.webp', 'Vigil', 0.78],
+  ['https://findmypast.co.uk', '/photos/clients/findmypast.webp', 'Findmypast', 1],
+  ['https://www.itv.com', '/photos/clients/itv.webp', 'ITV', 0.82],
+  ['https://xpinc.com', '/photos/clients/xpinc.webp', 'XP Inc.', 0.94],
+  ['https://xpi.com.br', '/photos/clients/xpprivate.webp', 'XP Private', 0.82],
+  ['https://xpi.us', '/photos/clients/xpinvestments.webp', 'XP Securities', 1.1],
+  ['https://www.lambda3.com.br', '/photos/clients/lambda3.webp', 'Lambda3', 1.25],
+  ['https://www.bancobmg.com.br', '/photos/clients/bmg.webp', 'Banco BMG', 0.94, 'silhouette'],
+  ['https://www.ticket.com.br', '/photos/clients/ticket.webp', 'Ticket', 1.22],
+  ['https://tmamerica.com/', '/photos/clients/tokio-marine.webp', 'Tokio Marine', 1.25],
+  ['https://www.linkedin.com/company/resource-it-solutions/', '/photos/clients/resource.webp', 'Resource IT', 1.18],
+  ['https://www.santander.com.br', '/photos/clients/santander.webp', 'Santander', 1],
+  ['https://embraer.com', '/photos/clients/embraer.webp', 'Embraer', 1.03],
+] satisfies Company[]
+
+const { annotated = false } = Astro.props
 ---
 
-<div class="companies">
-  {companies.map(([href, src, alt]) => (
-    <ImageLink href={href} src={src} alt={alt} />
-  ))}
+<div class:list={["company-history", { annotated }]}>
+  {annotated && (
+    <div class="chronology" aria-hidden="true">
+      <span>More recent</span>
+      <span>Earlier</span>
+    </div>
+  )}
+  <div class="companies" aria-label="Employers, products, and client teams in career order">
+    {companies.map(([href, src, alt, visualScale, tone]) => (
+      <ImageLink href={href} src={src} alt={alt} visualScale={visualScale} tone={tone} />
+    ))}
+  </div>
 </div>
 
 <style>
+  .company-history {
+    width: 100%;
+  }
+
+  .company-history.annotated {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .chronology {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 2.65rem 0;
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .chronology::before {
+    position: absolute;
+    top: 4.5rem;
+    bottom: 4.5rem;
+    width: 1px;
+    background: var(--line);
+    content: "";
+  }
+
+  .chronology span {
+    position: relative;
+    z-index: 1;
+    background: var(--paper);
+    writing-mode: vertical-rl;
+  }
+
   .companies {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.8rem 2.5rem;
+    align-items: center;
     width: 100%;
+    padding: 2rem 0;
   }
 
   .companies :global(a) {
     display: grid;
-    min-height: 5.4rem;
+    min-height: 5rem;
     place-items: center;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.9rem;
-    background:
-      linear-gradient(180deg, rgba(232, 227, 213, 0.08), rgba(17, 21, 29, 0.72));
-    filter: grayscale(1) contrast(0.92);
-    opacity: 0.78;
-    transition:
-      border-color 180ms ease,
-      filter 180ms ease,
-      opacity 180ms ease,
-      transform 180ms ease;
-  }
-
-  .companies :global(a:hover) {
-    border-color: rgba(200, 168, 107, 0.44);
-    filter: grayscale(0.15) contrast(1);
-    opacity: 1;
-    transform: translateY(-2px);
+    padding: 0.35rem;
+    transition: transform 180ms ease-in-out;
   }
 
   .companies :global(img) {
-    max-width: 7.8rem;
-    max-height: 3.4rem;
+    width: min(100%, 9rem);
+    height: 3.15rem;
     object-fit: contain;
+    object-position: center;
+    filter: var(--logo-item-filter, var(--logo-filter));
+    opacity: var(--logo-opacity);
+    transform: scale(var(--logo-scale));
+    transform-origin: center;
+    transition:
+      filter 180ms ease-in-out,
+      opacity 180ms ease-in-out,
+      transform 180ms ease-in-out;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .companies :global(a:hover) {
+      transform: translateY(-2px);
+    }
+
+    .companies :global(a:hover img) {
+      filter: var(--logo-item-hover-filter, var(--logo-hover-filter));
+      opacity: var(--logo-hover-opacity);
+      transform: scale(var(--logo-hover-scale));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .company-history.annotated {
+      display: block;
+    }
+
+    .chronology {
+      display: none;
+    }
+
+    .companies {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem 1.5rem;
+      padding: 1.5rem 0;
+    }
+
+    .companies :global(a) {
+      min-height: 4.4rem;
+    }
+
+    .companies :global(img) {
+      width: min(100%, 7.75rem);
+      height: 2.9rem;
+    }
   }
 </style>

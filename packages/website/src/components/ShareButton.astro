@@ -1,0 +1,100 @@
+---
+import { Share2 } from '@lucide/astro'
+
+interface Props {
+  title: string
+  text?: string
+  url: string
+  variant?: 'button' | 'text'
+}
+
+const { title, text, url, variant = 'button' } = Astro.props
+---
+
+<button
+  class:list={['share-button', { 'share-button--text': variant === 'text' }]}
+  type="button"
+  data-share-button
+  data-share-title={title}
+  data-share-text={text}
+  data-share-url={url}
+  aria-label="Share this page"
+>
+  <Share2 aria-hidden="true" />
+  <span data-share-label aria-live="polite">Share</span>
+</button>
+
+<style>
+  .share-button {
+    display: inline-flex;
+    min-width: 7.5rem;
+    min-height: 2.55rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+    padding: 0 0.9rem;
+    background: var(--surface-translucent);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      transform 220ms var(--ease);
+  }
+
+  .share-button :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    stroke-width: 1.8;
+  }
+
+  .share-button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  .share-button[data-share-state="shared"],
+  .share-button[data-share-state="copied"] {
+    border-color: var(--accent);
+    background: var(--accent-faint);
+    color: var(--accent-strong);
+  }
+
+  .share-button[data-share-state="failed"] {
+    border-color: var(--line-strong);
+    color: var(--muted);
+  }
+
+  .share-button--text {
+    min-width: auto;
+    min-height: auto;
+    justify-content: flex-start;
+    border: 0;
+    border-bottom: 1px solid currentColor;
+    border-radius: 0;
+    padding: 0 0 0.15rem;
+    background: transparent;
+    font-size: 0.76rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .share-button:hover:not(:disabled) {
+      border-color: var(--accent-strong);
+      background: var(--accent-faint);
+      color: var(--ink);
+      transform: translateY(-2px);
+    }
+
+    .share-button--text:hover:not(:disabled) {
+      background: transparent;
+      color: var(--accent-strong);
+      transform: none;
+    }
+  }
+</style>

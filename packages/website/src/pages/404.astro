@@ -2,12 +2,17 @@
 import Layout from '../layouts/Layout.astro'
 ---
 
-<Layout title="Path not found" description="The requested page could not be found on amaral.codes.">
+<Layout
+  title="Path not found"
+  description="The requested page could not be found on amaral.codes."
+  robots="noindex,nofollow"
+>
   <section class="not-found page-shell">
-    <p class="eyebrow">~/404</p>
-    <h1>path not found<span aria-hidden="true">_</span></h1>
-    <p>The archive has no file at this address.</p>
+    <p class="eyebrow">Error 404</p>
+    <h1>Nothing lives here.</h1>
+    <p>The address may have changed, or the page may never have existed.</p>
     <a class="button" href="/">Return home</a>
+    <p class="easter-egg"><strong>The cake is a lie.</strong></p>
   </section>
 </Layout>
 
@@ -15,26 +20,16 @@ import Layout from '../layouts/Layout.astro'
   .not-found {
     display: grid;
     align-content: center;
-    min-height: 100vh;
-    padding: 5rem 0;
+    min-height: 72vh;
+    padding: 6rem 0;
   }
 
   h1 {
     margin: 0.8rem 0 1rem;
-    font-family: var(--mono);
-    font-size: clamp(2.6rem, 7vw, 6rem);
-    font-weight: 500;
-    line-height: 1;
-  }
-
-  h1::before {
-    color: var(--phosphor);
-    content: "> ";
-  }
-
-  h1 span {
-    color: var(--accent);
-    animation: caret 1s steps(1) infinite;
+    font-family: var(--display);
+    font-size: clamp(3.2rem, 7vw, 6.4rem);
+    font-weight: 400;
+    line-height: 0.95;
   }
 
   p {
@@ -47,9 +42,12 @@ import Layout from '../layouts/Layout.astro'
     justify-self: start;
   }
 
-  @keyframes caret {
-    50% {
-      opacity: 0;
-    }
+  .easter-egg {
+    margin: 3.5rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    opacity: 0.5;
   }
+
 </style>

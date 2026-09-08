@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="17" result="noise" />
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+      <feComponentTransfer in="mono">
+        <feFuncA type="table" tableValues="0 0.055" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#f2f4f1" />
+  <rect x="886" width="314" height="630" fill="#163f3b" />
+  <rect x="886" y="0" width="8" height="630" fill="#bddb65" />
+  <path d="M64 124H824M64 524H824" stroke="#c6ceca" stroke-width="2" />
+  <g fill="#101613" font-family="Arial, Helvetica, sans-serif">
+    <text x="64" y="84" font-size="26" font-weight="700">Caio Amaral</text>
+    <text x="64" y="205" font-size="72" font-weight="700">Notes on software,</text>
+    <text x="64" y="291" font-size="72" font-weight="700">tools, and what happens</text>
+    <text x="64" y="377" font-size="72" font-weight="700">when I use them.</text>
+    <text x="64" y="574" font-size="22" font-weight="700">AMARAL.CODES / NOTES</text>
+  </g>
+  <g fill="#f2f4f1" font-family="Georgia, 'Times New Roman', serif">
+    <text x="954" y="138" font-size="30">What worked.</text>
+    <text x="954" y="188" font-size="30">What broke.</text>
+    <text x="954" y="238" font-size="30">What changed.</text>
+  </g>
+  <circle cx="1043" cy="495" r="62" fill="none" stroke="#bddb65" stroke-width="3" />
+  <path d="M1010 495h66M1043 462v66" stroke="#bddb65" stroke-width="3" />
+  <rect width="1200" height="630" filter="url(#grain)" opacity="0.7" />
+</svg>

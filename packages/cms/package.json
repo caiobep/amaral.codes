@@ -1,0 +1,38 @@
+{
+  "name": "@amaral.codes/cms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional local Payload publishing trial",
+  "scripts": {
+    "dev": "node scripts/start-next.mjs",
+    "generate": "node scripts/generate.mjs",
+    "lint": "eslint src scripts tests && tsc --noEmit",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "test:coverage": "vitest run --coverage",
+    "quality": "npm run generate && npm run lint && npm run test:coverage && npm run quality:crap",
+    "quality:crap": "crap-typescript --package-manager npm --test-runner vitest --threshold 6 --format json --output coverage/crap.json src/access src/editor src/entry-data src/preview src/collections && node ../../scripts/commands/assert-crap-report.mjs coverage/crap.json"
+  },
+  "dependencies": {
+    "@amaral.codes/content-contract": "0.0.0",
+    "@payloadcms/db-sqlite": "3.88.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
+    "graphql": "^16.11.0",
+    "next": "16.3.4",
+    "payload": "3.88.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "^0.35.4",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@barney-media/crap-typescript": "^0.4.2",
+    "@playwright/test": "^1.62.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
+  }
+}

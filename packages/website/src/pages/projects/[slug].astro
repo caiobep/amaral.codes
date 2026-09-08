@@ -1,0 +1,176 @@
+---
+import { render } from 'astro:content'
+import ShareButton from '../../components/ShareButton.astro'
+import Layout from '../../layouts/Layout.astro'
+import { formatTechnologies, getProjectIndex } from '../../lib/content'
+import { createCanonicalUrl } from '../../lib/site'
+
+export async function getStaticPaths() {
+  const { projects } = await getProjectIndex()
+  const routableProjects = projects.filter((project) => !project.data.externalUrl)
+
+  return routableProjects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }))
+}
+
+const { project } = Astro.props
+const { Content } = await render(project)
+const { title, summary, kind, category, technologies, visual } = project.data
+const canonicalUrl = createCanonicalUrl(Astro.url.pathname, Astro.site)
+---
+
+<Layout title={title} description={summary} activeNav="projects">
+  <article class="project page-shell">
+    <header data-reveal>
+      <a class="back-link" href="/projects">All projects</a>
+      <div class="project-meta">
+        <span>{kind}</span>
+        <span>{category}</span>
+      </div>
+      <h1>{title}</h1>
+      <p class="summary">{summary}</p>
+      {technologies.length ? <p class="technologies">{formatTechnologies(project)}</p> : null}
+      <div class="project-actions">
+        <ShareButton title={title} text={summary} url={canonicalUrl} />
+      </div>
+    </header>
+
+    {visual
+      ? (
+      <div class="project-visual" data-reveal>
+        {visual.type === 'image'
+          ? (
+          <img src={visual.src} alt={visual.alt} />
+            )
+          : (
+          <pre><code>{visual.lines.join('\n')}</code></pre>
+            )}
+      </div>
+        )
+      : null}
+
+    <div class="content" data-reveal>
+      <Content />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .project {
+    padding: clamp(3rem, 7vw, 6.5rem) 0 clamp(5rem, 9vw, 8rem);
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.28fr) minmax(0, 1.72fr);
+    gap: 0.9rem clamp(2rem, 5vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .back-link {
+    grid-row: 1 / span 6;
+    justify-self: start;
+    border-bottom: 1px solid currentColor;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .back-link::before {
+    margin-right: 0.4rem;
+    content: "←";
+  }
+
+  .project-meta,
+  .technologies {
+    display: flex;
+    gap: 0.8rem;
+    margin: 0;
+    color: var(--accent-strong);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .project-actions {
+    margin-top: 0.45rem;
+  }
+
+  h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 5.7vw, 5.6rem);
+    font-weight: 400;
+    line-height: 0.97;
+  }
+
+  .summary {
+    max-width: 42rem;
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1.65;
+  }
+
+  .project-visual {
+    display: grid;
+    place-items: center;
+    min-height: 24rem;
+    margin-top: clamp(3rem, 7vw, 5rem);
+    overflow: hidden;
+    background: var(--dark);
+    color: var(--phosphor);
+  }
+
+  .project-visual img {
+    width: 100%;
+    max-height: 44rem;
+    object-fit: cover;
+  }
+
+  .project-visual pre {
+    width: min(100% - 3rem, 48rem);
+    overflow-x: auto;
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  .content {
+    width: min(100%, 740px);
+    margin: clamp(3rem, 7vw, 5.5rem) auto 0;
+    font-size: 1.08rem;
+    line-height: 1.78;
+  }
+
+  .content :global(h2) {
+    margin: 2.8rem 0 0.85rem;
+    font-family: var(--display);
+    font-size: 2.25rem;
+    font-weight: 400;
+  }
+
+  .content :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 720px) {
+    header {
+      grid-template-columns: 1fr;
+    }
+
+    .back-link {
+      grid-row: auto;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-visual {
+      min-height: 15rem;
+    }
+  }
+</style>

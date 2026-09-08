@@ -1,26 +1,57 @@
-name: Test Project
+name: CI
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  test:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
+  verify:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    env:
+      CI: true
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-        cache: 'npm'
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-    - name: Run Tests
-      run: npm run test
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build
-      run: npm run build
+      - name: Check repository and build website
+        run: npm run build
+        env:
+          AMARAL_CONTENT_SOURCE: fixtures
 
+      - name: Validate Cloudflare bundle
+        run: npm run verify:cloudflare
+
+      - name: Install browser test engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Check browser journeys
+        run: npm run test:browser
+
+      - name: Check performance budgets
+        run: npm run perf:ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high

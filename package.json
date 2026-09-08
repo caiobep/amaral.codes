@@ -1,17 +1,63 @@
 {
+  "name": "amaral.codes",
+  "private": true,
   "license": "MIT",
-  "engine": {
-    "node": ">=24",
-    "npm": ">=9"
+  "engines": {
+    "node": "^24.16.0 || >=26.3.0",
+    "npm": ">=11"
   },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build-blogposts": "npm run build-and-run -w packages/import-blogposts-from-notion -- ../../packages/website/src/content/blog-posts",
-    "build": "npm run build-blogposts && npm run build -w packages/website",
-    "start": "npm run start -w packages/website",
-    "serve": "npm run preview -w packages/website",
-    "build-and-serve": "npm run build && npm run serve"
+    "cms:dev": "node packages/cms/scripts/dev.mjs",
+    "quality:cms": "npm run quality -w @amaral.codes/cms",
+    "build": "npm run quality && npm run build:site",
+    "build:production": "npm run content:sync && npm run verify:publication && npm run build:production-content -w @amaral.codes/website",
+    "build:site": "npm run build -w @amaral.codes/website",
+    "clean": "node scripts/commands/clean-generated.mjs",
+    "content:sync": "npm run sync -w @amaral.codes/content-sync",
+    "content:sync:entries": "npm run sync:entries -w @amaral.codes/content-sync",
+    "content:sync:podcasts": "npm run sync:podcasts -w @amaral.codes/content-sync",
+    "content:sync:projects": "npm run sync:projects -w @amaral.codes/content-sync",
+    "content:dev": "npm run content:sync && npm run dev",
+    "deploy:cloudflare": "npm run build:production && npm run verify:cloudflare && wrangler deploy --config packages/website/wrangler.jsonc",
+    "deploy:cloudflare:dry-run": "npm run build:production && npm run verify:cloudflare",
+    "dev": "npm run dev -w @amaral.codes/website",
+    "quality:hygiene": "eslint --max-warnings 0 scripts && node --test scripts/architecture-rules/index.test.mjs scripts/content-asset-hygiene/index.test.mjs scripts/module-structure/index.test.mjs scripts/presentation-asset-hygiene/index.test.mjs scripts/public-content-privacy/index.test.mjs scripts/public-markdown-html/index.test.mjs scripts/publication-snapshot/index.test.mjs scripts/release-safety/index.test.mjs && node scripts/check-architecture.mjs && node scripts/commands/check-module-structure.mjs && node scripts/commands/check-repository-hygiene.mjs && npm run verify:content && node scripts/release-safety/index.mjs",
+    "quality:contract": "npm run quality -w @amaral.codes/content-contract",
+    "quality:content": "npm run quality -w @amaral.codes/content-sync",
+    "quality:website": "npm run quality -w @amaral.codes/website",
+    "quality": "npm run quality:hygiene && npm run quality:contract && npm run quality:content && npm run quality:website && npm run quality:cms",
+    "test:browser": "npm run test:browser -w @amaral.codes/website && npm run test:browser -w @amaral.codes/cms",
+    "test": "npm run quality",
+    "perf": "npm run perf -w @amaral.codes/website",
+    "perf:ci": "npm run perf:ci -w @amaral.codes/website",
+    "perf:field": "npm run perf:field -w @amaral.codes/website --",
+    "start": "npm run dev",
+    "preview": "npm run preview -w @amaral.codes/website",
+    "verify:cloudflare": "npm run verify:release:safety && wrangler deploy --dry-run --config packages/website/wrangler.jsonc",
+    "verify:assets": "npm run verify:assets -w @amaral.codes/website",
+    "verify:content": "node scripts/commands/check-public-content.mjs && node scripts/commands/check-public-markdown-html.mjs && node scripts/commands/check-content-assets.mjs && node scripts/commands/check-presentation-assets.mjs",
+    "verify:publication": "node scripts/publication-snapshot/index.mjs && npm run verify:content",
+    "verify:release:safety": "node scripts/release-safety/index.mjs",
+    "verify:release": "npm run quality && npm run verify:assets && npm run build:site && npm run verify:cloudflare && npm run test:browser && npm run perf:ci && npm audit --audit-level=high"
+  },
+  "devDependencies": {
+    "@eslint/js": "~10.0.1",
+    "eslint": "~10.8.0",
+    "eslint-plugin-astro": "~3.0.1",
+    "globals": "~17.7.0",
+    "js-yaml": "^4.3.1",
+    "mdast-util-from-markdown": "~2.0.3",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "~8.65.0",
+    "wrangler": "~4.125.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.2": true,
+    "fsevents@2.3.3": true,
+    "workerd@1.20260820.1": true
   }
 }

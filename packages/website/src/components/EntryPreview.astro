@@ -1,0 +1,201 @@
+---
+import {
+  FileText,
+  Headphones,
+  Link2,
+  Notebook,
+  Presentation,
+  Star,
+  Video,
+} from '@lucide/astro'
+import { formatPostDate } from '../lib/date'
+import { getEntryHref } from '../lib/routes'
+
+interface Props {
+  pathname: string
+  title: string
+  date?: string
+  summary?: string
+  tags?: string[]
+  category?: string
+}
+
+const {
+  title,
+  summary,
+  pathname,
+  date,
+  tags = [],
+  category = 'note',
+} = Astro.props
+
+const entryUrl = getEntryHref(pathname)
+const readableDate = date
+  ? formatPostDate(date, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  : 'Undated'
+const hasSummary = Boolean(summary)
+const iconByCategory = {
+  essay: FileText,
+  link: Link2,
+  note: Notebook,
+  podcast: Headphones,
+  review: Star,
+  talk: Presentation,
+  video: Video,
+} as const
+const CategoryIcon = iconByCategory[category as keyof typeof iconByCategory]
+const searchIndex = [
+  title,
+  hasSummary ? String(summary) : '',
+  readableDate,
+  pathname.replaceAll('-', ' ').replaceAll('_', ' '),
+  ...tags,
+].join(' ')
+---
+
+<a
+  href={entryUrl}
+  class="post"
+  data-category={category}
+  data-search={searchIndex}
+>
+  <article>
+    <div class="post-meta">
+      <span class="post-type">
+        {CategoryIcon ? <CategoryIcon aria-hidden="true" /> : null}
+        <span>{category}</span>
+      </span>
+      <time datetime={date}>{readableDate}</time>
+    </div>
+    <div class="post-copy">
+      <h2>{title}</h2>
+      {hasSummary ? <p>{String(summary)}</p> : null}
+    </div>
+    <span class="post-arrow" aria-hidden="true">→</span>
+  </article>
+</a>
+
+<style>
+  .post {
+    display: block;
+    border-top: 1px solid var(--line);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 180ms ease;
+  }
+
+  .post:last-of-type {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .post:focus-visible {
+    background: var(--accent-faint);
+    outline: none;
+  }
+
+  article {
+    display: grid;
+    grid-template-columns: 7.25rem minmax(0, 1fr) 2rem;
+    column-gap: clamp(1.25rem, 2vw, 1.75rem);
+    align-items: start;
+    padding: 1.6rem 0.75rem;
+  }
+
+  .post-meta {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .post-type {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent-strong);
+  }
+
+  .post-type :global(svg) {
+    width: 0.86rem;
+    height: 0.86rem;
+    flex: 0 0 auto;
+    stroke-width: 1.8;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 650;
+    line-height: 1.2;
+    transition: color 220ms ease;
+  }
+
+  p {
+    max-width: 44rem;
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .post-arrow {
+    padding-top: 0.12rem;
+    color: var(--muted);
+    font-size: 1.2rem;
+    transition: color 180ms ease, transform 180ms var(--ease);
+  }
+
+  .post:focus-visible .post-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .post:focus-visible h2 {
+    color: var(--accent-strong);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .post:hover {
+      background: var(--accent-faint);
+    }
+
+    .post:hover .post-arrow {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .post:hover h2 {
+      color: var(--accent-strong);
+    }
+  }
+
+  @media (max-width: 680px) {
+    article {
+      grid-template-columns: 1fr 1.5rem;
+      gap: 0.8rem;
+      padding: 1.35rem 0.25rem;
+    }
+
+    .post-meta {
+      display: flex;
+      grid-column: 1 / -1;
+      gap: 0.6rem;
+    }
+
+    h2 {
+      font-size: 1.22rem;
+    }
+  }
+</style>

@@ -1,145 +1,314 @@
 ---
-const linkGroups = [
-  {
-    title: 'Explore',
-    links: {
-      Home: '/',
-      About: '/about',
-      Projects: '/projects',
-      Archive: '/posts',
-      'Resume / CV': '/resume/CV.pdf',
-    },
-  },
-  {
-    title: 'Social',
-    links: {
-      GitHub: 'https://github.com/caiobep',
-      LinkedIn: 'https://ca.linkedin.com/in/caiobep/',
-      'X / Twitter': 'https://twitter.com/caicorre',
-      Mastodon: 'https://mstdn.social/@caicorre',
-      Letterboxd: 'https://letterboxd.com/caiobep/',
-    },
-  },
-  {
-    title: 'Contact',
-    links: {
-      '20 minute chat': 'https://fantastical.app/caio/20-minute-chat-with-caio',
-    },
-  },
-]
+import ThemePreference from './ThemePreference.astro'
+import { getEntryIndex } from '../lib/content'
+import { selectAdvertisedRssFeeds } from '../lib/rss'
+
+const { entries } = await getEntryIndex()
+const rssFeedLabels: Record<string, string> = {
+  everything: 'All content feed',
+  reviews: 'Reviews feed',
+  videos: 'Videos feed',
+  podcasts: 'Podcast feed',
+  talks: 'Talk feed',
+}
+const rssLinks = Object.fromEntries(
+  selectAdvertisedRssFeeds(entries).map((feed) => [rssFeedLabels[feed.slug], `/rss#${feed.slug}`]),
+)
+
+const exploreLinks = {
+  Notes: '/posts',
+  Podcasts: '/posts?category=podcast',
+  Talks: '/posts?category=talk',
+  Projects: '/projects',
+  About: '/about',
+  CV: '/resume/CV.pdf',
+  Contact: '/contact',
+}
+const primaryProfiles = {
+  GitHub: 'https://github.com/caiobep',
+  LinkedIn: 'https://ca.linkedin.com/in/caiobep/',
+  'X / Twitter': 'https://twitter.com/caicorre',
+  Letterboxd: 'https://letterboxd.com/caiobep/',
+}
+const secondaryProfiles = {
+  Mastodon: 'https://mstdn.social/@caicorre',
+  Goodreads: 'https://www.goodreads.com/user/show/109136141',
+  GameTrack: 'https://gametrack.app/user/caiobep',
+  Reddit: 'https://www.reddit.com/user/caiobep/submitted/',
+}
+
+const renderLinks = (links: Record<string, string>) => Object.entries(links)
+
+interface Props {
+  flush?: boolean
+}
+
+const { flush = false } = Astro.props
 ---
 
-<footer class="footer">
-  <div class="footer-inner">
+<footer class:list={['footer-shell', { 'footer-shell-flush': flush }]}>
+  <div class="footer">
     <div class="footer-intro">
-      <p class="eyebrow">~/footer</p>
-      <h2>Public notes, quiet systems, and ways to reach me.</h2>
-      <p class="footer-note">Work, notes, reviews, and links worth keeping public.</p>
+      <a href="/" class="footer-name">Caio Amaral</a>
+      <p>Software, notes, reviews, and links.</p>
     </div>
 
     <div class="footer-links">
-      {linkGroups.map((group) => (
-        <section>
-          <h3>{group.title}</h3>
+      <section class="footer-section" aria-label="Explore">
+        <h2>On this site</h2>
+        <div class="footer-section-content">
           <ul>
-            {Object.entries(group.links).map(([label, href]) => (
-              <li>
-                <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}>{label}</a>
-              </li>
+            {renderLinks(exploreLinks).map(([label, href]) => <li><a href={href}>{label}</a></li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="footer-section" aria-label="RSS">
+        <h2>Follow by RSS</h2>
+        <div class="footer-section-content">
+          <ul>
+            {renderLinks(rssLinks).map(([label, href]) => <li><a href={href}>{label}</a></li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="footer-section footer-elsewhere" aria-label="Elsewhere">
+        <h2>Elsewhere</h2>
+        <div class="footer-section-content footer-profile-links">
+          <ul>
+            {renderLinks(primaryProfiles).map(([label, href]) => (
+              <li><a href={href} target="_blank" rel="noopener noreferrer">{label}</a></li>
             ))}
           </ul>
-        </section>
-      ))}
+          <details>
+            <summary>More profiles</summary>
+            <ul>
+              {renderLinks(secondaryProfiles).map(([label, href]) => (
+                <li><a href={href} target="_blank" rel="noopener noreferrer">{label}</a></li>
+              ))}
+            </ul>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-base">
+      <p>© {new Date().getFullYear()} Caio Amaral Corrêa</p>
+      <ThemePreference />
     </div>
   </div>
-
-  <p class="copyright">© {new Date().getFullYear()} Caio Amaral Corrêa</p>
 </footer>
 
 <style>
+  .footer-shell {
+    --footer-gap: clamp(4.5rem, 7vw, 6rem);
+
+    position: relative;
+    margin-top: var(--footer-gap);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--dark);
+    box-shadow: 0 50vh 0 50vh var(--dark);
+    color: #f5f7f2;
+  }
+
+  .footer-shell::before {
+    position: absolute;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    height: var(--footer-gap);
+    background: var(--paper);
+    content: "";
+    pointer-events: none;
+  }
+
+  .footer-shell-flush {
+    --footer-gap: 0px;
+
+    margin-top: 0;
+  }
+
   .footer {
-    width: min(1120px, calc(100% - 64px));
-    margin: 5rem auto 0;
-    border-top: 1px solid var(--line);
-    padding: 2.5rem 0 3rem;
+    width: min(1180px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: clamp(3rem, 5vw, 4.5rem) 0 1.5rem;
   }
 
-  .footer-inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr);
+  .footer-intro {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 2rem;
+    padding-bottom: 1.75rem;
   }
 
-  .footer-intro h2 {
-    max-width: 22rem;
-    margin: 0.5rem 0 0;
+  .footer-name {
+    display: inline-block;
     font-family: var(--display);
-    font-size: clamp(1.6rem, 2.5vw, 2.3rem);
-    font-weight: 400;
-    line-height: 1.1;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    line-height: 1;
+    text-decoration: none;
   }
 
-  .footer-note {
-    max-width: 24rem;
-    margin: 1.25rem 0 0;
-    border-left: 1px solid var(--accent);
-    padding-left: 0.85rem;
-    color: var(--muted);
-    font-size: 0.92rem;
-    line-height: 1.6;
+  .footer-intro p {
+    max-width: 30rem;
+    margin: 0;
+    color: var(--dark-muted);
+    font-size: 0.95rem;
+    text-align: right;
   }
 
   .footer-links {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
+    border-top: 1px solid #303431;
+    padding: 1.75rem 0 2.25rem;
   }
 
-  h3 {
-    margin: 0 0 0.9rem;
-    color: var(--accent-strong);
-    font-family: var(--mono);
-    font-size: 0.95rem;
-    font-weight: 600;
+  .footer-section {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.24fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    min-width: 0;
+  }
+
+  h2 {
+    margin: 0.85rem 0 0;
+    color: var(--dark-caption);
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   ul {
-    display: grid;
-    gap: 0.45rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: clamp(1.25rem, 3vw, 2.25rem);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  li,
   a {
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.95rem;
-    text-decoration: none;
+    min-width: 0;
   }
 
-  a:hover {
-    color: var(--ink);
-    text-decoration-color: var(--accent);
-    text-decoration-line: underline;
-    text-underline-offset: 0.22em;
-  }
-
-  .copyright {
-    margin: 2.25rem 0 0;
-    color: var(--muted);
-    font-family: var(--mono);
+  li a {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    color: var(--dark-muted);
     font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 160ms ease;
   }
 
-  @media (max-width: 820px) {
-    .footer {
-      width: min(1120px, calc(100% - 32px));
+  .footer-section-content {
+    min-width: 0;
+  }
+
+  .footer-profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+
+  .footer-profile-links > ul {
+    flex: 0 1 auto;
+  }
+
+  details {
+    flex: 0 0 auto;
+  }
+
+  summary {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    color: var(--dark-caption);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  summary::marker {
+    color: var(--accent);
+  }
+
+  details[open] {
+    flex-basis: 100%;
+  }
+
+  details[open] ul {
+    padding-top: 0.25rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    li a:hover {
+      color: #fff;
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+    }
+  }
+
+  .footer-base {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid #303431;
+    padding-top: 1.25rem;
+    color: var(--dark-caption);
+    font-size: 0.76rem;
+  }
+
+  .footer-base p {
+    margin: 0;
+  }
+
+  @media (max-width: 760px) {
+    .footer-intro {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.7rem;
     }
 
-    .footer-inner,
+    .footer-intro p {
+      text-align: left;
+    }
+
     .footer-links {
+      gap: 1.25rem;
+      padding: 1.75rem 0 2rem;
+    }
+
+    .footer-section {
       grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .footer-base {
+      align-items: flex-start;
+      flex-direction: column-reverse;
+      gap: 1.25rem;
+      padding-top: 1.5rem;
+    }
+
+  }
+
+  @media (max-width: 680px) {
+    .footer {
+      width: min(100% - 32px, 1180px);
     }
   }
+
 </style>

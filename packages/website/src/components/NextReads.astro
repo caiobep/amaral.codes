@@ -1,0 +1,135 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { formatPostDate } from '../lib/date'
+
+interface Props {
+  entries: readonly CollectionEntry<'entries'>[]
+}
+
+const { entries } = Astro.props
+const categoryLabels = {
+  essay: 'Essay',
+  note: 'Note',
+  review: 'Review',
+} as const
+---
+
+{entries.length > 0 ? (
+  <aside class="next-reads" aria-label="Next reads">
+    <div class="next-reads-heading">
+      <p>Next reads</p>
+      <h2>Keep reading.</h2>
+    </div>
+    <div class="next-reads-list">
+      {entries.map((entry) => (
+        <a href={`/posts/${entry.id}`}>
+          <div class="next-read-meta">
+            <span>{categoryLabels[entry.data.category as keyof typeof categoryLabels]}</span>
+            <time datetime={entry.data.date}>{formatPostDate(entry.data.date)}</time>
+          </div>
+          <h3>{entry.data.title}</h3>
+          {entry.data.summary ? <p>{entry.data.summary}</p> : null}
+          <span class="next-read-action" aria-hidden="true">Read next&nbsp; →</span>
+        </a>
+      ))}
+    </div>
+  </aside>
+) : null}
+
+<style>
+  .next-reads {
+    display: grid;
+    grid-template-columns: var(--article-rail) minmax(0, var(--article-measure));
+    gap: var(--article-gap);
+    margin-top: clamp(3.5rem, 7vw, 5.5rem);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .next-reads-heading p,
+  .next-read-meta {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .next-reads-heading p {
+    margin: 0 0 0.4rem;
+  }
+
+  .next-reads-heading h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1.65rem;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .next-reads-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1.5rem;
+  }
+
+  .next-reads-list a {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+    padding: 1rem 0 0.25rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .next-read-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .next-read-meta span {
+    color: var(--accent-strong);
+  }
+
+  .next-reads-list h3 {
+    margin: 0.75rem 0 0;
+    font-size: 1.05rem;
+    line-height: 1.25;
+    text-wrap: pretty;
+    transition: color 180ms ease;
+  }
+
+  .next-reads-list p {
+    margin: 0.45rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .next-read-action {
+    margin-top: auto;
+    padding-top: 1rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .next-reads-list a:hover h3 {
+      color: var(--accent-strong);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .next-reads {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .next-reads-list {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,5 @@
+# Production redirects are handled at Cloudflare's edge before static assets.
+/physical-projects /projects#physical-projects 301
+/physical-projects/ /projects#physical-projects 301
+/reviews /posts?category=review 301
+/reviews/ /posts?category=review 301

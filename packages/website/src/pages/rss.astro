@@ -1,0 +1,244 @@
+---
+import Layout from '../layouts/Layout.astro'
+import PageIntro from '../components/PageIntro.astro'
+import { getEntryIndex } from '../lib/content'
+import { selectAdvertisedRssFeeds } from '../lib/rss'
+import { createPageStructuredData } from '../lib/structured-data'
+
+const { entries } = await getEntryIndex()
+const feeds = selectAdvertisedRssFeeds(entries).map((feed) => ({
+  ...feed,
+  url: new URL(feed.path, Astro.url).toString(),
+}))
+const pageDescription = 'Subscribe to all of Caio Amaral\'s posts or choose a feed for a specific format.'
+const structuredData = createPageStructuredData({
+  description: pageDescription,
+  pathname: Astro.url.pathname,
+  title: 'RSS feeds',
+  type: 'CollectionPage',
+}, Astro.site)
+---
+
+<Layout
+  title="RSS feeds"
+  description={pageDescription}
+  activeNav="posts"
+  structuredData={structuredData}
+>
+  <PageIntro
+    eyebrow="RSS"
+    title="Follow what interests you."
+    summary="Choose the complete feed, or subscribe only to a format that is currently published."
+  />
+
+  <section class="rss-directory page-shell" aria-labelledby="rss-directory-title" data-reveal>
+    <div class="rss-copy">
+      <p class="section-label">Feeds</p>
+      <h2 id="rss-directory-title">Add one to your reader.</h2>
+      <p>Copy an address into NetNewsWire, Reeder, Feedly, or another RSS reader.</p>
+    </div>
+
+    <div class="rss-feeds">
+      {feeds.map((feed) => (
+        <article class="rss-feed" id={feed.slug} data-rss-feed>
+          <div class="rss-feed-intro">
+            <h3>{feed.title}</h3>
+            <p>{feed.description}</p>
+          </div>
+
+          <div class="rss-actions">
+            <label for={`rss-address-${feed.slug}`}>Feed address</label>
+            <div class="rss-field">
+              <input
+                id={`rss-address-${feed.slug}`}
+                type="url"
+                value={feed.url}
+                readonly
+                data-rss-address
+              />
+              <button type="button" data-copy-rss data-rss-target={`rss-address-${feed.slug}`}>
+                Copy
+              </button>
+            </div>
+            <p class="rss-status" data-rss-status aria-live="polite"></p>
+            <a href={feed.path}>View raw feed</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const copyFeedAddress = async (button: HTMLButtonElement) => {
+    const input = document.getElementById(button.dataset.rssTarget ?? '')
+    if (!(input instanceof HTMLInputElement)) return
+
+    const status = input.closest('[data-rss-feed]')?.querySelector('[data-rss-status]')
+    try {
+      await navigator.clipboard.writeText(input.value)
+      button.textContent = 'Copied'
+      if (status) status.textContent = 'Feed address copied.'
+    } catch {
+      input.focus()
+      input.select()
+      if (status) status.textContent = 'The feed address is selected and ready to copy.'
+    }
+  }
+
+  const initializeRssCopy = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-rss]').forEach((button) => {
+      if (button.dataset.ready === 'true') return
+      button.dataset.ready = 'true'
+      button.addEventListener('click', () => void copyFeedAddress(button))
+    })
+  }
+
+  document.addEventListener('astro:page-load', initializeRssCopy)
+  initializeRssCopy()
+</script>
+
+<style>
+  .rss-directory {
+    display: grid;
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+    gap: clamp(3rem, 8vw, 7rem);
+    border-top: 1px solid var(--line);
+    padding: clamp(3rem, 6vw, 5rem) 0 clamp(5rem, 9vw, 8rem);
+  }
+
+  .rss-copy h2 {
+    max-width: 10ch;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 5vw, 4.4rem);
+    font-weight: 400;
+    line-height: 0.98;
+  }
+
+  .rss-copy > p:last-child {
+    max-width: 28rem;
+    margin: 1.3rem 0 0;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .rss-feeds {
+    border-top: 1px solid var(--line);
+  }
+
+  .rss-feed {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.7fr) minmax(0, 1.3fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    border-bottom: 1px solid var(--line);
+    padding: 1.75rem 0;
+    scroll-margin-top: 10rem;
+    transition: background-color 180ms ease;
+  }
+
+  .rss-feed:target {
+    background: var(--accent-faint);
+  }
+
+  .rss-feed-intro h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+
+  .rss-feed-intro p {
+    margin: 0.65rem 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .rss-actions label {
+    display: block;
+    margin-bottom: 0.55rem;
+    color: var(--accent-strong);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .rss-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 6rem;
+  }
+
+  .rss-field input,
+  .rss-field button {
+    min-height: 3.15rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    font: inherit;
+  }
+
+  .rss-field input {
+    min-width: 0;
+    border-right: 0;
+    background: var(--background);
+    color: var(--text);
+    padding: 0 0.85rem;
+    font-size: 1rem;
+  }
+
+  .rss-field button {
+    width: 100%;
+    background: var(--dark);
+    color: #fff;
+    cursor: pointer;
+    padding: 0 0.75rem;
+    font-weight: 700;
+  }
+
+  .rss-field input:focus-visible,
+  .rss-field button:focus-visible {
+    position: relative;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .rss-status {
+    min-height: 1.25rem;
+    margin: 0.4rem 0 0;
+    color: var(--muted);
+    font-size: 0.76rem;
+  }
+
+  .rss-actions > a {
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.25em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .rss-field button:hover {
+      background: var(--accent-strong);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .rss-directory {
+      grid-template-columns: 1fr;
+      gap: 2.75rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .rss-feed {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .rss-copy h2 {
+      max-width: 12ch;
+    }
+  }
+</style>
