@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import fs from 'node:fs/promises'
+import yaml from 'js-yaml'
 import { publishingTarget } from './build-policy.mjs'
 import { previewStatus, reportPreview } from './preview-status.mjs'
 
@@ -30,4 +32,12 @@ test('the reporter uses an ephemeral repository token and sends no draft body or
   assert(!calls[1].options.body.includes(request.head.ref))
   await reportPreview({ repository: { full_name: 'fork/content' }, check_run: check }, 'synthetic-test-token', send)
   assert.equal(calls.length, 2)
+})
+
+
+test('the installed GitHub workflow parses and listens for the completed Cloudflare check', async () => {
+  const workflow = yaml.load(await fs.readFile(new URL('./preview-status-workflow.yml', import.meta.url), 'utf8'))
+  assert.deepEqual(workflow.on.check_run.types, ['completed'])
+  assert(workflow.jobs.report.if.includes("'Workers Builds: amaral-publishing-preview'"))
+  assert.deepEqual(workflow.permissions, { contents: 'read', statuses: 'write' })
 })

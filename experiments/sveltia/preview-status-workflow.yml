@@ -7,7 +7,9 @@ permissions:
   statuses: write
 jobs:
   report:
-    if: github.event.check_run.app.id == 85455 && github.event.check_run.name == 'Workers Builds: amaral-publishing-preview'
+    if: >-
+      github.event.check_run.app.id == 85455 &&
+      github.event.check_run.name == 'Workers Builds: amaral-publishing-preview'
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
