@@ -285,6 +285,7 @@ export function createEditorConfig({
         'title',
         ...(category === 'post' ? [{ field: 'category', label: 'Type' }] : []),
         'date',
+        { field: category === 'post' ? '{{locales}}' : 'language', label: 'Language' },
         'summary',
         'topics',
         { field: 'featuredOrder', label: 'Homepage order' },

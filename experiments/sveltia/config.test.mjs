@@ -67,17 +67,33 @@ test('desktop tables show editorial fields and allow sorting by homepage order',
     assert.deepEqual(collection.table_columns, [
       'title',
       ...(collection.name === 'posts' ? [{ field: 'category', label: 'Type' }] : []),
-      'date', 'summary', 'topics',
+      'date',
+      { field: collection.name === 'posts' ? '{{locales}}' : 'language', label: 'Language' },
+      'summary', 'topics',
       { field: 'featuredOrder', label: 'Homepage order' },
     ])
     for (const column of collection.table_columns) {
       const name = typeof column === 'string' ? column : column.field
+      if (name === '{{locales}}') continue
       assert(collection.fields.some(field => field.name === name))
     }
     assert(collection.sortable_fields.fields.includes('featuredOrder'))
     assert.deepEqual(collection.sortable_fields.default, {
       field: 'date', direction: 'descending',
     })
+  }
+})
+
+test('editorial filters cover missing summaries, homepage placement, and every writing type', () => {
+  const config = createEditorConfig({ repository: 'example/private-content' })
+  for (const collection of config.collections.filter(item => item.name !== 'topics')) {
+    assert(collection.view_filters.some(filter => filter.field === 'summary' && filter.empty === true))
+    assert(collection.view_filters.some(filter => filter.field === 'featuredOrder' && filter.gt === 0))
+    assert.equal(collection.fields.find(field => field.name === 'summary').required, false)
+  }
+  const posts = config.collections.find(collection => collection.name === 'posts')
+  for (const { value } of posts.fields.find(field => field.name === 'category').options) {
+    assert(posts.view_filters.some(filter => filter.field === 'category' && new RegExp(filter.pattern).test(value)))
   }
 })
 
