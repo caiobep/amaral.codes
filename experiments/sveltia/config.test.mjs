@@ -122,7 +122,7 @@ test('slides use R2 file selection only after the dedicated media library is con
   const options = { repository: 'example/private-content' }
   const fileField = config => config.collections.find(collection => collection.name === 'talks').fields.find(field => field.name === 'talk').fields.find(field => field.name === 'materials').fields.find(field => field.name === 'url')
   assert.equal(fileField(createEditorConfig(options)).widget, 'string')
-  const configured = createEditorConfig({ ...options, media: { access_key_id: 'a'.repeat(64), account_id: 'b'.repeat(32), bucket: 'amaral-publishing-media', public_url: 'https://preview.example.com/_media' } })
+  const configured = createEditorConfig({ ...options, media: { access_key_id: 'a'.repeat(32), account_id: 'b'.repeat(32), bucket: 'amaral-publishing-media', public_url: 'https://preview.example.com/_media' } })
   assert.equal(fileField(configured).widget, 'file')
   assert.equal(fileField(configured).media_library.name, 'cloudflare_r2')
   assert.equal(configured.media_libraries.cloudflare_r2.bucket, 'amaral-publishing-media')
