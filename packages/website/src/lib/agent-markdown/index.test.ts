@@ -1,8 +1,9 @@
+import { entrySchema } from '../../content/schemas'
 import { describe, expect, it } from 'vitest'
 import type { EntryData } from '../../content/schemas'
 import { renderEntryMarkdown } from '.'
 
-const makeEntry = (overrides: Partial<EntryData> = {}): EntryData => ({
+const makeEntry = (overrides: Partial<EntryData> = {}): EntryData => entrySchema.parse({
   category: 'note',
   date: '2026-08-17',
   summary: 'What changed after I tried it.',
@@ -10,6 +11,36 @@ const makeEntry = (overrides: Partial<EntryData> = {}): EntryData => ({
   topics: ['Software', 'Tools'],
   ...overrides,
 })
+
+const MARKDOWN_SYNTAX_BODY = `\`\`\`\`markdown
+# Four-backtick code
+\`\`\`
+# Still code
+\`\`\`\`
+
+~~~~markdown
+# Tilde code
+~~~
+# Still tilde code
+~~~~
+
+    # Indented code
+
+# Article heading
+
+> # Quoted heading
+
+- item
+  # Nested heading
+
+Setext heading
+===
+
+> Quoted setext
+> ===
+
+- Nested setext
+  ===`
 
 describe('renderEntryMarkdown', () => {
   it('renders agent-readable metadata and preserves authored content', () => {
@@ -46,6 +77,44 @@ The result.
     expect(markdown).toContain('```md\n# Example\n```')
     expect(markdown).toContain('## Explanation')
     expect(markdown).not.toContain('Topics:')
+  })
+
+  it('preserves code whitespace at body boundaries', () => {
+    const markdown = renderEntryMarkdown({
+      body: '    # First-block code\n\n# Article heading\n\n    trailing code  ',
+      canonicalUrl: 'https://amaral.codes/posts/code-boundaries',
+      data: makeEntry({ topics: [] }),
+    })
+
+    expect(markdown).toContain('\n    # First-block code\n')
+    expect(markdown).toContain('\n## Article heading\n')
+    expect(markdown).toMatch(/ {4}trailing code {2}\n$/u)
+  })
+
+  it('uses Markdown syntax to distinguish headings from fenced and indented code', () => {
+    const markdown = renderEntryMarkdown({
+      body: MARKDOWN_SYNTAX_BODY,
+      canonicalUrl: 'https://amaral.codes/posts/markdown-syntax',
+      data: makeEntry({ topics: [] }),
+    })
+
+    expect(markdown).toContain(`\`\`\`\`markdown
+# Four-backtick code
+\`\`\`
+# Still code
+\`\`\`\``)
+    expect(markdown).toContain(`~~~~markdown
+# Tilde code
+~~~
+# Still tilde code
+~~~~`)
+    expect(markdown).toContain('    # Indented code')
+    expect(markdown).toContain('\n## Article heading')
+    expect(markdown).toContain('\n> ## Quoted heading')
+    expect(markdown).toContain('\n  ## Nested heading')
+    expect(markdown).toContain('\nSetext heading\n---')
+    expect(markdown).toContain('\n> Quoted setext\n> ---')
+    expect(markdown).toContain('\n- Nested setext\n  ---')
   })
 
   it('omits an absent summary without rendering an empty value', () => {

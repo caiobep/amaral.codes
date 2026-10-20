@@ -1,4 +1,5 @@
 import type { PageObjectResponse as NotionPage } from '@notionhq/client'
+import { requirePublicHttpsUrl } from '@amaral.codes/content-contract/public-url'
 
 type UnknownRecord = Record<string, unknown>
 
@@ -61,6 +62,35 @@ export function getDate(page: NotionPage, name: string): string | undefined {
   const date = getDateValue(getProperty(page, name))
   if (!isRecord(date)) return undefined
   return typeof date.start === 'string' ? date.start : undefined
+}
+
+export function requireText(page: NotionPage, name: string): string {
+  const value = getText(page, name)
+  if (value) return value
+  throw new Error(`"${getTitle(page)}" is missing ${name}`)
+}
+
+export function requireUrl(page: NotionPage, name: string): string {
+  const value = getUrl(page, name)
+  if (value) return value
+  throw new Error(`"${getTitle(page)}" is missing ${name}`)
+}
+
+export function requireDate(page: NotionPage, name: string): string {
+  const value = getDate(page, name)
+  if (value) return value
+  throw new Error(`"${getTitle(page)}" is missing ${name}`)
+}
+
+export function requireNumber(page: NotionPage, name: string): number {
+  const value = getNumber(page, name)
+  if (value !== undefined) return value
+  throw new Error(`"${getTitle(page)}" is missing ${name}`)
+}
+
+export function readOptionalHttpsUrl(page: NotionPage, name: string): string | undefined {
+  const value = getUrl(page, name)
+  return value ? requirePublicHttpsUrl(value, name) : undefined
 }
 
 function getDateValue(property: UnknownRecord | undefined): unknown {

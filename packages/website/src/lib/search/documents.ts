@@ -5,7 +5,7 @@ import {
   type EntryRecord,
   type ProjectRecord,
 } from '../content/selectors'
-import type { SearchDocument } from './types'
+import type { SearchDocument } from '../../features/search/search-document'
 import { getEntryHref } from '../routes'
 
 type EntrySearchSource = EntryRecord & {
@@ -28,7 +28,7 @@ export const createSearchDocuments = (
     title: entry.data.title,
     summary: entry.data.summary ?? '',
     content: entry.body ?? '',
-    href: getEntryHref(entry.id),
+    href: getEntryHref(entry.id, entry.data.translation),
     category: entry.data.category,
     topics: getEntryTopics(entry),
     date: entry.data.date,

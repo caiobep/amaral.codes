@@ -10,9 +10,10 @@ const posts = `<input id="search-post"><button data-filter="all">All</button>
 const projects = `<div data-project-controls><input id="search-projects">
   <button data-project-filter="all">All</button><button data-project-filter="software">Software</button>
   <button data-project-filter="physical">Physical</button></div>
+  <div id="project-results">
   <section data-project-group><article data-project data-project-label="software" data-project-search="Café tools">Coffee</article></section>
   <section data-project-group><article data-project data-project-label="physical">Desk stand</article></section>
-  <button data-clear-project-search>Reset</button><div class="project-empty-state"></div>`
+  <button data-clear-project-search>Reset</button><div class="project-empty-state"></div></div>`
 
 describe('collection filtering', () => {
   let browser: ReturnType<typeof mount>
@@ -65,6 +66,7 @@ describe('collection filtering', () => {
     document.body.innerHTML = projects
     window.history.replaceState({}, '', '/projects?label=software&query=cafe')
     await import('../../../src/scripts/project-filters')
+    expect(element('#project-results').dataset.searching).toBe('true')
     expect(element('[data-project-label="physical"]').hidden).toBe(true)
     element('[data-project-filter="physical"]').click()
     expect(element('.project-empty-state').hidden).toBe(false)
@@ -73,6 +75,7 @@ describe('collection filtering', () => {
     expect(element('[data-project-group]').hidden).toBe(true)
     expect(window.location.search).toContain('label=physical')
     element('[data-clear-project-search]').click()
+    expect(element('#project-results').dataset.searching).toBe('false')
     expect(document.querySelectorAll('[data-project-group]:not([hidden])')).toHaveLength(2)
     expect(document.activeElement).toBe(element('#search-projects'))
     expect(window.location.search).toBe('')

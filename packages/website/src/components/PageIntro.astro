@@ -1,4 +1,6 @@
 ---
+import Heading from './Heading.astro'
+
 interface Props {
   eyebrow?: string
   title: string
@@ -12,7 +14,7 @@ const { eyebrow, title, summary, variant = 'default' } = Astro.props
 <section class:list={['page-intro page-shell', `page-intro-${variant}`]} data-reveal data-stagger>
   <div>
     {eyebrow ? <p class="eyebrow">{eyebrow}</p> : null}
-    <h1>{title}</h1>
+    <Heading level={1}>{title}</Heading>
     <p>{summary}</p>
   </div>
 </section>
@@ -26,14 +28,8 @@ const { eyebrow, title, summary, variant = 'default' } = Astro.props
     margin-bottom: 0.75rem;
   }
 
-  h1 {
-    max-width: 15ch;
-    margin: 0;
-    font-family: var(--display);
-    font-size: clamp(3.5rem, 5.7vw, 5.6rem);
-    font-weight: 400;
-    line-height: 0.96;
-    letter-spacing: 0;
+  .page-intro :global(.heading) {
+    max-width: 24ch;
   }
 
   div > p:not(.eyebrow) {
@@ -48,27 +44,14 @@ const { eyebrow, title, summary, variant = 'default' } = Astro.props
     padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
   }
 
-  .page-intro-compact h1 {
-    max-width: 18ch;
-    font-size: clamp(3.25rem, 5vw, 4.8rem);
-  }
-
   @media (max-width: 680px) {
     .page-intro {
       padding-top: 2.75rem;
     }
 
-    h1 {
-      font-size: clamp(3rem, 13.5vw, 3.5rem);
-    }
-
     .page-intro-compact {
       padding-top: 2rem;
       padding-bottom: 1.35rem;
-    }
-
-    .page-intro-compact h1 {
-      font-size: clamp(2.65rem, 12vw, 3.25rem);
     }
 
     .page-intro-compact div > p {

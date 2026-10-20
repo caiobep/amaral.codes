@@ -1,16 +1,9 @@
-import type { EntryCategory, EntryData, ProjectData } from '../../content/schemas'
+import { selectFeaturedEntries } from '../content/selectors/entries'
+import { resolveEntryLanguage } from '@amaral.codes/content-contract/entry-language'
+import type { EntryData, ProjectData } from '../../content/schemas'
+import { ENTRY_CATEGORY_PRESENTATIONS } from '../../features/entries/category-presentation'
 import { renderEntryMarkdown } from '../agent-markdown'
 import { getEntryHref, getProjectHref } from '../routes'
-
-const CATEGORY_SECTIONS = [
-  { category: 'essay', title: 'Essays' },
-  { category: 'note', title: 'Notes' },
-  { category: 'review', title: 'Reviews' },
-  { category: 'link', title: 'Links' },
-  { category: 'video', title: 'Videos' },
-  { category: 'podcast', title: 'Podcasts' },
-  { category: 'talk', title: 'Talks' },
-] as const satisfies readonly { category: EntryCategory, title: string }[]
 
 interface AgentEntry {
   id: string
@@ -82,12 +75,8 @@ function escapeLinkLabel(value: string): string {
   return value.replaceAll('\\', '\\\\').replaceAll('[', '\\[').replaceAll(']', '\\]')
 }
 
-function getEntryLanguage(data: EntryData): 'en' | 'pt-BR' {
-  return data.language ?? data.talk?.language ?? 'en'
-}
-
 function getEntryMarkdownUrl(entry: AgentEntry, site: URL): string {
-  return absoluteUrl(`${getEntryHref(entry.id)}.md`, site)
+  return absoluteUrl(`${getEntryHref(entry.id, entry.data.translation)}.md`, site)
 }
 
 function renderEntryLink(entry: AgentEntry, site: URL): string {
@@ -106,13 +95,11 @@ function renderSection(title: string, links: readonly string[]): string | undefi
 }
 
 export function renderLlmsIndex({ entries, projects, site }: AgentDiscoveryInput): string {
-  const featuredEntries = entries
-    .filter((entry) => entry.data.featuredOrder !== undefined)
-    .sort((left, right) => (left.data.featuredOrder ?? 0) - (right.data.featuredOrder ?? 0))
+  const featuredEntries = selectFeaturedEntries(entries)
   const sections = [
     renderSection('Start here', featuredEntries.map((entry) => renderEntryLink(entry, site))),
-    ...CATEGORY_SECTIONS.map(({ category, title }) => renderSection(
-      title,
+    ...ENTRY_CATEGORY_PRESENTATIONS.map(({ category, discoveryLabel }) => renderSection(
+      discoveryLabel,
       entries
         .filter((entry) => entry.data.category === category)
         .map((entry) => renderEntryLink(entry, site)),
@@ -131,7 +118,7 @@ export function renderLlmsIndex({ entries, projects, site }: AgentDiscoveryInput
 export function renderLlmsFull({ entries, site }: Omit<AgentDiscoveryInput, 'projects'>): string {
   const documents = entries.map((entry) => renderEntryMarkdown({
     body: entry.body ?? '',
-    canonicalUrl: absoluteUrl(getEntryHref(entry.id), site),
+    canonicalUrl: absoluteUrl(getEntryHref(entry.id, entry.data.translation), site),
     data: entry.data,
   }).trim())
   const body = documents.length > 0 ? `\n\n---\n\n${documents.join('\n\n---\n\n')}` : ''
@@ -159,10 +146,10 @@ export function createAgentContentIndex({
       title: entry.data.title,
       ...(entry.data.summary ? { summary: entry.data.summary } : {}),
       date: entry.data.date,
-      language: getEntryLanguage(entry.data),
+      language: resolveEntryLanguage(entry.data),
       topics: [...entry.data.topics],
       urls: {
-        html: absoluteUrl(getEntryHref(entry.id), site),
+        html: absoluteUrl(getEntryHref(entry.id, entry.data.translation), site),
         markdown: getEntryMarkdownUrl(entry, site),
       },
     })),

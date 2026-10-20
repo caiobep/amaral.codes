@@ -48,14 +48,18 @@ export const entriesMapper: ContentMapper<NotionPage, EntryData> = {
         date: readEntryDate(page),
         language: readEntryLanguage(page),
         summary,
-        category,
         topics: readTopics(page, category),
         featuredOrder: getNumber(page, 'Featured order'),
-        podcast: category === 'podcast' ? mapPodcast(page) : undefined,
-        talk: category === 'talk' ? mapTalk(page) : undefined,
+        ...mapCategoryMetadata(page, category),
       },
     }
   },
+}
+
+function mapCategoryMetadata(page: NotionPage, category: EntryCategory) {
+  if (category === 'podcast') return { category, podcast: mapPodcast(page) }
+  if (category === 'talk') return { category, talk: mapTalk(page) }
+  return { category }
 }
 
 function readEntryDate(page: NotionPage): string {

@@ -258,6 +258,10 @@ main {
   background: var(--paper);
 }
 
+main:has(+ .footer-shell:not(.footer-shell-flush)) {
+  padding-bottom: clamp(4.5rem, 7vw, 6rem);
+}
+
 .page-shell {
   width: min(1180px, calc(100% - 64px));
   margin: 0 auto;

@@ -81,7 +81,7 @@ function stubFooterObserver() {
   }
 }
 
-describe('theme runtime', () => {
+describe('appearance runtime', () => {
   it.each([
     ['dark', false, 'dark', 'dark', 'Theme: Dark. Switch to System'],
     ['light', true, 'light', 'light', 'Theme: Light. Switch to Dark'],
@@ -92,18 +92,18 @@ describe('theme runtime', () => {
   ) => {
     if (stored !== null) localStorage.setItem('amaral-theme', stored)
     changeSystemTheme(systemDark)
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     expectTheme(preference, effective, label)
     expect(element('[data-theme-color]').getAttribute('content'))
       .toBe(effective === 'dark' ? '#0f1413' : '#ffffff')
   })
 
   it('cycles both controls and storage once per click after repeated initialization', async () => {
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
     const listen = vi.spyOn(media, 'addEventListener')
-    initializeTheme()
-    initializeTheme()
+    initializeAppearance()
+    initializeAppearance()
     expect(listen).toHaveBeenCalledExactlyOnceWith('change', expect.any(Function))
     element('header [data-theme-toggle]').click()
     expectTheme('light', 'light', 'Theme: Light. Switch to Dark')
@@ -127,9 +127,9 @@ describe('theme runtime', () => {
   })
 
   it('cycles every palette, synchronizes controls, and persists the session selection', async () => {
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
+    initializeAppearance()
     expectPalette('cobalt', 'Palette: Cobalt. Switch to Graphite')
     for (const [palette, label] of [
       ['graphite', 'Palette: Graphite. Switch to Garnet'],
@@ -148,8 +148,8 @@ describe('theme runtime', () => {
 
   it('keeps the pre-applied palette ahead of the session value', async () => {
     document.documentElement.dataset.palette = 'ember'
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     expectPalette('ember', 'Palette: Ember. Switch to Cobalt')
     expect(sessionStorage.getItem('amaral-palette')).toBe('ember')
   })
@@ -158,15 +158,15 @@ describe('theme runtime', () => {
     if (value === null) sessionStorage.removeItem('amaral-palette')
     else sessionStorage.setItem('amaral-palette', value)
     vi.spyOn(Math, 'random').mockReturnValue(0)
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     expectPalette('ember', 'Palette: Ember. Switch to Cobalt')
     expect(sessionStorage.getItem('amaral-palette')).toBe('ember')
   })
 
   it.each([undefined, 'invalid'])('recovers missing or invalid control values: %s', async value => {
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     const theme = element('[data-theme-toggle]')
     const palette = element('[data-palette-toggle]')
     if (value === undefined) {
@@ -189,8 +189,8 @@ describe('theme runtime', () => {
       }
     }
     vi.spyOn(Math, 'random').mockReturnValue(0)
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     expectPalette('ember', 'Palette: Ember. Switch to Cobalt')
     element('[data-theme-toggle]').click()
     expectTheme('light', 'light', 'Theme: Light. Switch to Dark')
@@ -207,8 +207,8 @@ describe('theme runtime', () => {
   it('handles missing controls and browser-chrome metadata', async () => {
     document.body.innerHTML = ''
     document.head.innerHTML = ''
-    const { initializeTheme, applyBrowserChromeSurface } = await import('../../../src/scripts/layout/theme/runtime')
-    initializeTheme()
+    const { initializeAppearance, applyBrowserChromeSurface } = await import('../../../src/features/appearance/appearance.client')
+    initializeAppearance()
     applyBrowserChromeSurface('footer')
     expect(document.documentElement.dataset.theme).toBe('light')
     expect(document.documentElement.dataset.browserChromeSurface).toBe('footer')
@@ -218,7 +218,7 @@ describe('theme runtime', () => {
 describe('footer browser chrome', () => {
   it.each([undefined, 'invalid'])('uses light chrome for an unset or invalid theme: %s', async theme => {
     if (theme !== undefined) document.documentElement.dataset.theme = theme
-    const { applyBrowserChromeSurface } = await import('../../../src/scripts/layout/theme/runtime')
+    const { applyBrowserChromeSurface } = await import('../../../src/features/appearance/appearance.client')
     applyBrowserChromeSurface('footer')
     expect(element('[data-theme-color]').getAttribute('content')).toBe('#111817')
     applyBrowserChromeSurface('page')
@@ -226,9 +226,9 @@ describe('footer browser chrome', () => {
   })
 
   it('tracks footer visibility, theme changes, replacement, and removal', async () => {
-    const { initializeTheme } = await import('../../../src/scripts/layout/theme/runtime')
+    const { initializeAppearance } = await import('../../../src/features/appearance/appearance.client')
     const { initializeFooterChrome } = await import('../../../src/scripts/layout/footer-chrome/runtime')
-    initializeTheme()
+    initializeAppearance()
     const first = stubFooterObserver()
     const footer = element('.footer-shell')
     initializeFooterChrome()

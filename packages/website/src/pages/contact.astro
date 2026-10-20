@@ -1,358 +1,256 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import PageIntro from '../components/PageIntro.astro'
+import Heading from '../components/Heading.astro'
+import { ArrowUpRight, ArrowRight } from '@lucide/astro'
 import { createPageStructuredData } from '../lib/structured-data'
-import { ArrowRight, ArrowUpRight, Mail } from '@lucide/astro'
 
-const emailOption = {
-  detail: 'For a question, an introduction, or something that benefits from a little context.',
-  href: 'mailto:caiobep@me.com',
-}
-const secondaryContactOptions = [
+const description = 'Get in touch with Caio Amaral about a project, a question, or a conversation.'
+const emailOptions = [
   {
-    label: 'Calendar',
-    detail: 'When twenty minutes will be clearer than a long thread.',
-    href: 'https://fantastical.app/caio/20-minute-chat-with-caio',
+    title: 'A project or collaboration',
+    detail: 'What you’re building and where I could help.',
+    subject: 'A project or collaboration',
   },
   {
-    label: 'GitHub',
-    detail: 'Repositories, experiments, dotfiles, and small tools.',
-    href: 'https://github.com/caiobep',
+    title: 'Something I made or wrote',
+    detail: 'A question, a follow-up, or another perspective.',
+    subject: 'About your work',
   },
   {
-    label: 'LinkedIn',
-    detail: 'Work history and professional contact.',
-    href: 'https://ca.linkedin.com/in/caiobep/',
-  },
-  {
-    label: 'X / Twitter',
-    detail: 'Short notes, links, and public conversation.',
-    href: 'https://twitter.com/caicorre',
+    title: 'Just saying hello',
+    detail: 'No pitch or particular reason needed.',
+    subject: 'Hello, Caio',
   },
 ]
-const pageDescription = 'Contact Caio Amaral by email, calendar, GitHub, LinkedIn, X, or a short message form.'
+const profiles = [
+  { label: 'GitHub', detail: 'Code, projects, and experiments', href: 'https://github.com/caiobep' },
+  { label: 'LinkedIn', detail: 'Work and professional connections', href: 'https://ca.linkedin.com/in/caiobep/' },
+  { label: 'X / Twitter', detail: 'Notes and public conversations', href: 'https://twitter.com/caicorre' },
+]
 const structuredData = createPageStructuredData({
-  description: pageDescription,
+  description,
   pathname: Astro.url.pathname,
   title: 'Contact',
   type: 'ContactPage',
 }, Astro.site)
 ---
 
-<Layout
-  title="Contact"
-  description={pageDescription}
-  footerFlush
-  structuredData={structuredData}
->
-  <PageIntro
-    eyebrow="Contact"
-    title="The easiest way to reach me."
-    summary="Email works best. Write directly, or use the form below to prepare a message in your email app."
-  />
+<Layout title="Contact" description={description} structuredData={structuredData}>
+  <section class="contact page-shell" aria-labelledby="contact-title">
+    <header class="contact-intro">
+      <p class="eyebrow">Contact</p>
+      <Heading level={1} id="contact-title">What’s on your mind?</Heading>
+      <p>A project you’re working on, a question about something I’ve written,<br /> or an introduction. I’d like to hear from you.</p>
+    </header>
 
-  <section class="contact-routes page-shell" aria-label="Contact options" data-reveal data-stagger>
-    <a class="primary-contact" href={emailOption.href}>
-      <span class="primary-contact-label">
-        <Mail aria-hidden="true" />
-        Email
-      </span>
-      <span class="primary-contact-title">Start with an email.</span>
-      <p>{emailOption.detail}</p>
-      <span class="primary-contact-address">
-        caiobep@me.com
-        <ArrowRight aria-hidden="true" />
-      </span>
-    </a>
+    <div class="contact-layout">
+      <section class="email-start" aria-labelledby="email-title">
+        <p class="section-label">By email</p>
+        <h2 id="email-title">Start a conversation.</h2>
+        <p class="email-intro">Choose a starting point below.<br />You’ll write the rest in your email app.</p>
+        <div class="email-options">
+          {emailOptions.map((option) => (
+            <button type="button" data-email-subject={option.subject} disabled>
+              <span><strong>{option.title}</strong><small>{option.detail}</small></span>
+              <ArrowRight aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+        <noscript><p>Enable JavaScript to email me, or use LinkedIn alongside.</p></noscript>
+      </section>
 
-    <div class="secondary-contacts">
-      <p class="section-label">Other ways</p>
-      <div class="secondary-contact-list">
-        {secondaryContactOptions.map((option) => (
-          <a href={option.href} target="_blank" rel="noopener noreferrer">
-            <div>
-              <span>{option.label}</span>
-              <p>{option.detail}</p>
-            </div>
-            <ArrowUpRight aria-hidden="true" />
+      <aside class="contact-sidebar" aria-label="Other ways to connect">
+        <section class="calendar" aria-labelledby="calendar-title">
+          <p class="section-label">Face to face</p>
+          <h2 id="calendar-title">Sometimes it’s<br />easier to talk.</h2>
+          <p>Set aside twenty minutes for a conversation.</p>
+          <a href="https://fantastical.app/caio/20-minute-chat-with-caio" target="_blank" rel="noopener noreferrer">
+            Book a 20-minute chat <ArrowUpRight aria-hidden="true" />
           </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="compose-band" data-reveal>
-    <div class="contact-compose page-shell" aria-labelledby="compose-title">
-      <div>
-        <p class="section-label">Send a message</p>
-        <h2 id="compose-title">Tell me what brought you here.</h2>
-        <p>A question, a link, or a sentence of context is usually enough.</p>
-      </div>
-
-      <form class="contact-form" id="contact-page-form" data-stagger>
-        <div class="field-row">
-          <label class="field">
-            <span>Name</span>
-            <input name="name" autocomplete="name" placeholder="Your name" required />
-          </label>
-          <label class="field">
-            <span>Email</span>
-            <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
-          </label>
-        </div>
-        <label class="field">
-          <span>Message</span>
-          <textarea name="message" placeholder="What should I know?" required></textarea>
-        </label>
-        <div class="form-footer">
-          <button class="button" type="submit">Prepare email</button>
-        </div>
-      </form>
+        </section>
+        <nav class="profiles" aria-label="Social profiles">
+          <p class="section-label">Elsewhere</p>
+          {profiles.map((profile) => (
+            <a href={profile.href} target="_blank" rel="noopener noreferrer">
+              <span><strong>{profile.label}</strong><small>{profile.detail}</small></span>
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
+      </aside>
     </div>
   </section>
 </Layout>
 
 <script>
-  const initializeContactPage = () => {
-    const form = document.querySelector('#contact-page-form')
-    if (!(form instanceof HTMLFormElement) || form.dataset.ready === 'true') return
-
-    form.dataset.ready = 'true'
-    form.addEventListener('submit', (event) => {
-      event.preventDefault()
-      const submittedForm = event.currentTarget
-      if (!(submittedForm instanceof HTMLFormElement)) return
-      const data = new FormData(submittedForm)
-      const subject = encodeURIComponent(`Message from ${data.get('name')}`)
-      const body = encodeURIComponent(`${data.get('message')}\n\nFrom: ${data.get('name')} <${data.get('email')}>`)
-      window.location.href = `mailto:caiobep@me.com?subject=${subject}&body=${body}`
-    })
+  const initializeContactEmail = () => {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-email-subject]')
+    for (const button of buttons) {
+      button.disabled = false
+      button.onclick = () => {
+        const recipient = ['caiobep', 'me.com'].join('@')
+        const subject = encodeURIComponent(button.dataset.emailSubject ?? '')
+        const link = document.createElement('a')
+        link.href = ['mailto', recipient].join(':') + '?subject=' + subject
+        link.click()
+      }
+    }
   }
 
-  document.addEventListener('astro:page-load', initializeContactPage)
-  initializeContactPage()
+  document.addEventListener('astro:page-load', initializeContactEmail)
+  initializeContactEmail()
 </script>
 
 <style>
-  .contact-routes {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
-    gap: clamp(2.5rem, 6vw, 6rem);
-    align-items: start;
-    padding-bottom: clamp(3.5rem, 5vw, 4.5rem);
+  .contact {
+    max-width: 74rem;
+    padding-block: clamp(3rem, 5vw, 4.5rem);
   }
 
-  .primary-contact {
-    display: flex;
-    min-height: clamp(19rem, 27vw, 25rem);
-    flex-direction: column;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: clamp(1.75rem, 4vw, 3.5rem);
-    background-color: var(--accent-faint);
-    background-image: url('/textures/material-noise.webp');
-    background-size: 260px 260px;
-    background-blend-mode: soft-light;
-    color: inherit;
-    text-decoration: none;
-    transition: border-color 200ms ease-in-out, background-color 200ms ease-in-out, transform 200ms ease-in-out;
-  }
+  .contact-intro { margin-bottom: 2.75rem; }
+  .eyebrow { margin-bottom: 0.9rem; }
 
-  .primary-contact-label {
-    display: inline-flex;
-    gap: 0.55rem;
-    align-items: center;
-    color: var(--accent-strong);
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .primary-contact-label :global(svg),
-  .primary-contact-address :global(svg),
-  .secondary-contact-list :global(svg) {
-    width: 1.05rem;
-    height: 1.05rem;
-    flex: 0 0 auto;
-    stroke-width: 1.8;
-  }
-
-  .primary-contact-title {
-    max-width: 10ch;
-    margin-top: clamp(2rem, 5vw, 4rem);
-    font-family: var(--display);
-    font-size: clamp(2.7rem, 5vw, 5.2rem);
-    font-weight: 400;
-    line-height: 0.98;
-  }
-
-  .primary-contact > p {
-    max-width: 34rem;
-    margin: 1.25rem 0 2rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
-
-  .primary-contact-address {
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-top: auto;
-    color: var(--text);
-    font-size: clamp(1rem, 1.5vw, 1.2rem);
-    font-weight: 700;
-  }
-
-  .primary-contact:focus-visible,
-  .secondary-contact-list a:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-  }
-
-  .secondary-contacts {
-    padding-top: 0.25rem;
-  }
-
-  .secondary-contact-list {
-    margin-top: 0.9rem;
-    border-top: 1px solid var(--line);
-  }
-
-  .secondary-contact-list a {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1rem;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-    padding: 1.25rem 0;
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .secondary-contact-list a > div {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  .secondary-contact-list span {
-    font-weight: 700;
-  }
-
-  .secondary-contact-list p {
+  .contact-intro > p:last-child {
     margin: 0;
-    color: var(--muted);
-    font-size: 0.9rem;
-    line-height: 1.45;
-  }
-
-  .secondary-contact-list :global(svg) {
-    color: var(--muted);
-    transition: color 180ms ease-in-out, transform 180ms ease-in-out;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .primary-contact:hover {
-      border-color: var(--accent);
-      background-color: var(--accent-soft);
-      transform: translateY(-2px);
-    }
-
-    .primary-contact:hover .primary-contact-address :global(svg),
-    .secondary-contact-list a:hover :global(svg) {
-      color: var(--accent);
-      transform: translate(3px, -3px);
-    }
-
-    .secondary-contact-list a:hover > div > span {
-      color: var(--accent-strong);
-    }
-  }
-
-  .compose-band {
-    background-color: var(--accent-soft);
-    background-image: url('/textures/material-noise.webp');
-    background-size: 260px 260px;
-    background-blend-mode: soft-light;
-  }
-
-  .contact-compose {
-    display: grid;
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-    gap: clamp(2.5rem, 7vw, 6rem);
-    padding: clamp(3.5rem, 5vw, 4.5rem) 0;
-  }
-
-  .contact-compose h2 {
-    max-width: 12ch;
-    margin: 0.6rem 0 1rem;
-    font-family: var(--display);
-    font-size: clamp(2.6rem, 4.6vw, 4.6rem);
-    font-weight: 400;
-    line-height: 0.98;
-  }
-
-  .contact-compose > div > p:last-child {
-    max-width: 28rem;
+    max-width: 43rem;
     color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(17rem, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: stretch;
+  }
+
+  .email-start {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line-strong);
+    padding-top: calc(1.75rem - 1px);
+  }
+
+  .email-start h2 {
+    margin: 0.75rem 0 1rem;
+    font-family: var(--section-heading-font);
+    font-size: clamp(2.2rem, 3vw, 2.75rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.15;
+  }
+
+  .email-intro {
+    margin: 0 0 2rem;
+    color: var(--text-secondary);
+    font-size: 1rem;
     line-height: 1.65;
   }
 
-  .contact-form {
+  .email-options {
     display: grid;
-    gap: 1rem;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    flex: 1;
+    border-top: 1px solid var(--line);
   }
 
-  .field-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+  .email-options button {
+    display: flex;
+    width: 100%;
+    min-height: 6.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 1.4rem 1rem 1.4rem 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 180ms ease;
   }
 
-  .contact-form :global(.field input),
-  .contact-form :global(.field textarea) {
-    background: color-mix(in srgb, var(--field-focus-background) 72%, transparent);
+  .email-options strong {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 600;
   }
 
-  .form-footer {
+  .email-options small {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .email-options button:disabled { opacity: 0.5; cursor: default; }
+
+  button :global(svg),
+  a :global(svg) { width: 1rem; height: 1rem; flex-shrink: 0; }
+
+  .calendar {
+    padding: 1.75rem;
+    border-radius: 6px;
+    background: var(--dark);
+    color: var(--dark-ink);
+  }
+  .calendar .section-label { color: var(--dark-caption); }
+  .calendar h2 {
+    margin: 0.75rem 0 1rem;
+    font-family: var(--section-heading-font);
+    font-size: 2.15rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.15;
+  }
+  .calendar > p:not(.section-label) { color: var(--dark-muted); font-size: 0.9rem; line-height: 1.6; }
+  .calendar a {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
+    min-height: 2.75rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--dark-line);
+    padding-top: 1rem;
+    color: var(--dark-ink);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
   }
 
-  @media (max-width: 900px) {
-    .contact-routes {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
+  .profiles { margin-top: 2rem; }
+  .profiles > p { margin-bottom: 0.6rem; }
+  .profiles a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .profiles strong { display: block; font-size: 0.9rem; font-weight: 600; }
+  .profiles small { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 0.8rem; }
 
-    .primary-contact {
-      min-height: 19rem;
-    }
+  :is(a, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .calendar a:focus-visible { outline-color: var(--dark-ink); }
+
+  @media (hover: hover) {
+    .profiles a:hover strong { color: var(--accent-strong); }
+    .calendar a:hover { text-decoration: underline; text-underline-offset: 0.25em; }
+    .email-options button:hover:not(:disabled) { background: var(--accent-faint); }
+    .email-options button:hover:not(:disabled) strong { color: var(--accent-strong); }
   }
 
-  @media (max-width: 680px) {
-    .contact-compose {
-      grid-template-columns: 1fr;
-    }
-
-    .field-row {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 500px) {
-    .primary-contact {
-      min-height: 17rem;
-      padding: 1.5rem;
-    }
-
-    .primary-contact-title {
-      margin-top: 1.75rem;
-    }
-
-    .form-footer {
-      align-items: flex-start;
-      flex-direction: column;
-    }
+  @media (max-width: 760px) {
+    .contact-layout { grid-template-columns: 1fr; }
+    .contact-intro br { display: none; }
+    .contact-intro { margin-bottom: 2rem; }
   }
 </style>

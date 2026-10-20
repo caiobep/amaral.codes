@@ -54,7 +54,7 @@ async function syncPublicCollection(
 
 function readRequestedCollections(args: string[]): CollectionName[] {
   const [command, target] = args
-  if (command !== 'sync') throw usageError()
+  if (command !== 'sync' || args.length > 2) throw usageError()
 
   return target === 'all'
     ? [...COLLECTIONS]

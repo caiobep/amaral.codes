@@ -53,7 +53,6 @@ const structuredData = createPageStructuredData({
     <div class="project-controls page-shell" data-project-controls>
       <div class="project-index-title">
         <span>Project index</span>
-        <strong>Find a project</strong>
       </div>
       <label class="project-search">
         <span class="control-label">Search</span>
@@ -101,11 +100,7 @@ const structuredData = createPageStructuredData({
       </div>
     </section>
 
-    <section class="page-shell more-projects" aria-labelledby="more-projects-title" data-project-group data-reveal>
-      <div class="more-projects-heading">
-        <p class="section-label">Also made</p>
-        <h2 id="more-projects-title">A few smaller experiments.</h2>
-      </div>
+    <section class="page-shell more-projects" aria-label="More projects" data-project-group data-reveal>
       <div class="project-list" data-stagger>
         {otherSoftwareProjects.map((project) => {
           const external = isExternalProject(project)
@@ -180,13 +175,6 @@ const structuredData = createPageStructuredData({
     )}
   </div>
 
-  <section class="page-shell cta" data-reveal>
-    <div>
-      <p class="section-label">The rest</p>
-      <h2>There’s more on GitHub, in various states of done.</h2>
-    </div>
-    <a class="button-secondary" href="https://github.com/caiobep" target="_blank" rel="noopener noreferrer">Browse GitHub</a>
-  </section>
 </Layout>
 
 <script>

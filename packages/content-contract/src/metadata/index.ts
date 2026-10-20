@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { sharingSchema, linkCardSchema } from './sharing.ts'
 import {
   isPublicHttpsUrl,
   isRootRelativePublicUrl,
@@ -61,7 +62,15 @@ const podcastSchema = z.object({
   players: podcastPlayersSchema,
   audioUrl: podcastAudioUrlSchema.optional(),
   audioBytes: z.number().int().positive().optional(),
-}).strict()
+}).strict().superRefine((podcast, context) => {
+  if (Boolean(podcast.audioUrl) !== Boolean(podcast.audioBytes)) {
+    context.addIssue({
+      code: 'custom',
+      path: ['audioBytes'],
+      message: 'Hosted audio needs its URL and byte length for podcast RSS clients.',
+    })
+  }
+})
 
 const talkMaterialSchema = z.object({
   label: z.string().trim().min(1),
@@ -83,75 +92,42 @@ const talkSchema = z.object({
   materials: z.array(talkMaterialSchema).min(1),
 }).strict()
 
-const entryObjectSchema = z.object({
+const entryShape = {
   title: z.string().trim().min(1),
   date: dateString,
   language: z.enum(ENTRY_LANGUAGES).optional(),
+  translation: z.object({
+    key: z.string().regex(/^posts\/[a-zA-Z0-9_-]+$/u),
+    primary: z.boolean(),
+    href: z.string().regex(/^\/(?:en\/|pt-br\/)?posts\/[a-zA-Z0-9_-]+$/u),
+  }).strict().optional(),
   summary: optionalText,
-  category: z.enum(ENTRY_CATEGORIES).default('note'),
   topics: z.array(z.string().trim().min(1)).default([]),
   featuredOrder: z.number().int().positive().optional(),
-  podcast: podcastSchema.optional(),
-  talk: talkSchema.optional(),
-}).strict()
-
-type EntryInput = z.infer<typeof entryObjectSchema>
-
-function validatePodcastCategory(entry: EntryInput, context: z.RefinementCtx): void {
-  if (entry.category === 'podcast' && !entry.podcast) {
-    context.addIssue({
-      code: 'custom',
-      path: ['podcast'],
-      message: 'Podcast entries need show, source, and player metadata.',
-    })
-  }
-
-  if (entry.category !== 'podcast' && entry.podcast) {
-    context.addIssue({
-      code: 'custom',
-      path: ['podcast'],
-      message: 'Podcast metadata is only valid for podcast entries.',
-    })
-  }
+  sharing: sharingSchema.optional(),
+  linkCards: z.array(linkCardSchema).optional(),
 }
 
-function validatePodcastAudio(entry: EntryInput, context: z.RefinementCtx): void {
-  if (!entry.podcast) return
-
-  if (Boolean(entry.podcast.audioUrl) !== Boolean(entry.podcast.audioBytes)) {
-    context.addIssue({
-      code: 'custom',
-      path: ['podcast', 'audioBytes'],
-      message: 'Hosted audio needs its URL and byte length for podcast RSS clients.',
-    })
-  }
-}
-
-function validateTalkCategory(entry: EntryInput, context: z.RefinementCtx): void {
-  if (entry.category === 'talk' && !entry.talk) {
-    context.addIssue({
-      code: 'custom',
-      path: ['talk'],
-      message: 'Talk entries need format and hosted materials.',
-    })
-  }
-
-  if (entry.category !== 'talk' && entry.talk) {
-    context.addIssue({
-      code: 'custom',
-      path: ['talk'],
-      message: 'Talk metadata is only valid for talk entries.',
-    })
-  }
-}
-
-function validateEntry(entry: EntryInput, context: z.RefinementCtx): void {
-  validatePodcastCategory(entry, context)
-  validatePodcastAudio(entry, context)
-  validateTalkCategory(entry, context)
-}
-
-export const entrySchema = entryObjectSchema.superRefine(validateEntry)
+export const entrySchema = z.union([
+  z.object({
+    ...entryShape,
+    category: z.enum(['essay', 'note', 'review', 'link', 'video']).default('note'),
+    podcast: z.never().optional(),
+    talk: z.never().optional(),
+  }).strict(),
+  z.object({
+    ...entryShape,
+    category: z.literal('podcast'),
+    podcast: podcastSchema,
+    talk: z.never().optional(),
+  }).strict(),
+  z.object({
+    ...entryShape,
+    category: z.literal('talk'),
+    podcast: z.never().optional(),
+    talk: talkSchema,
+  }).strict(),
+])
 
 const projectVisualSchema = z.discriminatedUnion('type', [
   z.object({

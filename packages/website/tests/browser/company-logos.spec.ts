@@ -59,7 +59,7 @@ test('about page presents the same work history as an annotated chronology', asy
 
   const workContext = page.locator('.work-context')
   await expect(workContext.getByRole('heading', {
-    name: 'Some of the places the work took me.',
+    name: 'Teams and products I’ve worked with.',
   })).toBeVisible()
 
   const logos = workContext.locator('.companies img')

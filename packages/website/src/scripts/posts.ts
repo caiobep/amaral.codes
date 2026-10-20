@@ -1,4 +1,5 @@
 import type { EntryCategory } from '../content/schemas'
+import { normalizeSearchText } from '../features/search/normalize-search-text'
 import { getQueryParameter, setQueryParameter } from '../lib/query-parameters'
 
 type PostFilter = 'all' | EntryCategory
@@ -32,13 +33,8 @@ const getInitialFilter = (filters: ReadonlySet<PostFilter>): PostFilter => {
   return filters.has(filter) ? filter : 'all'
 }
 
-const normalize = (value: string) => value
-  .toLocaleLowerCase('en')
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g, '')
-
 const postMatches = (post: HTMLElement, query: string, filter: PostFilter) => {
-  const content = normalize(post.dataset.search ?? post.textContent)
+  const content = normalizeSearchText(post.dataset.search ?? post.textContent)
   const matchesQuery = !query || content.includes(query)
   const matchesFilter = filter === 'all'
     || post.dataset.category === filter
@@ -85,7 +81,7 @@ const syncPostControls = (context: PostContext, visibleCount: number) => {
 }
 
 const filterPosts = (context: PostContext) => {
-  const query = normalize(context.elements.searchInput.value.trim())
+  const query = normalizeSearchText(context.elements.searchInput.value.trim())
   const visibleCount = filterPostElements(context, query)
   syncPostControls(context, visibleCount)
   updatePostUrl(context, query)

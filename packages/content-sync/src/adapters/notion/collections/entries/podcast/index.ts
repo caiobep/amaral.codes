@@ -6,8 +6,10 @@ import {
   getText,
   getTitle,
   getUrl,
+  readOptionalHttpsUrl,
+  requireText,
+  requireUrl,
 } from '../../../properties/index.ts'
-import { requireText, requireUrl } from '../required-properties/index.ts'
 
 export function mapPodcast(page: NotionPage): PodcastData {
   type PodcastService = PodcastData['players'][number]['service']
@@ -29,12 +31,7 @@ export function mapPodcast(page: NotionPage): PodcastData {
     episode: getText(page, 'Episode'),
     sourceUrl: requirePublicHttpsUrl(requireUrl(page, 'Source URL'), 'Source URL'),
     players: availablePlayers,
-    audioUrl: readOptionalHttpUrl(page, 'Audio URL'),
+    audioUrl: readOptionalHttpsUrl(page, 'Audio URL'),
     audioBytes: getNumber(page, 'Audio bytes'),
   }
-}
-
-function readOptionalHttpUrl(page: NotionPage, name: string): string | undefined {
-  const value = getUrl(page, name)
-  return value ? requirePublicHttpsUrl(value, name) : undefined
 }

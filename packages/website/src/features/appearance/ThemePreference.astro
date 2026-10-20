@@ -1,0 +1,191 @@
+---
+import { Monitor, Moon, Sun } from '@lucide/astro'
+import {
+  DEFAULT_PALETTE,
+  DEFAULT_THEME_PREFERENCE,
+  PALETTE_OPTIONS,
+  THEME_OPTIONS,
+  getNextPalette,
+  getNextThemePreference,
+  getPaletteLabel,
+  getThemePreferenceLabel,
+} from './model'
+
+const themeIcons = { dark: Moon, light: Sun, system: Monitor } as const
+const nextTheme = getNextThemePreference(DEFAULT_THEME_PREFERENCE)
+const nextPalette = getNextPalette(DEFAULT_PALETTE)
+---
+
+<div class="appearance-preferences" aria-label="Appearance preferences">
+  <div class="preference-row">
+    <span class="preference-label">Theme</span>
+    <button
+      type="button"
+      class="preference-toggle"
+      data-theme-toggle
+      data-theme-value={DEFAULT_THEME_PREFERENCE}
+      aria-label={`Theme: ${getThemePreferenceLabel(DEFAULT_THEME_PREFERENCE)}. Switch to ${getThemePreferenceLabel(nextTheme)}`}
+    >
+      {THEME_OPTIONS.map(({ id, label }) => {
+        const Icon = themeIcons[id]
+        return (
+        <span class="preference-state" data-theme-state={id} hidden={id !== DEFAULT_THEME_PREFERENCE}>
+          <Icon size={15} stroke-width={2} aria-hidden="true" />
+          <span>{label}</span>
+        </span>
+        )
+      })}
+    </button>
+  </div>
+
+  <div class="preference-row">
+    <span class="preference-label">Palette</span>
+    <button
+      type="button"
+      class="preference-toggle palette-toggle"
+      data-palette-toggle
+      data-palette-value={DEFAULT_PALETTE}
+      aria-label={`Palette: ${getPaletteLabel(DEFAULT_PALETTE)}. Switch to ${getPaletteLabel(nextPalette)}`}
+    >
+      {PALETTE_OPTIONS.map(({ id, label }) => (
+        <span class="preference-state" data-palette-state={id} hidden={id !== DEFAULT_PALETTE}>
+          <span class="palette-swatches" data-palette-swatches={id} aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span>{label}</span>
+        </span>
+      ))}
+    </button>
+  </div>
+</div>
+
+<style>
+  .appearance-preferences {
+    display: grid;
+    min-width: 0;
+    gap: 0.55rem;
+  }
+
+  .preference-row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .preference-label {
+    color: var(--dark-caption);
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .preference-toggle {
+    width: 7.75rem;
+    min-height: 2.5rem;
+    border: 1px solid #3a403d;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 2%);
+    padding: 0 0.75rem;
+    color: var(--dark-muted);
+    cursor: pointer;
+    font: 650 0.75rem/1 var(--sans);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      transform 160ms var(--ease);
+  }
+
+  .preference-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+
+  .preference-state[hidden] {
+    display: none;
+  }
+
+  .palette-swatches {
+    display: flex;
+    gap: 2px;
+  }
+
+  .palette-swatches i {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--swatch-1);
+  }
+
+  .palette-swatches i:nth-child(2) {
+    background: var(--swatch-2);
+  }
+
+  .palette-swatches i:nth-child(3) {
+    background: var(--swatch-3);
+  }
+
+  [data-palette-swatches="ember"] {
+    --swatch-1: #c45d45;
+    --swatch-2: #7a3730;
+    --swatch-3: #d4b965;
+  }
+
+  [data-palette-swatches="cobalt"] {
+    --swatch-1: #397bc9;
+    --swatch-2: #285589;
+    --swatch-3: #70bdce;
+  }
+
+  [data-palette-swatches="graphite"] {
+    --swatch-1: #5c6d73;
+    --swatch-2: #39474c;
+    --swatch-3: #b7beaa;
+  }
+
+  [data-palette-swatches="garnet"] {
+    --swatch-1: #9f3f5b;
+    --swatch-2: #702d43;
+    --swatch-3: #c69aab;
+  }
+
+  [data-palette-swatches="ochre"] {
+    --swatch-1: #8d6819;
+    --swatch-2: #64490f;
+    --swatch-3: #d4b65f;
+  }
+
+  [data-palette-swatches="plum"] {
+    --swatch-1: #705586;
+    --swatch-2: #503d61;
+    --swatch-3: #b49ac5;
+  }
+
+  [data-palette-swatches="lagoon"] {
+    --swatch-1: #19788a;
+    --swatch-2: #145562;
+    --swatch-3: #67b9c5;
+  }
+
+  .preference-toggle:active {
+    transform: scale(0.98);
+  }
+
+  .preference-toggle:focus-visible {
+    outline: 2px solid var(--phosphor);
+    outline-offset: 3px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .preference-toggle:hover {
+      border-color: #59635e;
+      background: rgb(255 255 255 / 6%);
+      color: #fff;
+    }
+  }
+</style>

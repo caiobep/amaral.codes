@@ -1,5 +1,5 @@
 ---
-import ThemePreference from './ThemePreference.astro'
+import ThemePreference from '../features/appearance/ThemePreference.astro'
 import { getEntryIndex } from '../lib/content'
 import { selectAdvertisedRssFeeds } from '../lib/rss'
 
@@ -55,7 +55,7 @@ const { flush = false } = Astro.props
 
     <div class="footer-links">
       <section class="footer-section" aria-label="Explore">
-        <h2>On this site</h2>
+        <h2>Explore</h2>
         <div class="footer-section-content">
           <ul>
             {renderLinks(exploreLinks).map(([label, href]) => <li><a href={href}>{label}</a></li>)}
@@ -64,7 +64,7 @@ const { flush = false } = Astro.props
       </section>
 
       <section class="footer-section" aria-label="RSS">
-        <h2>Follow by RSS</h2>
+        <h2>RSS</h2>
         <div class="footer-section-content">
           <ul>
             {renderLinks(rssLinks).map(([label, href]) => <li><a href={href}>{label}</a></li>)}
@@ -82,7 +82,7 @@ const { flush = false } = Astro.props
           </ul>
           <details>
             <summary>More profiles</summary>
-            <ul>
+            <ul class="secondary-profile-list">
               {renderLinks(secondaryProfiles).map(([label, href]) => (
                 <li><a href={href} target="_blank" rel="noopener noreferrer">{label}</a></li>
               ))}
@@ -101,31 +101,11 @@ const { flush = false } = Astro.props
 
 <style>
   .footer-shell {
-    --footer-gap: clamp(4.5rem, 7vw, 6rem);
-
     position: relative;
-    margin-top: var(--footer-gap);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: var(--dark);
     box-shadow: 0 50vh 0 50vh var(--dark);
     color: #f5f7f2;
-  }
-
-  .footer-shell::before {
-    position: absolute;
-    right: 0;
-    bottom: 100%;
-    left: 0;
-    height: var(--footer-gap);
-    background: var(--paper);
-    content: "";
-    pointer-events: none;
-  }
-
-  .footer-shell-flush {
-    --footer-gap: 0px;
-
-    margin-top: 0;
   }
 
   .footer {
@@ -144,7 +124,7 @@ const { flush = false } = Astro.props
 
   .footer-name {
     display: inline-block;
-    font-family: var(--display);
+    font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(2rem, 3vw, 2.8rem);
     line-height: 1;
     text-decoration: none;
@@ -160,33 +140,29 @@ const { flush = false } = Astro.props
 
   .footer-links {
     display: grid;
-    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 3rem;
     border-top: 1px solid #303431;
-    padding: 1.75rem 0 2.25rem;
+    padding: 2.5rem 0 3rem;
   }
 
   .footer-section {
-    display: grid;
-    grid-template-columns: minmax(7rem, 0.24fr) minmax(0, 1fr);
-    align-items: start;
-    gap: clamp(1.5rem, 4vw, 3rem);
     min-width: 0;
   }
 
   h2 {
-    margin: 0.85rem 0 0;
+    margin: 0 0 1.5rem;
     color: var(--dark-caption);
     font-family: var(--sans);
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
   ul {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+    display: grid;
+    gap: 0.25rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -212,18 +188,13 @@ const { flush = false } = Astro.props
   }
 
   .footer-profile-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+    display: grid;
+    gap: 1rem;
   }
 
-  .footer-profile-links > ul {
-    flex: 0 1 auto;
-  }
-
-  details {
-    flex: 0 0 auto;
+  .footer-profile-links ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.5rem;
   }
 
   summary {
@@ -236,16 +207,47 @@ const { flush = false } = Astro.props
     font-weight: 700;
   }
 
+  summary::after {
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-left: 0.55rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    content: '';
+    transform: rotate(45deg) translateY(-0.1rem);
+    transition: transform 180ms ease;
+  }
+
   summary::marker {
     color: var(--accent);
   }
 
-  details[open] {
-    flex-basis: 100%;
+  .secondary-profile-list {
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    opacity: 0;
+    transform: translateY(-0.35rem);
+    transition: max-height 220ms ease, opacity 180ms ease, padding-top 220ms ease,
+      transform 220ms ease;
   }
 
-  details[open] ul {
+  details[open] summary::after {
+    transform: rotate(225deg) translate(-0.05rem, -0.05rem);
+  }
+
+  details[open] .secondary-profile-list {
+    max-height: 12rem;
     padding-top: 0.25rem;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    summary::after,
+    .secondary-profile-list {
+      transition: none;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -283,13 +285,13 @@ const { flush = false } = Astro.props
     }
 
     .footer-links {
-      gap: 1.25rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
       padding: 1.75rem 0 2rem;
     }
 
-    .footer-section {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
+    .footer-elsewhere {
+      grid-column: 1 / -1;
     }
 
     h2 {

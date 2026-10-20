@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { initializeShareControls } from '../../../src/scripts/share/runtime'
+import { initializeShareControls } from '../../../src/features/sharing/share.client'
 import { element, mount } from '../dom'
 
 describe('share button runtime', () => {

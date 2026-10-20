@@ -149,6 +149,13 @@ test('Featured Projects mirrors the anchored title feedback from notes', async (
       const { height, width, x, y } = element.getBoundingClientRect()
       return { height, width, x, y: y + window.scrollY }
     })).toEqual(projectRectBefore)
+    if (selector === '.featured-project') {
+      await page.screenshot({ path: testInfo.outputPath('featured-project-hover.png') })
+    }
+    await page.mouse.move(0, 0)
+    await expect(title).toHaveCSS('transform', 'none')
+    await project.focus()
+    await expect(title).not.toHaveCSS('transform', 'none')
   }
 })
 

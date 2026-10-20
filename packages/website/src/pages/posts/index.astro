@@ -1,21 +1,12 @@
 ---
 import '../../styles/pages/posts.css'
-import {
-  Files,
-  FileText,
-  Headphones,
-  Link2,
-  Notebook,
-  Presentation,
-  Search,
-  Star,
-  Video,
-  X,
-} from '@lucide/astro'
+import { Search, X } from '@lucide/astro'
 import PageIntro from '../../components/PageIntro.astro'
 import EntryPreview from '../../components/EntryPreview.astro'
+import CategoryIcon from '../../features/entries/CategoryIcon.astro'
 import Layout from '../../layouts/Layout.astro'
-import { getEntryIndex, getEntryTopics, ENTRY_CATEGORY_OPTIONS } from '../../lib/content'
+import { ENTRY_CATEGORY_PRESENTATIONS } from '../../features/entries/category-presentation'
+import { getEntryIndex, getEntryTopics } from '../../lib/content'
 import { createPageStructuredData } from '../../lib/structured-data'
 
 const {
@@ -24,20 +15,11 @@ const {
 } = await getEntryIndex()
 
 const filters = [
-  { value: 'all', label: 'All', count: entries.length, icon: Files },
-  ...ENTRY_CATEGORY_OPTIONS.map(({ value, label }) => ({
-    value,
-    label,
-    count: counts[value],
-    icon: {
-      essay: FileText,
-      link: Link2,
-      note: Notebook,
-      podcast: Headphones,
-      review: Star,
-      talk: Presentation,
-      video: Video,
-    }[value],
+  { value: 'all' as const, label: 'All', count: entries.length },
+  ...ENTRY_CATEGORY_PRESENTATIONS.map(({ category, filterLabel }) => ({
+    value: category,
+    label: filterLabel,
+    count: counts[category],
   })).filter(({ count }) => count > 0),
 ]
 const pageDescription = 'Essays, notes, reviews, links, and observations by Caio Amaral.'
@@ -85,8 +67,6 @@ const structuredData = createPageStructuredData({
       <legend>Browse the shelves</legend>
       <div class="post-filter-options">
         {filters.map((filter) => {
-          const FilterIcon = filter.icon
-
           return (
             <button
               type="button"
@@ -94,7 +74,7 @@ const structuredData = createPageStructuredData({
               aria-controls="post-results"
               aria-pressed={filter.value === 'all' ? 'true' : 'false'}
             >
-              <FilterIcon aria-hidden="true" />
+              <CategoryIcon category={filter.value} />
               <span>{filter.label}</span>
               <strong>{filter.count}</strong>
             </button>
@@ -110,6 +90,7 @@ const structuredData = createPageStructuredData({
   <section id="post-results" class="posts page-shell" aria-label="Note results">
     {entries.map((entry) => (
       <EntryPreview
+        translation={entry.data.translation}
         title={entry.data.title}
         summary={entry.data.summary}
         date={entry.data.date}

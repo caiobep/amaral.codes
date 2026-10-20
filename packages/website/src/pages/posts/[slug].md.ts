@@ -1,7 +1,9 @@
 import type { APIRoute, GetStaticPaths } from 'astro'
 import type { CollectionEntry } from 'astro:content'
+import { getEntryHref } from '../../lib/routes'
 import { getEntryIndex } from '../../lib/content'
 import { renderEntryMarkdown } from '../../lib/agent-markdown'
+import { cmsTrialEnabled } from '../../lib/cms/mode'
 
 interface Props {
   entry: CollectionEntry<'entries'>
@@ -10,18 +12,22 @@ interface Props {
 export const getStaticPaths: GetStaticPaths = async () => {
   const { entries } = await getEntryIndex()
 
-  return entries.map((entry) => ({
+  return entries.filter(entry => getEntryHref(entry.id, entry.data.translation) === `/posts/${entry.id}`).map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
   }))
 }
 
-export const GET: APIRoute<Props> = ({ props, site }) => {
-  const canonicalUrl = new URL(`/posts/${props.entry.id}`, site).href
+export const GET: APIRoute<Props> = async ({ props, site, params }) => {
+  const entry = cmsTrialEnabled
+    ? (await getEntryIndex()).entries.find(entry => entry.id === params.slug)
+    : props.entry
+  if (!entry) return new Response('Post not found', { status: 404 })
+  const canonicalUrl = new URL(getEntryHref(entry.id, entry.data.translation), site).href
   const markdown = renderEntryMarkdown({
-    body: props.entry.body ?? '',
+    body: entry.body ?? '',
     canonicalUrl,
-    data: props.entry.data,
+    data: entry.data,
   })
 
   return new Response(markdown, {

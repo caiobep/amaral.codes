@@ -4,11 +4,11 @@ import { requirePublicHttpsUrl } from '@amaral.codes/content-contract/public-url
 import type { ContentMapper } from '../../../../application/ports.ts'
 import { createSlug } from '../../../../domain/slug/index.ts'
 import {
-  getDate,
   getMultiSelect,
-  getText,
   getTitle,
-  getUrl,
+  requireDate,
+  requireText,
+  requireUrl,
 } from '../../properties/index.ts'
 
 type PodcastPlayer = PodcastData['players'][number]['service']
@@ -63,22 +63,4 @@ function readPlayer(url: string): PodcastPlayer {
   const service = PLAYER_BY_HOST[hostname]
   if (service) return service
   throw new Error(`Unsupported podcast player: ${hostname}`)
-}
-
-function requireDate(page: NotionPage, name: string): string {
-  const value = getDate(page, name)
-  if (value) return value
-  throw new Error(`"${getTitle(page)}" is missing ${name}`)
-}
-
-function requireText(page: NotionPage, name: string): string {
-  const value = getText(page, name)
-  if (value) return value
-  throw new Error(`"${getTitle(page)}" is missing ${name}`)
-}
-
-function requireUrl(page: NotionPage, name: string): string {
-  const value = getUrl(page, name)
-  if (value) return value
-  throw new Error(`"${getTitle(page)}" is missing ${name}`)
 }

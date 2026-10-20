@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import { render } from 'astro:content'
+import ProjectVisual from '../features/projects/ProjectVisual.astro'
 import { formatTechnologies, getProjectHref, isExternalProject } from '../lib/content'
 
 interface Props {
@@ -13,9 +14,6 @@ const { Content } = await render(project)
 const href = getProjectHref(project)
 const external = isExternalProject(project)
 const visual = project.data.visual
-const imageSrcset = visual?.type === 'image' && visual.sources.length > 0
-  ? visual.sources.map((source) => `${source.src} ${String(source.width)}w`).join(', ')
-  : undefined
 const projectSearchText = [
   project.data.title,
   project.data.summary,
@@ -38,23 +36,12 @@ const projectSearchText = [
     rel={external ? 'noopener noreferrer' : undefined}
     aria-label={`View ${project.data.title}`}
   >
-    {visual?.type === 'image'
-      ? (
-          <img
-            src={visual.src}
-            srcset={imageSrcset}
-            sizes="(max-width: 760px) calc(100vw - 2rem), (max-width: 1180px) calc(100vw - 4rem), min(48vw, 47rem)"
-            alt={visual.alt}
-            width={visual.width}
-            height={visual.height}
-            loading={index === 0 ? 'eager' : 'lazy'}
-            decoding="async"
-            fetchpriority={index === 0 ? 'high' : 'auto'}
-          />
-        )
-      : visual?.type === 'code'
-        ? <pre><code>{visual.lines.join('\n')}</code></pre>
-        : null}
+    <ProjectVisual
+      visual={visual}
+      sizes="(max-width: 760px) calc(100vw - 2rem), (max-width: 1180px) calc(100vw - 4rem), min(48vw, 47rem)"
+      loading={index === 0 ? 'eager' : 'lazy'}
+      fetchpriority={index === 0 ? 'high' : 'auto'}
+    />
   </a>
 
   <div class="project-details">

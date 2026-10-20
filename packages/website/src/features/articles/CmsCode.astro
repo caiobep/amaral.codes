@@ -1,0 +1,13 @@
+---
+import { Code } from 'astro:components'
+import { contemporaryEditorialCodeTheme } from '../../../scripts/code-theme.mjs'
+import { getCmsCodeLanguage } from './cms-code-language'
+
+interface Props {
+  node: { code: string, language?: string }
+}
+
+const { node } = Astro.props
+---
+
+<Code code={node.code} lang={getCmsCodeLanguage(node.language)} theme={contemporaryEditorialCodeTheme} />

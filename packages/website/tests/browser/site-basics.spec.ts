@@ -609,12 +609,12 @@ test('desktop search entry points focus without scrolling or hijacking text fiel
     await expect(page).toHaveURL(/\/search\/?\?query=systems$/)
   }
 
-  await page.goto('/contact')
-  const nameInput = page.getByRole('textbox', { name: 'Name' })
-  await nameInput.focus()
+  await page.goto('/posts')
+  const filterInput = page.getByRole('searchbox', { name: 'Search the library' })
+  await filterInput.focus()
   await page.keyboard.press('Meta+K')
-  await expect(page).toHaveURL(/\/contact\/?$/)
-  await expect(nameInput).toBeFocused()
+  await expect(page).toHaveURL(/\/posts\/?$/)
+  await expect(filterInput).toBeFocused()
 })
 
 test('post filters represent content types only', async ({ page }) => {

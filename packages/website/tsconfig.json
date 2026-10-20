@@ -2,7 +2,7 @@
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
     "types": ["node"],
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "skipLibCheck": true,
     "esModuleInterop": true
   }

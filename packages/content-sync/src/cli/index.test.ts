@@ -60,6 +60,21 @@ test('identifies a missing collection before reading configuration', async () =>
   assert.deepEqual(harness.configuredCollections, [])
 })
 
+test.each(['--dry-run', '--force', 'projects'])(
+  'rejects an extra argument %s before reading configuration',
+  async extraArgument => {
+    const harness = createHarness()
+
+    await assert.rejects(
+      runCli(['sync', 'entries', extraArgument], harness.dependencies),
+      /Usage: content-sync sync/,
+    )
+    assert.deepEqual(harness.configuredCollections, [])
+    assert.deepEqual(harness.syncedCollections, [])
+    assert.deepEqual(harness.messages, [])
+  },
+)
+
 test('does not expose private source values from collection failures', async () => {
   const harness = createHarness()
   harness.dependencies.createSync = () => ({

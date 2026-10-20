@@ -16,6 +16,7 @@ test.each([
   ['/llms.txt', 'agent discovery index'],
   ['/llms-full.txt', 'agent full-text representation'],
   ['/content-index.json', 'machine-readable content index'],
+  ['/sitemap-site.xml', 'sitemap document'],
 ])('excludes %s as a %s route', (route) => {
   assert.equal(shouldIncludeInSitemap(siteUrl(route)), false)
 })

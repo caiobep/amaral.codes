@@ -4,7 +4,6 @@ import {
   createRssResponse,
   DEDICATED_RSS_FEEDS,
   selectAdvertisedRssFeeds,
-  type RssFeedDefinition,
 } from '../../lib/rss'
 import { requireSite } from '../../lib/site'
 
@@ -20,7 +19,9 @@ export async function getStaticPaths() {
 export async function GET(context: APIContext) {
   const { entries } = await getEntryIndex()
   const site = requireSite(context.site)
-  const { feed } = context.props as { feed: RssFeedDefinition }
+  const feed = selectAdvertisedRssFeeds(entries, DEDICATED_RSS_FEEDS)
+    .find(feed => feed.slug === context.params.feed)
+  if (!feed) return new Response('Feed not found', { status: 404 })
 
   return createRssResponse(feed, entries, site)
 }

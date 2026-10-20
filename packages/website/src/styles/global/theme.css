@@ -48,6 +48,8 @@
   --display: "Instrument Serif", Georgia, serif;
   --editorial: "Literata", Georgia, serif;
   --sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --heading-font: "Fraunces", Georgia, serif;
+  --section-heading-font: "Newsreader", Georgia, serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -244,6 +246,12 @@
 }
 
 :root[data-palette="plum"] {
+  --ink: #2b2331;
+  --muted: #665d6d;
+  --text-secondary: #514659;
+  --dark-ink: #f5eff8;
+  --dark-muted: #bbb1c1;
+  --dark-caption: #a094a8;
   --accent: #705586;
   --accent-strong: #503d61;
   --accent-soft: #e4ddea;
@@ -257,6 +265,9 @@
 }
 
 :root[data-theme="dark"][data-palette="plum"] {
+  --ink: #f1eaf5;
+  --muted: #b9aec1;
+  --text-secondary: #c9bed0;
   --accent: #ba94d0;
   --accent-strong: #d9bae8;
   --accent-soft: #3c3045;

@@ -70,6 +70,19 @@ export function findWorkspaceDependencyViolations(
     .map(name => `${packageName} cannot depend on ${name}.`)
 }
 
+export function findTestLocationViolations(files) {
+  const sources = new Set(files)
+  return files.flatMap(file => {
+    if (file.split(path.sep).includes('tests')) return []
+    const match = /^(.*)\.(?:test|spec)\.([cm]?[jt]sx?)$/.exec(file)
+    if (!match) return []
+    const [, stem, extension] = match
+    return sources.has(`${stem}.${extension}`) || sources.has(`${stem}.astro`)
+      ? []
+      : [`${file} must be colocated with its matching source module.`]
+  })
+}
+
 function getDeclarationSpecifier(node) {
   if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
     && node.moduleSpecifier

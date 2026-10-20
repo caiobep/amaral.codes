@@ -1,19 +1,13 @@
 import { defineConfig } from 'vitest/config'
+import { vitestCoverageDefaults } from '../../scripts/testing/vitest-coverage.mjs'
 
 export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     coverage: {
-      provider: 'v8',
+      ...vitestCoverageDefaults,
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts'],
-      reporter: ['text-summary', 'json'],
-      thresholds: {
-        branches: 80,
-        functions: 90,
-        lines: 90,
-        statements: 90,
-      },
     },
   },
 })

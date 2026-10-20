@@ -1,19 +1,6 @@
-import {
-  ENTRY_CATEGORIES,
-  type EntryCategory,
-} from '../../../content/schemas'
+import { ENTRY_CATEGORIES, type EntryCategory } from '../../../content/schemas'
 import { byId, orderByUniqueRank } from './ordering'
 import type { EntryRecord } from './types'
-
-export const ENTRY_CATEGORY_OPTIONS = [
-  { value: 'essay', label: 'Essays' },
-  { value: 'note', label: 'Short notes' },
-  { value: 'review', label: 'Reviews' },
-  { value: 'link', label: 'Links' },
-  { value: 'video', label: 'Videos' },
-  { value: 'podcast', label: 'Podcasts' },
-  { value: 'talk', label: 'Talks' },
-] as const satisfies readonly { value: EntryCategory, label: string }[]
 
 const READABLE_ENTRY_CATEGORIES = new Set<EntryCategory>(['essay', 'note', 'review'])
 

@@ -1,8 +1,9 @@
+import { resolveEntryLanguage } from '@amaral.codes/content-contract/entry-language'
 import type { EntryData } from '../../content/schemas'
 import { resolvePublicAssetUrl } from '../assets'
 import { createCanonicalUrl, requireSite } from '../site'
 
-type PodcastEntryData = Pick<EntryData, 'date' | 'podcast' | 'summary' | 'title'>
+type PodcastEntryData = Pick<EntryData, 'category' | 'date' | 'language' | 'podcast' | 'summary' | 'title'>
 type PageSchemaType = 'CollectionPage' | 'ContactPage' | 'ProfilePage' | 'WebPage'
 
 interface ArticleStructuredDataInput {
@@ -107,7 +108,7 @@ export function createPodcastStructuredData(data: PodcastEntryData, canonicalUrl
     '@type': 'PodcastEpisode',
     datePublished: date,
     description: summary,
-    inLanguage: 'pt-BR',
+    inLanguage: resolveEntryLanguage(data),
     name: title,
     partOfSeries: {
       '@type': 'PodcastSeries',

@@ -1,0 +1,21 @@
+---
+import { renderCmsHtml, renderCmsMediaUrl } from '../../lib/cms/body-render'
+
+interface Props {
+  node: { _type: 'embed', _key: string, url: string, html?: string, provider?: string, caption?: string }
+}
+
+const { node } = Astro.props
+const { Embed } = import.meta.env.AMARAL_CMS_TRIAL === '1'
+  ? await import('emdash/ui')
+  : { Embed: undefined }
+const resolveMedia = Astro.locals.emdash?.getPublicMediaUrl
+if (!resolveMedia) throw new Error('CMS embeds require the native media URL resolver')
+const renderedNode = {
+  ...node,
+  url: renderCmsMediaUrl(node.url, resolveMedia),
+  ...(node.html ? { html: renderCmsHtml(node.html, resolveMedia) } : {}),
+}
+---
+
+{Embed ? <Embed node={renderedNode} /> : null}

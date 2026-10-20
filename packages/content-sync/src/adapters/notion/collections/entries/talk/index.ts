@@ -6,9 +6,8 @@ import {
   TALK_MATERIAL_TYPES,
 } from '@amaral.codes/content-contract'
 import { requirePublicUrl } from '@amaral.codes/content-contract/public-url'
-import { getText } from '../../../properties/index.ts'
+import { getText, requireText } from '../../../properties/index.ts'
 import { readOption } from '../options/index.ts'
-import { requireText } from '../required-properties/index.ts'
 
 export function mapTalk(page: NotionPage): TalkData {
   return {

@@ -1,5 +1,6 @@
 ---
 import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
+import Heading from '../components/Heading.astro'
 import Layout from '../layouts/Layout.astro'
 import { createPageStructuredData } from '../lib/structured-data'
 const pageDescription = 'About Caio Amaral, his work in software, and the interests behind amaral.codes.'
@@ -20,7 +21,7 @@ const structuredData = createPageStructuredData({
   <section class="about-hero page-shell" data-reveal>
     <div class="hero-copy">
       <p class="eyebrow">About</p>
-      <h1>Most of my interests start with software and end up somewhere else.</h1>
+      <Heading level={1}>Most of my interests start with software and end up somewhere else.</Heading>
       <p>
         I usually start with a tool or a piece of software, then follow the question into reliability, accessibility, habits, or whatever else it touches.
       </p>
@@ -47,17 +48,14 @@ const structuredData = createPageStructuredData({
   <section class="story page-shell" aria-labelledby="story-title" data-reveal>
     <div class="story-heading">
       <p class="section-label">Why this site exists</p>
-      <h2 id="story-title">A place for the interests I used to keep quiet.</h2>
+      <Heading id="story-title">My thoughts, at full length.</Heading>
     </div>
     <div class="story-copy">
       <p>
-        I grew up in a small city and spent a lot of time online following computers, music, design, and whatever else had caught my attention. For a long time I treated those interests as subjects to tone down in conversation.
+        This is where I write what I think, in my own words, with room to get into the details. Software, music, design, or whatever else has my attention.
       </p>
       <p>
-        I often responded by shortening the explanation or not bringing it up at all. That made conversations easier, but also less honest.
-      </p>
-      <p>
-        This site is where I let the explanation run a little longer. Writing helps me understand what I think, keep useful ideas from disappearing, and find people who care about the same things.
+        I write about what I tried, what worked, what frustrated me, and what I’m still figuring out. These are my views as they stand when I write them. There’s room to change my mind.
       </p>
     </div>
   </section>
@@ -66,11 +64,8 @@ const structuredData = createPageStructuredData({
     <div class="work-heading">
       <div>
         <p class="section-label">Work context</p>
-        <h2 id="work-context-title">Some of the places the work took me.</h2>
+        <Heading id="work-context-title">Teams and products I’ve worked with.</Heading>
       </div>
-      <p>
-        This is a mix of employers, products, and client teams. I keep them together because each belongs to a chapter of the work.
-      </p>
     </div>
     <CompaniesIveWorkedWith annotated />
   </section>
@@ -79,9 +74,9 @@ const structuredData = createPageStructuredData({
     <div class="page-shell interests">
       <div>
         <p class="section-label">What ends up here</p>
-        <h2 id="interests-title">Whatever I keep thinking about.</h2>
+        <Heading id="interests-title">Whatever I keep thinking about.</Heading>
       </div>
-      <div class="interest-copy" data-stagger>
+      <div class="interest-copy">
         <p>
           I notice interfaces that stay out of the way, and reliability problems that survive the obvious fix.
         </p>
@@ -98,7 +93,7 @@ const structuredData = createPageStructuredData({
   <section class="next page-shell" data-reveal>
     <div>
       <p class="section-label">Continue reading</p>
-      <h2>The notes are the better introduction.</h2>
+      <Heading>The notes are the better introduction.</Heading>
     </div>
     <a class="button" href="/posts">Browse all notes</a>
   </section>
@@ -115,16 +110,6 @@ const structuredData = createPageStructuredData({
 
   .about-hero .eyebrow {
     margin-bottom: 0.8rem;
-  }
-
-  .about-hero h1 {
-    max-width: 12ch;
-    margin: 0 0 1.35rem;
-    font-family: var(--display);
-    font-size: clamp(3.5rem, 5.7vw, 5.6rem);
-    font-weight: 400;
-    line-height: 0.96;
-    letter-spacing: 0;
   }
 
   .hero-copy > p:not(.eyebrow) {
@@ -213,18 +198,6 @@ const structuredData = createPageStructuredData({
     grid-column: 1 / span 6;
   }
 
-  .story h2,
-  .work-context h2,
-  .interests h2,
-  .next h2 {
-    max-width: 14ch;
-    margin: 0.6rem 0 0;
-    font-family: var(--display);
-    font-size: clamp(2.5rem, 4.5vw, 4.5rem);
-    font-weight: 400;
-    line-height: 1;
-  }
-
   .story-copy {
     grid-column: 5 / span 7;
     max-width: 43rem;
@@ -249,70 +222,34 @@ const structuredData = createPageStructuredData({
   }
 
   .work-heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(15rem, 0.55fr);
-    gap: clamp(2rem, 7vw, 7rem);
-    align-items: end;
     margin-bottom: clamp(2rem, 4vw, 3.5rem);
   }
 
-  .work-heading > p {
-    margin: 0 0 0.35rem;
-    border-left: 1px solid var(--accent);
-    padding-left: 1rem;
-    color: var(--muted);
-    font-size: 0.98rem;
-    line-height: 1.65;
-  }
-
   .interests-band {
-    background-color: var(--accent-soft);
-    background-image: url('/textures/material-noise.webp');
-    background-size: 260px 260px;
-    background-blend-mode: soft-light;
+    background-color: var(--accent-faint);
   }
 
   .interests {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(1rem, 2vw, 2rem);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 3rem;
+    align-items: start;
     padding: clamp(4.5rem, 8vw, 7rem) 0;
   }
 
-  .interests > div:first-child {
-    grid-column: 1 / span 5;
-  }
-
   .interest-copy {
-    display: grid;
-    grid-column: 5 / span 8;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
     max-width: 43rem;
   }
 
   .interest-copy p {
-    grid-column: 1 / span 6;
-    margin: 0;
-    border-top: 1px solid var(--line);
-    padding: 1.15rem 0 2rem;
-    color: var(--text-secondary);
+    margin: 0 0 1.25rem;
+    color: var(--ink);
     font-size: 1.08rem;
     line-height: 1.72;
   }
 
-  .interest-copy p:first-child {
-    grid-column: 1 / span 7;
-    color: var(--ink);
-    font-size: 1.22rem;
-  }
-
-  .interest-copy p:nth-child(2) {
-    grid-column: 2 / span 7;
-  }
-
-  .interest-copy p:nth-child(3) {
-    grid-column: 1 / span 6;
-    padding-bottom: 0;
+  .interest-copy p:last-child {
+    margin-bottom: 0;
   }
 
   .next {
@@ -354,10 +291,6 @@ const structuredData = createPageStructuredData({
       width: 100%;
     }
 
-    .about-hero h1 {
-      font-size: clamp(3rem, 6.7vw, 3.7rem);
-    }
-
   }
 
   @media (max-width: 680px) {
@@ -375,10 +308,6 @@ const structuredData = createPageStructuredData({
 
     .about-hero > .eyebrow {
       padding-top: 0;
-    }
-
-    .about-hero h1 {
-      font-size: clamp(3rem, 13.5vw, 3.5rem);
     }
 
     .story,
@@ -401,19 +330,8 @@ const structuredData = createPageStructuredData({
       margin-top: 2.5rem;
     }
 
-    .work-heading {
-      grid-template-columns: 1fr;
-      gap: 1.75rem;
-      align-items: start;
-    }
-
-    .work-heading > p {
-      max-width: 34rem;
-    }
-
     .interest-copy {
-      display: block;
-      margin-top: 2.5rem;
+      margin-top: 0;
     }
 
     .next {

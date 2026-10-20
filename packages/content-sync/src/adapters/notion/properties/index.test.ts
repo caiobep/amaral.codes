@@ -9,6 +9,11 @@ import {
   getText,
   getTitle,
   getUrl,
+  readOptionalHttpsUrl,
+  requireDate,
+  requireNumber,
+  requireText,
+  requireUrl,
 } from './index.ts'
 
 test('reads and normalizes supported Notion property values', () => {
@@ -59,6 +64,40 @@ test('returns safe defaults for absent and malformed properties', () => {
   assert.equal(getNumber(page, 'InvalidNumber'), undefined)
   assert.equal(getUrl(page, 'EmptyUrl'), undefined)
   assert.equal(getDate(page, 'InvalidDate'), undefined)
+})
+
+test('requires normalized Notion property values', () => {
+  const page = createPage({
+    Name: { title: [{ plain_text: 'Entry' }] },
+    Text: { rich_text: [{ plain_text: ' body ' }] },
+    Url: { url: ' https://example.com ' },
+    Date: { date: { start: '2026-07-26' } },
+    Zero: { number: 0 },
+  })
+
+  assert.equal(requireText(page, 'Text'), 'body')
+  assert.equal(requireUrl(page, 'Url'), 'https://example.com')
+  assert.equal(requireDate(page, 'Date'), '2026-07-26')
+  assert.equal(requireNumber(page, 'Zero'), 0)
+  assert.equal(readOptionalHttpsUrl(page, 'Url'), 'https://example.com/')
+  assert.equal(readOptionalHttpsUrl(page, 'Missing'), undefined)
+})
+
+test('required Notion properties identify the page and missing property', () => {
+  const page = createPage({ Name: { title: [{ plain_text: 'Entry' }] } })
+
+  assert.throws(() => requireText(page, 'Summary'), {
+    message: '"Entry" is missing Summary',
+  })
+  assert.throws(() => requireUrl(page, 'Link'), {
+    message: '"Entry" is missing Link',
+  })
+  assert.throws(() => requireDate(page, 'Created'), {
+    message: '"Entry" is missing Created',
+  })
+  assert.throws(() => requireNumber(page, 'Order'), {
+    message: '"Entry" is missing Order',
+  })
 })
 
 function createPage(properties: Record<string, unknown>): NotionPage {

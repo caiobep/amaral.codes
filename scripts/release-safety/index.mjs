@@ -11,7 +11,7 @@ const WEBSITE_PACKAGE_URL = new URL('packages/website/package.json', ROOT_URL)
 const WRANGLER_CONFIG_URL = new URL('packages/website/wrangler.jsonc', ROOT_URL)
 
 const PRODUCTION_BUILD_COMMAND = [
-  'npm run content:sync',
+  'npm run content:sync -- all',
   'npm run verify:publication',
   'npm run build:production-content -w @amaral.codes/website',
 ].join(' && ')
@@ -39,6 +39,17 @@ export function findProductionBuildViolations(rootPackage, websitePackage) {
   }
 
   return violations
+}
+
+export function findCmsPreviewBuildViolations(websitePackage) {
+  const command = websitePackage.scripts?.['build:cms:preview']
+  if (command === undefined) return []
+  return command ===
+    'AMARAL_CONTENT_SOURCE=production AMARAL_CMS_PREVIEW=1 astro build --force'
+    ? []
+    : [
+        'The deployed CMS preview must force published content instead of inheriting fixture mode.',
+      ]
 }
 
 function findPreviewViolations(config) {
@@ -97,6 +108,7 @@ export async function verifyReleaseSafety() {
   const violations = [
     ...findReleaseSafetyViolations(playwrightConfig, wranglerConfig),
     ...findProductionBuildViolations(rootPackage, websitePackage),
+    ...findCmsPreviewBuildViolations(websitePackage),
   ]
 
   if (violations.length > 0) {

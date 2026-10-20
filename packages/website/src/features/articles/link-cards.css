@@ -1,0 +1,39 @@
+.article .content .external-card.external-card--image {
+  grid-template-columns: 8rem minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+.article .content .external-card img {
+  width: 100%;
+  height: 6rem;
+  margin: 0;
+  border: 0;
+  border-radius: 4px;
+  box-shadow: none;
+  object-fit: cover;
+}
+.article .content .external-card .external-card-copy {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.article .content .external-card .external-card-description {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.5;
+  text-transform: none;
+}
+@media (max-width: 480px) {
+  .article .content .external-card.external-card--image {
+    grid-template-columns: 1fr;
+  }
+  .article .content .external-card img {
+    height: auto;
+    max-height: 12rem;
+    object-fit: contain;
+  }
+}

@@ -1,23 +1,17 @@
 ---
-import {
-  FileText,
-  Headphones,
-  Link2,
-  Notebook,
-  Presentation,
-  Star,
-  Video,
-} from '@lucide/astro'
+import CategoryIcon from '../features/entries/CategoryIcon.astro'
 import { formatPostDate } from '../lib/date'
 import { getEntryHref } from '../lib/routes'
+import type { EntryData } from '../content/schemas'
 
 interface Props {
   pathname: string
   title: string
-  date?: string
-  summary?: string
+  date: EntryData['date']
+  summary?: EntryData['summary']
   tags?: string[]
-  category?: string
+  translation?: EntryData['translation']
+  category: EntryData['category']
 }
 
 const {
@@ -26,28 +20,17 @@ const {
   pathname,
   date,
   tags = [],
-  category = 'note',
+  category,
+  translation,
 } = Astro.props
 
-const entryUrl = getEntryHref(pathname)
-const readableDate = date
-  ? formatPostDate(date, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-  : 'Undated'
+const entryUrl = getEntryHref(pathname, translation)
+const readableDate = formatPostDate(date, {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
 const hasSummary = Boolean(summary)
-const iconByCategory = {
-  essay: FileText,
-  link: Link2,
-  note: Notebook,
-  podcast: Headphones,
-  review: Star,
-  talk: Presentation,
-  video: Video,
-} as const
-const CategoryIcon = iconByCategory[category as keyof typeof iconByCategory]
 const searchIndex = [
   title,
   hasSummary ? String(summary) : '',
@@ -66,7 +49,7 @@ const searchIndex = [
   <article>
     <div class="post-meta">
       <span class="post-type">
-        {CategoryIcon ? <CategoryIcon aria-hidden="true" /> : null}
+        <CategoryIcon category={category} />
         <span>{category}</span>
       </span>
       <time datetime={date}>{readableDate}</time>

@@ -2,10 +2,10 @@ import {
   validateAllowedAttributes,
   validateBooleanAttributes,
   validateEnumAttribute,
-} from './attributes/index.mjs'
-import { findRawHtmlTags } from './html-parser/index.mjs'
-import { maskMarkdownCode } from './markdown-code/index.mjs'
-import { MEDIA_ELEMENTS, validateMediaTag } from './media-validator/index.mjs'
+} from './attributes.mjs'
+import { findRawHtmlTags } from './html-parser.mjs'
+import { maskMarkdownCode } from './markdown-code.mjs'
+import { MEDIA_ELEMENTS, validateMediaTag } from './media-validator.mjs'
 
 const SAFE_TEXT_ELEMENTS = new Set([
   'abbr', 'br', 'caption', 'cite', 'details', 'figcaption', 'figure', 'hr', 'kbd', 'mark',

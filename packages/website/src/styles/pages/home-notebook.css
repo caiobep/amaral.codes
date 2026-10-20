@@ -3,20 +3,27 @@
 }
 
 .notebook .story-meta {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-weight: 500;
   letter-spacing: 0;
 }
 
-.notebook .lead-story h3,
+.notebook .lead-story h3 {
+  font-family: var(--heading-font);
+  font-weight: 500;
+}
+
 .notebook .story-list h3 {
   font-family: var(--editorial);
   font-weight: 500;
 }
 
-.notebook .lead-story p,
+.notebook .lead-story p {
+  font-family: var(--sans);
+}
+
 .notebook .story-list p {
-  font-family: var(--editorial);
+  font-family: var(--sans);
 }
 
 .editorial-grid {
@@ -37,9 +44,11 @@
   border-radius: 8px;
   padding: clamp(1.5rem, 4vw, 3rem);
   background-color: var(--accent-soft);
-  background-image: url('/textures/material-noise.webp');
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent-soft) 80%, transparent), color-mix(in srgb, var(--accent-soft) 80%, transparent)),
+    url('/textures/material-noise.webp');
   background-size: 260px 260px;
-  background-blend-mode: soft-light;
+  background-blend-mode: normal, soft-light;
   color: var(--ink);
   text-decoration: none;
   transform-style: preserve-3d;
@@ -96,7 +105,7 @@
 .lead-story p {
   max-width: 34rem;
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--ink);
   font-size: 1.02rem;
 }
 

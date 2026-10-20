@@ -10,6 +10,7 @@ it('measures executable sources independently of filename and test presence', ()
     'src/lib/query/index.ts', 'src/lib/query/index.test.ts',
     'src/scripts/search.ts', 'src/scripts/layout/runtime.ts',
     'src/scripts/layout/index.ts', 'src/scripts/env.d.ts',
+    'src/features/search/engine.ts', 'src/features/search/engine.test.ts',
   ]
   try {
     for (const file of files) {
@@ -20,6 +21,7 @@ it('measures executable sources independently of filename and test presence', ()
       && !sourceExclusions.some(pattern => path.matchesGlob(file, pattern)))
     expect(collectQualitySources(root)).toEqual(expected.sort())
     expect(collectQualitySources(root)).toContain('src/scripts/layout/runtime.ts')
+    expect(collectQualitySources(root)).toContain('src/features/search/engine.ts')
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

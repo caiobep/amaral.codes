@@ -42,6 +42,9 @@ describe('agent Markdown request matching', () => {
     expect(getMarkdownAssetPath('/posts/a-note.md')).toBeUndefined()
     expect(getMarkdownAssetPath('/posts/')).toBeUndefined()
     expect(getMarkdownAssetPath('/about')).toBeUndefined()
+    expect(getMarkdownAssetPath('/en/posts/new/')).toBe('/en/posts/new.md')
+    expect(getMarkdownAssetPath('/pt-br/posts/new')).toBe('/pt-br/posts/new.md')
+    expect(getMarkdownAssetPath('/de/posts/new')).toBeUndefined()
   })
 })
 

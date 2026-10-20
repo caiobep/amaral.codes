@@ -1,0 +1,205 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "Caio Amaral",
+    "description": "Example content for the publishing setup"
+  },
+  "settings": {
+    "title": "Caio Amaral",
+    "tagline": ""
+  },
+  "collections": [
+    {
+      "slug": "posts",
+      "label": "Posts",
+      "labelSingular": "Post",
+      "urlPattern": "/posts/{slug}",
+      "supports": [
+        "drafts",
+        "revisions",
+        "preview",
+        "scheduling",
+        "search"
+      ],
+      "commentsEnabled": false,
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "featured_image",
+          "label": "Featured Image",
+          "type": "image"
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "excerpt",
+          "label": "Summary (optional)",
+          "type": "text"
+        },
+        {
+          "slug": "date",
+          "label": "Date override",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "slug": "category",
+          "label": "Post type",
+          "type": "select",
+          "required": true,
+          "defaultValue": "note",
+          "validation": {
+            "options": [
+              "note",
+              "essay",
+              "review",
+              "link",
+              "video",
+              "podcast",
+              "talk"
+            ]
+          }
+        },
+        {
+          "slug": "language",
+          "label": "Language (en / pt-BR)",
+          "type": "select",
+          "required": true,
+          "defaultValue": "en",
+          "validation": {
+            "options": [
+              "en",
+              "pt-BR"
+            ]
+          }
+        },
+        {
+          "slug": "featured_order",
+          "label": "Featured position",
+          "type": "integer",
+          "validation": {
+            "min": 1
+          }
+        },
+        {
+          "slug": "podcast",
+          "label": "Podcast details",
+          "type": "json"
+        },
+        {
+          "slug": "talk",
+          "label": "Talk details",
+          "type": "json"
+        }
+      ],
+      "admin": {
+        "listColumns": [
+          "category",
+          "language"
+        ],
+        "quickCreate": true
+      },
+      "description": "Notes, essays, reviews, links, videos, podcasts and talks. Topics are optional tags."
+    }
+  ],
+  "menus": [],
+  "content": {
+    "posts": [
+      {
+        "id": "cms-trial-first-note",
+        "slug": "cms-trial-first-note",
+        "status": "published",
+        "data": {
+          "title": "A first note",
+          "excerpt": "An example post created in EmDash.",
+          "category": "note",
+          "language": "en",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "paragraph",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "text",
+                  "text": "This is example content created in EmDash, using the existing website design.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "date": "2026-10-11T12:00:00.000Z",
+          "featured_order": 100
+        },
+        "taxonomies": {
+          "topics": [
+            "publishing"
+          ]
+        }
+      },
+      {
+        "id": "cms-trial-draft-note",
+        "slug": "cms-trial-draft-note",
+        "status": "draft",
+        "data": {
+          "title": "An unfinished note",
+          "excerpt": "A synthetic draft for preview testing.",
+          "category": "note",
+          "language": "en",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "paragraph",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "text",
+                  "text": "SYNTHETIC_DRAFT_MARKER. This text should appear only in an authorized preview, until it is published.",
+                  "marks": []
+                }
+              ]
+            }
+          ],
+          "date": "2026-10-11T12:00:00.000Z"
+        },
+        "taxonomies": {
+          "topics": [
+            "publishing"
+          ]
+        }
+      }
+    ]
+  },
+  "taxonomies": [
+    {
+      "name": "topics",
+      "label": "Topics",
+      "labelSingular": "Topic",
+      "hierarchical": false,
+      "collections": [
+        "posts"
+      ],
+      "terms": [
+        {
+          "slug": "publishing",
+          "label": "Publishing"
+        }
+      ]
+    }
+  ]
+}

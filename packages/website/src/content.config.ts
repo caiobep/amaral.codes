@@ -4,10 +4,15 @@ import { createContentId } from '@amaral.codes/content-contract/content-id'
 import { projectSchema, entrySchema } from './content/schemas'
 
 const contentSource = process.env.AMARAL_CONTENT_SOURCE
+const cmsOwnsEntries = contentSource === 'production' && (
+  process.env.AMARAL_CMS_TRIAL === '1' || process.env.AMARAL_CMS_PREVIEW === '1'
+)
 
 const entriesBase = contentSource === 'fixtures'
   ? './tests/fixtures/content/entries'
-  : './src/content/entries'
+  : process.env.AMARAL_PUBLISHING_DIR
+    ? `${process.env.AMARAL_PUBLISHING_DIR}/entries`
+    : './src/content/entries'
 
 const getEntryFilename = (entry: string) => {
   const filename = entry.split('/').at(-1)
@@ -21,7 +26,7 @@ const getLegacyEntryId = ({ entry }: { entry: string }) => createContentId(
 
 const entriesCollection = defineCollection({
   loader: glob({
-    pattern: '**/*.md',
+    pattern: cmsOwnsEntries ? [] : '**/*.md',
     base: entriesBase,
     generateId: getLegacyEntryId,
   }),

@@ -1,4 +1,7 @@
 import { getCollection } from 'astro:content'
+import { isTranslatedEntry } from '../../../features/articles/translations'
+import { getPublishedCmsEntries, mergePublicEntries } from '../../cms/entries'
+import { cmsOwnsEntries, cmsTrialEnabled } from '../../cms/mode'
 import {
   countEntriesByCategory,
   selectFeaturedEntries,
@@ -11,7 +14,11 @@ import {
 } from '../selectors'
 
 export const getEntryIndex = async () => {
-  const entries = sortEntriesNewestFirst(await getCollection('entries'))
+  const files = cmsOwnsEntries ? [] : await getCollection('entries')
+  const merged = cmsTrialEnabled
+    ? mergePublicEntries(files, await getPublishedCmsEntries())
+    : files
+  const entries = sortEntriesNewestFirst(merged.filter(entry => !isTranslatedEntry(entry)))
 
   return {
     entries,

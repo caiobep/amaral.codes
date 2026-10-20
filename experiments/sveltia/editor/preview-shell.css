@@ -1,0 +1,218 @@
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  font-size: 17px;
+  line-height: 1.6;
+}
+.page-shell {
+  width: calc(100% - 3rem);
+  max-width: 44rem;
+  margin-inline: auto;
+}
+.article {
+  padding-block: 2rem 3rem;
+}
+.article > header {
+  display: block;
+}
+.article .back-link {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+}
+.article .article-meta-row {
+  margin-bottom: 0.75rem;
+}
+.article > header > h1 {
+  max-width: none;
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  line-height: 1.08;
+  overflow-wrap: break-word;
+}
+.article .content {
+  width: 100%;
+  max-width: 39rem;
+  margin-inline: 0;
+}
+.preview-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+}
+.preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.preview-toolbar button {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 0.5rem 0.8rem;
+  background: var(--paper);
+  color: var(--muted);
+  font: 600 0.8rem var(--sans);
+  cursor: pointer;
+}
+.preview-toolbar button[aria-pressed='true'] {
+  border-color: var(--accent-strong);
+  background: var(--accent-faint);
+  color: var(--accent-strong);
+}
+.preview-toolbar button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+.homepage-card-preview {
+  max-width: 42rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+}
+.preview-eyebrow {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.homepage-card {
+  border-block: 1px solid var(--line);
+  padding: 1.75rem 0;
+}
+.homepage-card h2 {
+  margin: 1rem 0;
+  color: var(--ink);
+  font: 500 clamp(1.8rem, 5vw, 2.5rem)/1.15 var(--heading-font);
+  text-wrap: pretty;
+}
+.homepage-card p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.preview-read-link {
+  display: block;
+  margin-top: 1.5rem;
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.preview-caption {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.sharing-preview {
+  max-width: 42rem;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+.sharing-card {
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--paper);
+}
+.sharing-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+}
+.sharing-card-copy {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.sharing-domain {
+  color: var(--muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.sharing-card h2 {
+  margin: 0.5rem 0 0.75rem;
+  color: var(--ink);
+  font: 400 clamp(1.5rem, 4vw, 2rem)/1.15 var(--display);
+  overflow-wrap: anywhere;
+}
+.sharing-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.content [data-field-type='markdown'] {
+  padding: 0;
+}
+@media (max-width: 680px) {
+  .page-shell {
+    width: calc(100% - 2rem);
+  }
+  .homepage-card-preview {
+    margin-block: 1rem;
+    padding: 1rem;
+  }
+}
+
+.sharing-artwork {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 1200 / 630;
+  overflow: hidden;
+  background: #fff;
+  color: #151a19;
+  border: 1px solid #d2d8d4;
+}
+.sharing-artwork > span {
+  position: absolute;
+  left: 6%;
+  width: 88%;
+  display: block;
+}
+.sharing-artwork-brand {
+  top: 7%;
+  height: 10%;
+  border-bottom: 1px solid #d2d8d4;
+  font: 400 3.167cqw/1 var(--display);
+}
+.sharing-artwork-meta {
+  top: 21.6%;
+  color: #5f6965;
+  font: 400 1.667cqw/1.2 var(--sans);
+  text-transform: uppercase;
+}
+.sharing-artwork-title {
+  top: 30.3%;
+  height: 38.9%;
+  font: 400 7.667cqw/1.08 var(--display);
+  overflow-wrap: anywhere;
+}
+.sharing-artwork .sharing-artwork-summary {
+  top: 73%;
+  height: 10%;
+  color: #5f6965;
+  font: 400 2.083cqw/1.2 var(--sans);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.sharing-artwork-site {
+  top: 85%;
+  padding-top: 2%;
+  border-top: 1px solid #d2d8d4;
+  color: #5f6965;
+  font: 400 1.75cqw/1.2 var(--sans);
+}

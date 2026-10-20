@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { isGeneratedPublicationPath } from '../publication-snapshot/index.mjs'
 
-const ALLOWED_ROOT_DIRECTORIES = new Set(['.github', 'packages', 'scripts'])
+const ALLOWED_ROOT_DIRECTORIES = new Set(['.github', 'experiments', 'packages', 'scripts'])
 const ALLOWED_ROOT_FILES = new Set([
   '.gitignore',
   '.prettierrc',

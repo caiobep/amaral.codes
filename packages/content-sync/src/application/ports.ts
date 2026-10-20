@@ -38,10 +38,6 @@ export interface DocumentMaterializer<TSource> {
   ) => Promise<string>
 }
 
-export interface DocumentDestinationResolver {
-  resolve: (root: string, identity: ContentIdentity) => string
-}
-
 export interface DocumentWriter {
   write: (destination: string, document: ContentDocument) => Promise<void>
 }

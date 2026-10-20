@@ -1,18 +1,52 @@
 ---
 import { render } from 'astro:content'
-import EntryArticle from '../../components/EntryArticle.astro'
+import EntryArticle from '../../features/articles/EntryArticle.astro'
+import BodyHeading from '../../features/articles/BodyHeading.astro'
+import CmsCode from '../../features/articles/CmsCode.astro'
+import CmsHtml from '../../features/articles/CmsHtml.astro'
+import CmsEmbed from '../../features/articles/CmsEmbed.astro'
+import { getEntryHref } from '../../lib/routes'
 import { getEntryIndex, selectNextReads } from '../../lib/content'
+import { getCmsArticle } from '../../lib/cms/entries'
+import { selectCmsArticle, shouldQueryCmsArticle } from '../../lib/cms/article-source'
+import { cmsTrialEnabled } from '../../lib/cms/mode'
+import { withPreviewMedia } from '../../lib/cms/media/preview'
+import { getCmsSocialImage } from '../../lib/cms/social-image'
 
 export async function getStaticPaths() {
   const { entries } = await getEntryIndex()
 
-  return entries.map((entry) => ({
+  return entries.filter(entry => getEntryHref(entry.id, entry.data.translation) === `/posts/${entry.id}`).map((entry) => ({
     params: { slug: entry.id },
     props: { entry, nextReads: selectNextReads(entries, entry.id) },
   }))
 }
 
-const { entry, nextReads } = Astro.props
+const index = cmsTrialEnabled ? await getEntryIndex() : undefined
+const cmsUi = import.meta.env.AMARAL_CMS_TRIAL === '1' ? await import('emdash/ui') : undefined
+const Image = cmsUi?.Image
+const PortableText = cmsUi?.PortableText
+const indexedEntry = index?.entries.find(entry => entry.id === Astro.params.slug)
+const queriedArticle = cmsTrialEnabled && shouldQueryCmsArticle(indexedEntry, Astro.url.searchParams.has('_preview'))
+  ? await getCmsArticle(Astro.params.slug ?? '')
+  : undefined
+const cmsArticle = selectCmsArticle(indexedEntry, queriedArticle)
+if (cmsArticle?.error) return new Response('Content is unavailable', { status: 503 })
+const entry = cmsArticle ? cmsArticle.publicEntry : indexedEntry ?? Astro.props.entry
+if (!entry) return new Response('Post not found', { status: 404 })
+const nextReads = index ? selectNextReads(index.entries, entry.id) : Astro.props.nextReads
+const isPreview = cmsArticle?.isPreview ?? false
+const nativeEntry = cmsArticle?.entry
+const renderFields = cmsArticle?.renderFields
+const socialImage = getCmsSocialImage(renderFields?.featuredImage, isPreview)
+const cmsContent = nativeEntry && renderFields
+  ? { collection: 'posts', id: renderFields.databaseId, slug: nativeEntry.id }
+  : undefined
+if (isPreview) Astro.response.headers.set('Cache-Control', 'private, no-store')
+const previewToken = Astro.url.searchParams.get('_preview')
+if (isPreview && previewToken) {
+  Astro.locals.emdash = withPreviewMedia(Astro.locals.emdash, previewToken)
+}
 const normalizeArticleMarkup = (html: string) => (
   html.replace(/<(\/?)h1(?=[\s>])/g, '<$1h2')
 )
@@ -25,9 +59,18 @@ const renderableEntry = entry.rendered
       },
     }
   : entry
-const { Content } = await render(renderableEntry)
+const Content = nativeEntry ? undefined : (await render(renderableEntry)).Content
 ---
 
-<EntryArticle entry={entry} nextReads={nextReads}>
-  <Content />
+<EntryArticle entry={entry} nextReads={nextReads} preview={isPreview} cmsContent={cmsContent} socialImage={socialImage}>
+  {nativeEntry && renderFields
+    ? (
+        <>
+          {renderFields.featuredImage && Image ? <Image image={renderFields.featuredImage} priority /> : null}
+          <div {...nativeEntry.edit.content}>
+            {PortableText ? <PortableText value={renderFields.content} components={{ block: { h1: BodyHeading }, type: { code: CmsCode, htmlBlock: CmsHtml, embed: CmsEmbed } }} /> : null}
+          </div>
+        </>
+      )
+    : Content ? <Content /> : null}
 </EntryArticle>

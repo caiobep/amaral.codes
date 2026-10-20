@@ -1,3 +1,4 @@
+import { normalizeSearchText } from '../features/search/normalize-search-text'
 import { getQueryParameter, setQueryParameter } from '../lib/query-parameters'
 
 interface ProjectFilterElements {
@@ -6,6 +7,7 @@ interface ProjectFilterElements {
   filterButtons: HTMLButtonElement[]
   groups: HTMLElement[]
   projects: HTMLElement[]
+  results: HTMLElement
   searchInput: HTMLInputElement
 }
 
@@ -14,11 +16,6 @@ interface ProjectFilterContext {
   elements: ProjectFilterElements
   labels: ReadonlySet<string>
 }
-
-const normalize = (value: string) => value
-  .toLocaleLowerCase('en')
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g, '')
 
 const requireElement = (root: ParentNode, selector: string) => {
   const element = root.querySelector(selector)
@@ -33,7 +30,7 @@ const getInitialLabel = (labels: ReadonlySet<string>) => {
 }
 
 const matchesProject = (project: HTMLElement, query: string, label: string) => {
-  const searchText = normalize(project.dataset.projectSearch ?? project.textContent)
+  const searchText = normalizeSearchText(project.dataset.projectSearch ?? project.textContent)
   const matchesQuery = !query || searchText.includes(query)
   const matchesLabel = label === 'all' || project.dataset.projectLabel === label
   return matchesQuery && matchesLabel
@@ -76,7 +73,8 @@ const syncProjectControls = (context: ProjectFilterContext, visibleCount: number
 }
 
 const filterProjects = (context: ProjectFilterContext) => {
-  const query = normalize(context.elements.searchInput.value.trim())
+  const query = normalizeSearchText(context.elements.searchInput.value.trim())
+  context.elements.results.dataset.searching = String(query.length > 0)
   const visibleCount = updateProjectVisibility(context, query)
   updateGroupVisibility(context.elements)
   syncProjectControls(context, visibleCount)
@@ -119,6 +117,7 @@ const initializeProjectFilters = () => {
         filterButtons,
         groups: Array.from(document.querySelectorAll<HTMLElement>('[data-project-group]')),
         projects: Array.from(document.querySelectorAll<HTMLElement>('[data-project]')),
+        results: requireElement(document, '#project-results') as HTMLElement,
         searchInput: requireElement(controls, '#search-projects') as HTMLInputElement,
       },
     }

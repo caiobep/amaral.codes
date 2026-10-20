@@ -34,6 +34,18 @@ export default defineConfig(
     ],
   },
   {
+    files: ['experiments/sveltia/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: globals.node },
+    rules: sharedRules,
+  },
+  {
+    files: ['experiments/sveltia/editor/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: globals.browser },
+    rules: sharedRules,
+  },
+  {
     files: ['packages/**/*.{js,mjs,ts,tsx}', 'scripts/**/*.{js,mjs,ts,tsx}'],
     extends: [js.configs.recommended],
     languageOptions: {

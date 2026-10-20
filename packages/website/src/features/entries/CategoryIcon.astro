@@ -1,0 +1,32 @@
+---
+import {
+  Files,
+  FileText,
+  Headphones,
+  Link2,
+  Notebook,
+  Presentation,
+  Star,
+  Video,
+} from '@lucide/astro'
+import type { EntryCategory } from '../../content/schemas'
+
+interface Props {
+  category: EntryCategory | 'all'
+}
+
+const { category } = Astro.props
+const icons = {
+  all: Files,
+  essay: FileText,
+  link: Link2,
+  note: Notebook,
+  podcast: Headphones,
+  review: Star,
+  talk: Presentation,
+  video: Video,
+} as const satisfies Record<EntryCategory | 'all', typeof Files>
+const Icon = icons[category]
+---
+
+<Icon aria-hidden="true" />

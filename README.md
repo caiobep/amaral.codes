@@ -15,8 +15,43 @@ does not call Notion or another editorial service at runtime.
 
 Inside the website, generated and hand-maintained Markdown lives in `src/content`.
 Generated Notion snapshots are isolated under ignored `synced/` directories.
-Application logic lives in `src/lib` and `src/scripts`, route composition in
-`src/pages`, and files that must be published without transformation in `public`.
+Feature-owned UI, styling, and browser behavior live together in `src/features`.
+Shared application logic remains in `src/lib` and site-wide initialization in
+`src/scripts`; route composition lives in `src/pages`, and files published
+without transformation live in `public`.
+
+### Where to edit
+
+- Search: start in `packages/website/src/features/search`. The header and full
+  search page share a browser loader and engine; build-time document generation
+  remains in `packages/website/src/lib/search/documents.ts`.
+- Appearance: `packages/website/src/features/appearance` owns theme and palette
+  definitions, first-paint initialization, and the preference controls. Palette
+  colors remain in the website styles.
+- Category wording and icons: `packages/website/src/features/entries` owns the
+  presentation catalog. Podcast service labels and icons live in
+  `packages/website/src/features/podcasts`. Plain presentation data stays
+  separate from Astro icon imports so browser consumers remain lightweight.
+- Project images and code samples: `packages/website/src/features/projects`
+  owns `ProjectVisual.astro`; each page owns its layout and loading priority.
+- Articles: `packages/website/src/features/articles` owns the article shell,
+  local styling, and browser behavior. Talk materials and sharing controls live
+  in the neighboring `talks` and `sharing` features.
+- Legacy redirect routes: `packages/website/src/features/redirects` owns their
+  shared page and browser behavior; `packages/website/src/lib/redirects` owns
+  allowed destinations.
+- Public Markdown and metadata: `packages/website/src/lib/agent-markdown` and
+  `packages/website/src/lib/structured-data`. Language policy lives in
+  `packages/content-contract/src/entry-language.ts`: explicit entry language,
+  then legacy talk language, then Portuguese for podcasts or English otherwise.
+- Notion field translation: `packages/content-sync/src/adapters/notion/properties`
+  owns shared readers; each collection mapper owns its field names and policy.
+
+Use descriptive colocated test names, such as `search.ts` and `search.test.ts`.
+Browser journeys remain under `packages/website/tests/browser`. The quality gate
+checks Astro component contracts and follows browser imports through local
+modules to prevent build-time content and publishing dependencies from shipping
+to the browser.
 
 ## Data lifecycle
 
@@ -36,7 +71,7 @@ contract for collection paths, expected counts, and the permitted reduction
 ratio. Update its expected counts deliberately as public collections grow; the
 same policy is enforced before the atomic swap and again before Astro builds.
 
-`npm run content:dev` provides the same acquisition step before local development.
+`npm run content:sync -- all` refreshes content before local development.
 The normal `npm run build` remains credential-free for code validation. CI builds
 against deliberate public fixtures rather than receiving Notion credentials.
 
@@ -96,21 +131,79 @@ build secrets and the content-triggered Deploy Hook remain rollout work.
 
 ## Commands
 
+Install once from the repository root with `npm ci`. Start with these commands:
+
 ```sh
 npm run dev            # local Astro server
-npm run build          # credential-free quality gates plus Astro build
-npm run build:production # fresh Notion snapshot, publication checks, and Astro build
-npm run quality        # repository, sync package, and website checks
-npm run test:browser   # Playwright journeys
-npm run content:sync   # refresh ignored local Markdown from Notion
-npm run content:sync:entries
-npm run content:sync:projects
-npm run content:dev    # sync public Notion entries, then start the local site
-npm run deploy:cloudflare:dry-run # validate the static Worker bundle without uploading
-npm run verify:publication # require and validate every generated collection
-npm run deploy:cloudflare # refresh content, run release gates, and deploy
+npm run quality        # all local code and content checks
+npm run build          # quality checks, static site, and PWA validation
+npm run preview        # serve the existing build
+npm run test:browser   # browser journeys against the existing build
+```
+
+For deterministic local verification, use
+`AMARAL_CONTENT_SOURCE=fixtures npm run build`. Browser tests and performance
+checks use that generated site.
+
+The root manifest owns shared development tools. Package manifests own runtime
+dependencies and commands that need a package's working directory. The website's
+`build` / `postbuild` lifecycle generates and validates the service worker.
+
+Each package exposes `lint`, `typecheck`, `test`, and `quality`.
+The root quality gate checks repository rules first, then runs every package's
+quality gate. A package failure still fails the overall command; the remaining
+packages run so their diagnostics are available too.
+
+<details>
+<summary>Focused checks and tooling ownership</summary>
+
+```sh
+npm run quality -w @amaral.codes/content-sync
+npm run typecheck -w @amaral.codes/website
+npm test -w @amaral.codes/website -- src/features/appearance/model.test.ts
+npm test -w @amaral.codes/content-contract -- --watch
+npm run lint -w @amaral.codes/content-sync -- --fix
+npm run perf -- --assert --runs=3 # performance budgets against the existing build
+npm test -w @amaral.codes/website -- --coverage
+npm run perf -- --preset=desktop # optional desktop measurements
 npm run clean          # remove generated output
 ```
 
+Shared coverage settings live in `scripts/testing`; each package's
+`vitest.config.ts` owns its test discovery and coverage source lists. Website
+quality-source discovery also supplies its complexity check. The root quality
+chain lists repository checks directly; package quality chains list their own
+lint, types, fresh coverage, and complexity checks. Keep those stages visible
+when changing the workflow.
+
+</details>
+
+<details>
+<summary>Content publishing and release checks</summary>
+
+These commands acquire public content from Notion or validate release artifacts:
+
+```sh
+npm run content:sync -- all          # refresh every configured collection
+npm run content:sync -- entries      # refresh one collection
+npm run content:sync -- podcasts
+npm run content:sync -- projects
+npm run build:production             # fresh snapshot, publication checks, build
+npm run verify:publication           # validate every generated collection
+npm run verify:cloudflare            # validate existing build; no upload
+npm run build:production && npm run verify:cloudflare # fresh release dry-run
+npm run verify:release               # full code, asset, browser and performance checks
+npm run deploy:cloudflare            # refresh, build, validate, and deploy
+```
+
+Sync requires exactly one target. Missing targets, unknown targets, and extra
+arguments are rejected before reading configuration or acquiring content. To preview fresh content, run
+`npm run content:sync -- all && npm run dev`.
+
+Field performance measurements remain available directly through their tool:
+`npm exec -w @amaral.codes/website -- node scripts/commands/measure-pagespeed.mjs`.
+
 Notion field mappings and synchronization behavior are documented in
 [`packages/content-sync/README.md`](packages/content-sync/README.md).
+
+</details>

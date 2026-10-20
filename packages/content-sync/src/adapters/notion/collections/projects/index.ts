@@ -5,7 +5,6 @@ import type {
   ProjectVisual,
 } from '@amaral.codes/content-contract'
 import { PROJECT_KINDS } from '@amaral.codes/content-contract'
-import { requirePublicHttpsUrl } from '@amaral.codes/content-contract/public-url'
 import type { ContentMapper } from '../../../../application/ports.ts'
 import { createSlug } from '../../../../domain/slug/index.ts'
 import {
@@ -14,7 +13,9 @@ import {
   getSelect,
   getText,
   getTitle,
-  getUrl,
+  readOptionalHttpsUrl,
+  requireNumber,
+  requireText,
 } from '../../properties/index.ts'
 import { isPublishedNotionStatus } from '../../publication-status/index.ts'
 
@@ -37,7 +38,7 @@ export const projectsMapper: ContentMapper<NotionPage, ProjectData> = {
         featuredOrder,
         category: getText(page, 'Category') ?? defaultCategory(kind),
         technologies: getMultiSelect(page, 'Technologies'),
-        externalUrl: readOptionalHttpUrl(page, 'External URL'),
+        externalUrl: readOptionalHttpsUrl(page, 'External URL'),
         externalLabel: getText(page, 'External label'),
         visual,
       },
@@ -58,7 +59,7 @@ function mapVisual(page: NotionPage): ProjectVisual | undefined {
   const code = getText(page, 'Code preview')
   if (code) return { type: 'code', lines: code.split('\n').filter(Boolean) }
 
-  const src = readOptionalHttpUrl(page, 'Visual URL')
+  const src = readOptionalHttpsUrl(page, 'Visual URL')
   if (!src) return undefined
 
   return {
@@ -69,21 +70,4 @@ function mapVisual(page: NotionPage): ProjectVisual | undefined {
     height: requireNumber(page, 'Visual height'),
     sources: [],
   }
-}
-
-function readOptionalHttpUrl(page: NotionPage, name: string): string | undefined {
-  const value = getUrl(page, name)
-  return value ? requirePublicHttpsUrl(value, name) : undefined
-}
-
-function requireText(page: NotionPage, name: string): string {
-  const value = getText(page, name)
-  if (value) return value
-  throw new Error(`"${getTitle(page)}" is missing ${name}`)
-}
-
-function requireNumber(page: NotionPage, name: string): number {
-  const value = getNumber(page, name)
-  if (value !== undefined) return value
-  throw new Error(`"${getTitle(page)}" is missing ${name}`)
 }

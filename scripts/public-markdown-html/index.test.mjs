@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { sanitizePublicMarkdown } from '../../packages/content-sync/src/adapters/markdown/sanitizer/index.ts'
-import { findRawHtmlTags } from './html-parser/index.mjs'
+import { findRawHtmlTags } from './html-parser.mjs'
 import { checkPublicMarkdownHtml } from './index.mjs'
 
 test('accepts the complete structural and media HTML output of the sanitizer', () => {

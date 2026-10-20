@@ -1,0 +1,26 @@
+---
+import {
+  CirclePlay,
+  Cloud,
+  Podcast,
+  Radio,
+} from '@lucide/astro'
+import type { EntryData } from '../../content/schemas'
+
+type PodcastService = NonNullable<EntryData['podcast']>['players'][number]['service']
+
+interface Props {
+  service: PodcastService
+}
+
+const { service } = Astro.props
+const icons = {
+  applePodcasts: Podcast,
+  overcast: Cloud,
+  pocketCasts: Radio,
+  spotify: CirclePlay,
+} as const satisfies Record<PodcastService, typeof Podcast>
+const Icon = icons[service]
+---
+
+<Icon aria-hidden="true" />

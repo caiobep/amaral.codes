@@ -32,6 +32,28 @@ describe('PWA registration runtime', () => {
     expect(register).toHaveBeenCalledOnce()
   })
 
+  it.each(['AMARAL_CMS_TRIAL', 'AMARAL_PUBLISHING'])('keeps private previews out of the offline cache for %s', async flag => {
+    vi.stubEnv(flag, '1')
+    const unregister = vi.fn()
+    const getRegistrations = vi.fn().mockResolvedValue([
+      { active: { scriptURL: 'http://localhost/service-worker.js' }, unregister },
+    ])
+    Object.defineProperty(navigator, 'serviceWorker', { value: { register, getRegistrations } })
+    vi.stubGlobal('caches', { keys: vi.fn().mockResolvedValue([]), delete: vi.fn() })
+    const { initializePwa } = await import('../../../src/scripts/layout/pwa')
+    initializePwa()
+    await vi.waitFor(() => expect(unregister).toHaveBeenCalledOnce())
+    expect(register).not.toHaveBeenCalled()
+  })
+
+  it('does not require service workers in the LAN trial', async () => {
+    vi.stubEnv('AMARAL_CMS_TRIAL', '1')
+    Reflect.deleteProperty(navigator, 'serviceWorker')
+    const { initializePwa } = await import('../../../src/scripts/layout/pwa')
+    expect(initializePwa).not.toThrow()
+    expect(register).not.toHaveBeenCalled()
+  })
+
   it('ignores unsupported browsers without consuming initialization', async () => {
     Reflect.deleteProperty(navigator, 'serviceWorker')
     const { initializePwa } = await import('../../../src/scripts/layout/pwa')

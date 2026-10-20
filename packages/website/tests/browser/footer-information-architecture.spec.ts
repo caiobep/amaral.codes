@@ -41,22 +41,19 @@ test('footer separates browse destinations from RSS feeds', async ({ page }) => 
   expect(new Set(linkLabels).size).toBe(linkLabels.length)
 })
 
-test('footer link rows reflow without becoming a sitemap grid', async ({ page }, testInfo) => {
+test('footer groups form columns with vertically stacked links', async ({ page }) => {
   await page.goto('/')
 
-  const layout = await page.locator('.footer-section').first().evaluate((element) => {
+  const layout = await page.locator('.footer-links').evaluate((element) => {
     return {
       columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
       linkLayout: getComputedStyle(element.querySelector('ul') ?? element).display,
+      width: window.innerWidth,
     }
   })
 
-  if (testInfo.project.name !== 'mobile-webkit') {
-    expect(layout.columns).toBe(2)
-  } else {
-    expect(layout.columns).toBe(1)
-  }
-  expect(layout.linkLayout).toBe('flex')
+  expect(layout.columns).toBe(layout.width > 760 ? 3 : 2)
+  expect(layout.linkLayout).toBe('grid')
 })
 
 test('CV is available from the footer and About page', async ({ page, request }) => {

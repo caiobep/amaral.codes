@@ -1,14 +1,12 @@
 ---
 import {
   ArrowUpRight,
-  CirclePlay,
-  Cloud,
   ExternalLink,
   Headphones,
-  Podcast,
-  Radio,
 } from '@lucide/astro'
 import type { EntryData } from '../content/schemas'
+import PodcastServiceIcon from '../features/podcasts/PodcastServiceIcon.astro'
+import { PODCAST_SERVICE_LABELS } from '../features/podcasts/service-presentation'
 import { resolvePublicAssetUrl } from '../lib/assets'
 
 interface Props {
@@ -20,12 +18,6 @@ const audioUrl = podcast.audioUrl ? resolvePublicAssetUrl(podcast.audioUrl) : un
 const episodeLabel = podcast.episode
   ? `${podcast.show} · ${podcast.episode}`
   : podcast.show
-const playerLabels = {
-  applePodcasts: 'Apple Podcasts',
-  spotify: 'Spotify',
-  pocketCasts: 'Pocket Casts',
-  overcast: 'Overcast',
-} as const
 ---
 
 <section class="podcast-player" aria-label="Listen to this podcast episode">
@@ -53,23 +45,20 @@ const playerLabels = {
   <div class="listen-elsewhere">
     <span class="listen-label">Listen in</span>
     <ul class="player-links">
-      {podcast.players.map((player) => (
-        <li>
+      {podcast.players.map((player) => {
+        return <li>
           <a
             href={player.url}
             target="_blank"
             rel="noreferrer"
-            aria-label={`Listen on ${playerLabels[player.service]}`}
+            aria-label={`Listen on ${PODCAST_SERVICE_LABELS[player.service]}`}
           >
-            {player.service === 'applePodcasts' ? <Podcast aria-hidden="true" /> : null}
-            {player.service === 'spotify' ? <CirclePlay aria-hidden="true" /> : null}
-            {player.service === 'pocketCasts' ? <Radio aria-hidden="true" /> : null}
-            {player.service === 'overcast' ? <Cloud aria-hidden="true" /> : null}
-            <span>{playerLabels[player.service]}</span>
+            <PodcastServiceIcon service={player.service} />
+            <span>{PODCAST_SERVICE_LABELS[player.service]}</span>
             <ArrowUpRight class="external-arrow" aria-hidden="true" />
           </a>
         </li>
-      ))}
+      })}
     </ul>
   </div>
 

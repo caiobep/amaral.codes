@@ -22,7 +22,7 @@ The package uses explicit hexagonal boundaries:
 - `composition-root/index.ts` is the only place that wires concrete adapters together.
 
 Dependencies point inward. `npm run quality:hygiene` enforces these import boundaries
-and the repository's folder-per-tested-module convention.
+and the repository's module ownership rules.
 
 ## Configuration
 
@@ -47,20 +47,20 @@ adapter resolves its single data source before querying it.
 4. Review the entry in Notion. Set entries and projects to the exact status
    `Published` only when their text and attachments are safe to make public.
    Every other status is excluded.
-5. Run `npm run content:dev` when a local website preview is useful. Production
+5. Run `npm run content:sync -- all && npm run dev` for a fresh local preview. Production
    refreshes and validates every public collection before Astro builds.
 
 ```sh
 # Refresh every configured collection.
-npm run content:sync
+npm run content:sync -- all
 
 # Refresh all public content and start the local website.
-npm run content:dev
+npm run content:sync -- all && npm run dev
 
 # Refresh one collection.
-npm run content:sync:entries
-npm run content:sync:podcasts
-npm run content:sync:projects
+npm run content:sync -- entries
+npm run content:sync -- podcasts
+npm run content:sync -- projects
 
 ```
 

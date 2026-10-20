@@ -77,8 +77,30 @@ describe('createArticleStructuredData', () => {
 })
 
 describe('createPodcastStructuredData', () => {
+  it.each([
+    ['en', 'en'],
+    ['pt-BR', 'pt-BR'],
+    [undefined, 'pt-BR'],
+  ] as const)('uses entry language %s as %s', (language, expectedLanguage) => {
+    const structuredData = createPodcastStructuredData({
+      category: 'podcast',
+      date: '2026-07-27',
+      language,
+      podcast: {
+        players: [],
+        show: 'Example show',
+        sourceUrl: 'https://publisher.example/episode',
+      },
+      summary: 'An example episode.',
+      title: 'Example episode',
+    }, 'https://amaral.codes/posts/example/')
+
+    expect(structuredData?.inLanguage).toBe(expectedLanguage)
+  })
+
   it('publishes canonical object-storage URLs for locally expressed podcast audio', () => {
     const structuredData = createPodcastStructuredData({
+      category: 'podcast',
       date: '2026-07-27',
       podcast: {
         audioUrl: '/podcasts/episode.mp3',
@@ -97,6 +119,7 @@ describe('createPodcastStructuredData', () => {
   it('keeps publisher-hosted audio URLs unchanged', () => {
     const audioUrl = 'https://publisher.example/episode.mp3'
     const structuredData = createPodcastStructuredData({
+      category: 'podcast',
       date: '2026-07-27',
       podcast: {
         audioUrl,
@@ -114,6 +137,7 @@ describe('createPodcastStructuredData', () => {
 
   it('omits absent audio and summaries', () => {
     const structuredData = createPodcastStructuredData({
+      category: 'podcast',
       date: '2026-07-27',
       podcast: {
         players: [],
@@ -130,6 +154,7 @@ describe('createPodcastStructuredData', () => {
 
   it('does not create podcast data for another entry type', () => {
     expect(createPodcastStructuredData({
+      category: 'note',
       date: '2026-07-27',
       podcast: undefined,
       summary: undefined,

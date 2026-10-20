@@ -1,9 +1,11 @@
 ---
 import { render } from 'astro:content'
-import ShareButton from '../../components/ShareButton.astro'
+import ShareButton from '../../features/sharing/ShareButton.astro'
+import ProjectVisual from '../../features/projects/ProjectVisual.astro'
 import Layout from '../../layouts/Layout.astro'
 import { formatTechnologies, getProjectIndex } from '../../lib/content'
 import { createCanonicalUrl } from '../../lib/site'
+import { cmsTrialEnabled } from '../../lib/cms/mode'
 
 export async function getStaticPaths() {
   const { projects } = await getProjectIndex()
@@ -15,7 +17,10 @@ export async function getStaticPaths() {
   }))
 }
 
-const { project } = Astro.props
+const project = cmsTrialEnabled
+  ? (await getProjectIndex()).projects.find(project => project.id === Astro.params.slug && !project.data.externalUrl)
+  : Astro.props.project
+if (!project) return new Response('Project not found', { status: 404 })
 const { Content } = await render(project)
 const { title, summary, kind, category, technologies, visual } = project.data
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname, Astro.site)
@@ -40,13 +45,7 @@ const canonicalUrl = createCanonicalUrl(Astro.url.pathname, Astro.site)
     {visual
       ? (
       <div class="project-visual" data-reveal>
-        {visual.type === 'image'
-          ? (
-          <img src={visual.src} alt={visual.alt} />
-            )
-          : (
-          <pre><code>{visual.lines.join('\n')}</code></pre>
-            )}
+        <ProjectVisual visual={visual} />
       </div>
         )
       : null}
@@ -127,13 +126,14 @@ const canonicalUrl = createCanonicalUrl(Astro.url.pathname, Astro.site)
     color: var(--phosphor);
   }
 
-  .project-visual img {
+  .project-visual :global(img) {
     width: 100%;
+    height: auto;
     max-height: 44rem;
     object-fit: cover;
   }
 
-  .project-visual pre {
+  .project-visual :global(pre) {
     width: min(100% - 3rem, 48rem);
     overflow-x: auto;
     font-family: var(--mono);

@@ -6,7 +6,8 @@ const NON_PROSE_PATTERN = /<(script|style|svg)(?=[\s>])[^>]*>[\s\S]*?<\/\1>/giu
 
 interface ArticleDescriptionInput {
   contentHtml: string
-  summary?: string
+  contentMarkdown?: string | undefined
+  summary?: string | undefined
   title: string
 }
 
@@ -64,16 +65,22 @@ function capDescription(value: string) {
   return `${truncated}${ELLIPSIS}`
 }
 
+function descriptionProse(contentHtml: string, markdown: string | undefined): string {
+  return extractContentText(contentHtml) || extractMarkdownProse(markdown ?? '', extractContentText)
+}
+
 export function createArticleDescription({
   contentHtml,
+  contentMarkdown,
   summary,
   title,
 }: ArticleDescriptionInput) {
   const normalizedSummary = normalizeText(summary ?? '')
   const authoredSummary = normalizedSummary || undefined
-  const contentText = extractContentText(contentHtml)
+  const contentText = descriptionProse(contentHtml, contentMarkdown)
   const fallback = contentText === '' ? `${normalizeText(title)} by Caio Amaral.` : contentText
   const description = authoredSummary ?? fallback
 
   return capDescription(normalizeText(description))
 }
+import { extractMarkdownProse } from './markdown'

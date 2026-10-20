@@ -10,7 +10,7 @@ export interface ContentRecord<Data> {
 
 export type EntryRecord = ContentRecord<
   Pick<EntryData, 'category' | 'date'> &
-  Partial<Pick<EntryData, 'featuredOrder' | 'topics'>>
+  Partial<Pick<EntryData, 'featuredOrder' | 'topics' | 'translation'>>
 >
 
 export type ProjectRecord = ContentRecord<

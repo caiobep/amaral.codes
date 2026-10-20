@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import type { EntryData, PodcastData, TalkData } from './index.ts'
 import {
   entrySchema,
   parsePublicContentMetadata,
@@ -192,6 +193,68 @@ describe('talk metadata', () => {
         materials: [{ ...talk.materials[0], url: '/talks/slides.pdf?token=secret' }],
       },
     }).success).toBe(false)
+  })
+})
+
+describe('entry category contract', () => {
+  const podcast = {
+    show: 'A show',
+    sourceUrl: 'https://example.com/episode',
+    players: [{ service: 'spotify', url: 'https://example.com/spotify' }],
+  }
+  const talk = {
+    materials: [{ label: 'Slides', type: 'pdf', url: '/talks/slides.pdf' }],
+  }
+
+  it.each(['essay', 'note', 'review', 'link', 'video', 'podcast', 'talk'])(
+    'accepts only the metadata belonging to %s',
+    (category) => {
+      const metadata = category === 'podcast' ? { podcast }
+        : category === 'talk' ? { talk } : {}
+      expect(entrySchema.safeParse({ ...entry, category, ...metadata }).success).toBe(true)
+      expect(entrySchema.safeParse({ ...entry, category, podcast, talk }).success).toBe(false)
+      expect(entrySchema.safeParse({
+        ...entry, category, ...metadata, privateId: 'private',
+      }).success).toBe(false)
+      if (category === 'podcast' || category === 'talk') {
+        expect(entrySchema.safeParse({ ...entry, category }).success).toBe(false)
+      } else {
+        expect(entrySchema.safeParse({ ...entry, category, podcast }).success).toBe(false)
+        expect(entrySchema.safeParse({ ...entry, category, talk }).success).toBe(false)
+      }
+    },
+  )
+
+  it('narrows required metadata by category', () => {
+    const entries: EntryData[] = [
+      entrySchema.parse({ ...entry, category: 'podcast', podcast }),
+      entrySchema.parse({ ...entry, category: 'talk', talk }),
+      entrySchema.parse(entry),
+    ]
+    for (const metadata of entries) {
+      if (metadata.category === 'podcast') {
+        expectTypeOf(metadata.podcast).toEqualTypeOf<PodcastData>()
+        expectTypeOf(metadata.talk).toEqualTypeOf<undefined>()
+        expect(metadata.podcast.show).toBe('A show')
+      } else if (metadata.category === 'talk') {
+        expectTypeOf(metadata.talk).toEqualTypeOf<TalkData>()
+        expectTypeOf(metadata.podcast).toEqualTypeOf<undefined>()
+        expect(metadata.talk.materials).toHaveLength(1)
+      } else {
+        expectTypeOf(metadata.podcast).toEqualTypeOf<undefined>()
+        expectTypeOf(metadata.talk).toEqualTypeOf<undefined>()
+        expect(metadata.category).toBe('note')
+      }
+    }
+  })
+
+  it('rejects either half of a hosted audio pair', () => {
+    for (const audio of [{ audioUrl: '/podcasts/episode.mp3' }, { audioBytes: 1234 }]) {
+      const result = entrySchema.safeParse({
+        ...entry, category: 'podcast', podcast: { ...podcast, ...audio },
+      })
+      expect(result.success).toBe(false)
+    }
   })
 })
 

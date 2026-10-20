@@ -1,3 +1,4 @@
+import { escapeHtml, escapeMarkdownLabel } from '../../../../serialization.ts'
 import path from 'node:path'
 import {
   requirePublicHttpsUrl,
@@ -27,7 +28,7 @@ export function renderExternalAsset(
   }
   const publicSource = requirePublicHttpsUrl(source, `${reference.kind} URL`)
   if (LINK_ASSET_KINDS.has(reference.kind)) {
-    return `[${escapeMarkdown(getAssetTitle(reference, publicSource))}](${publicSource})`
+    return `[${escapeMarkdownLabel(getAssetTitle(reference, publicSource))}](${publicSource})`
   }
 
   return `<${reference.kind} src="${escapeHtml(publicSource)}" controls preload="metadata">${escapeHtml(reference.caption)}</${reference.kind}>`
@@ -57,16 +58,4 @@ function getAssetTitle(reference: MarkdownAssetReference, source: string): strin
   const fileName = path.basename(decodeURIComponent(new URL(source).pathname))
   if (fileName) return fileName
   return reference.kind === 'file' ? 'Download file' : reference.kind
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-}
-
-function escapeMarkdown(value: string): string {
-  return value.replaceAll('[', '\\[').replaceAll(']', '\\]')
 }

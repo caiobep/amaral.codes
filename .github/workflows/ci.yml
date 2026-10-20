@@ -51,7 +51,7 @@ jobs:
         run: npm run test:browser
 
       - name: Check performance budgets
-        run: npm run perf:ci
+        run: npm run perf -- --assert --runs=3
 
       - name: Audit dependencies
         run: npm audit --audit-level=high

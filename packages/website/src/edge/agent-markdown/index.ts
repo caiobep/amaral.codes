@@ -30,9 +30,9 @@ export function prefersMarkdown(accept: string | null): boolean {
 }
 
 export function getMarkdownAssetPath(pathname: string): string | undefined {
-  const slug = /^\/posts\/([^/]+)\/?$/u.exec(pathname)?.[1]
-  if (!slug || slug.endsWith('.md')) return undefined
-  return `/posts/${slug}.md`
+  const route = /^(\/(?:en\/|pt-br\/)?posts\/[^/]+)\/?$/u.exec(pathname)?.[1]
+  if (!route || route.endsWith('.md')) return undefined
+  return `${route}.md`
 }
 
 function appendVaryAccept(headers: Headers): void {

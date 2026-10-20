@@ -1,0 +1,28 @@
+---
+interface Props {
+  mode: 'deeplink-or-shortcut' | 'deeplink' | 'shortcut'
+}
+
+const { mode } = Astro.props
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+  </head>
+  <body data-redirect-state="redirecting" data-redirect-mode={mode}>
+    <div>
+      <h1 data-redirect-status>Redirecting...</h1>
+      <p data-redirect-detail hidden>The destination is missing or is not allowed.</p>
+    </div>
+  </body>
+
+  <script>
+    import { initializeRedirect } from './redirect.client'
+
+    initializeRedirect()
+  </script>
+</html>

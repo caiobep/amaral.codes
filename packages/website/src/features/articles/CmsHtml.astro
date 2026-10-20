@@ -1,0 +1,17 @@
+---
+import { renderCmsHtml } from '../../lib/cms/body-render'
+
+interface Props {
+  node: { _type: 'htmlBlock', _key: string, html: string, css?: string, js?: string, isolated?: boolean }
+}
+
+const { node } = Astro.props
+const { HtmlBlock } = import.meta.env.AMARAL_CMS_TRIAL === '1'
+  ? await import('emdash/ui')
+  : { HtmlBlock: undefined }
+const resolveMedia = Astro.locals.emdash?.getPublicMediaUrl
+if (!resolveMedia) throw new Error('CMS HTML requires the native media URL resolver')
+const renderedNode = { ...node, html: renderCmsHtml(node.html, resolveMedia) }
+---
+
+{HtmlBlock ? <HtmlBlock node={renderedNode} /> : null}

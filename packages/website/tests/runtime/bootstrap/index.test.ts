@@ -5,7 +5,7 @@ const initializers = vi.hoisted(() => ({
   initializeNavigationState: vi.fn(),
   initializeHeaderSearch: vi.fn(),
   initializeMobileHeader: vi.fn(),
-  initializeTheme: vi.fn(),
+  initializeAppearance: vi.fn(),
   initializeFooterChrome: vi.fn(),
   initializePageMotion: vi.fn(),
   initializePwa: vi.fn(),
@@ -13,20 +13,19 @@ const initializers = vi.hoisted(() => ({
   initializeTalkMaterialPreviews: vi.fn(),
   initializeSwipeNavigation: vi.fn(),
   initializeTouchFocus: vi.fn(),
-  initializeSearch: vi.fn(),
 }))
 
 vi.mock('../../../src/scripts/layout/navigation-state/runtime', () => ({
   initializeNavigationState: initializers.initializeNavigationState,
 }))
-vi.mock('../../../src/scripts/layout/header-search/runtime', () => ({
+vi.mock('../../../src/features/search/header-search.client', () => ({
   initializeHeaderSearch: initializers.initializeHeaderSearch,
 }))
 vi.mock('../../../src/scripts/layout/mobile-header', () => ({
   initializeMobileHeader: initializers.initializeMobileHeader,
 }))
-vi.mock('../../../src/scripts/layout/theme/runtime', () => ({
-  initializeTheme: initializers.initializeTheme,
+vi.mock('../../../src/features/appearance/appearance.client', () => ({
+  initializeAppearance: initializers.initializeAppearance,
 }))
 vi.mock('../../../src/scripts/layout/footer-chrome/runtime', () => ({
   initializeFooterChrome: initializers.initializeFooterChrome,
@@ -37,10 +36,10 @@ vi.mock('../../../src/scripts/layout/motion', () => ({
 vi.mock('../../../src/scripts/layout/pwa', () => ({
   initializePwa: initializers.initializePwa,
 }))
-vi.mock('../../../src/scripts/share/runtime', () => ({
+vi.mock('../../../src/features/sharing/share.client', () => ({
   initializeShareControls: initializers.initializeShareControls,
 }))
-vi.mock('../../../src/scripts/talk-material-preview', () => ({
+vi.mock('../../../src/features/talks/material-preview.client', () => ({
   initializeTalkMaterialPreviews: initializers.initializeTalkMaterialPreviews,
 }))
 vi.mock('../../../src/scripts/layout/swipe-navigation', () => ({
@@ -49,15 +48,11 @@ vi.mock('../../../src/scripts/layout/swipe-navigation', () => ({
 vi.mock('../../../src/scripts/layout/touch-focus', () => ({
   initializeTouchFocus: initializers.initializeTouchFocus,
 }))
-vi.mock('../../../src/scripts/search/runtime', () => ({
-  initializeSearch: initializers.initializeSearch,
-}))
-
 const pageInitializers = [
   initializers.initializeNavigationState,
   initializers.initializeHeaderSearch,
   initializers.initializeMobileHeader,
-  initializers.initializeTheme,
+  initializers.initializeAppearance,
   initializers.initializeFooterChrome,
   initializers.initializePageMotion,
   initializers.initializePwa,
@@ -88,7 +83,6 @@ describe('script bootstrap wiring', () => {
       expect(initialize).toHaveBeenCalledExactlyOnceWith()
     }
     expect(initializers.initializeTouchFocus).toHaveBeenCalledExactlyOnceWith()
-    expect(initializers.initializeSearch).not.toHaveBeenCalled()
   })
 
   it('reruns page initializers once per astro:page-load without restarting touch focus', async () => {
@@ -115,36 +109,15 @@ describe('script bootstrap wiring', () => {
 
       expect(initializers.initializeNavigationState).toHaveBeenCalledTimes(count)
       expect(initializers.initializeNavigationState).toHaveBeenLastCalledWith()
-      expect(initializers.initializeTheme).toHaveBeenCalledTimes(count)
-      expect(initializers.initializeTheme).toHaveBeenLastCalledWith()
+      expect(initializers.initializeAppearance).toHaveBeenCalledTimes(count)
+      expect(initializers.initializeAppearance).toHaveBeenLastCalledWith()
     }
-    const { initializeNavigationState, initializeTheme, ...otherInitializers } = initializers
+    const { initializeAppearance, initializeNavigationState, ...otherInitializers } = initializers
     expect(initializeNavigationState).toHaveBeenCalledTimes(2)
-    expect(initializeTheme).toHaveBeenCalledTimes(2)
+    expect(initializeAppearance).toHaveBeenCalledTimes(2)
     for (const initialize of Object.values(otherInitializers)) {
       expect(initialize).not.toHaveBeenCalled()
     }
   })
 
-  it('initializes the search page immediately without invoking layout behaviors', async () => {
-    await import('../../../src/scripts/search')
-
-    expect(initializers.initializeSearch).toHaveBeenCalledExactlyOnceWith()
-    for (const initialize of [...pageInitializers, initializers.initializeTouchFocus]) {
-      expect(initialize).not.toHaveBeenCalled()
-    }
-  })
-
-  it('reruns search on astro:page-load but not astro:after-swap', async () => {
-    await import('../../../src/scripts/search')
-
-    for (const count of [2, 3]) {
-      const event = new Event('astro:page-load')
-      document.dispatchEvent(event)
-      expect(initializers.initializeSearch).toHaveBeenCalledTimes(count)
-      expect(initializers.initializeSearch).toHaveBeenLastCalledWith(event)
-    }
-    document.dispatchEvent(new Event('astro:after-swap'))
-    expect(initializers.initializeSearch).toHaveBeenCalledTimes(3)
-  })
 })

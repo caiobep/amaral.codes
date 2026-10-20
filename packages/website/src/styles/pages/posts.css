@@ -1,7 +1,7 @@
 .search-section {
   display: grid;
   grid-template-columns: minmax(9.5rem, 0.26fr) minmax(0, 1fr);
-  gap: 1.2rem clamp(2rem, 5vw, 4.5rem);
+  gap: 1.2rem clamp(1rem, 1.75vw, 1.5rem);
   align-items: start;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);

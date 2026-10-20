@@ -1,0 +1,16 @@
+---
+import type { BlockProps } from 'astro-portabletext/types'
+
+type Props = Omit<BlockProps, 'node'> & {
+  node: BlockProps['node'] & { textAlign?: string }
+}
+
+const props = Astro.props
+const { emdashComponents } = import.meta.env.AMARAL_CMS_TRIAL === '1'
+  ? await import('emdash/ui')
+  : { emdashComponents: undefined }
+const Block = emdashComponents?.block
+const heading = { ...props.node, style: 'h2' }
+---
+
+{Block ? <Block {...props} node={heading}><slot /></Block> : null}

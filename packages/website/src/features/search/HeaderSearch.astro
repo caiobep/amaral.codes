@@ -1,0 +1,95 @@
+---
+import { ArrowRight, Search, X } from '@lucide/astro'
+import { getQueryParameter } from '../../lib/query-parameters'
+
+interface Props {
+  current?: boolean
+}
+
+const { current = false } = Astro.props
+const currentQuery = current ? getQueryParameter(Astro.url.searchParams, 'query') ?? '' : ''
+---
+
+<a
+  class="header-search header-search-link"
+  href="/search"
+  aria-label="Search"
+  title="Search (Cmd/Ctrl+K or Cmd/Ctrl+P)"
+  aria-keyshortcuts="Meta+K Control+K Meta+P Control+P"
+  data-header-search-link
+  aria-current={current ? 'page' : undefined}
+>
+  <Search aria-hidden="true" />
+</a>
+
+<button
+  class="header-search header-search-trigger"
+  type="button"
+  aria-label="Search"
+  title="Search"
+  aria-expanded="false"
+  aria-controls="header-quick-search"
+  data-header-search-open
+>
+  <Search aria-hidden="true" />
+</button>
+
+<form
+  id="header-quick-search"
+  class="header-quick-search"
+  action="/search"
+  role="search"
+  data-header-search
+  data-open="false"
+  aria-hidden="true"
+  inert
+>
+  <div class="header-search-shell">
+    <div class="header-search-top">
+      <div>
+        <p>Search</p>
+        <h2>Find something.</h2>
+      </div>
+      <button type="button" class="header-quick-search-close" aria-label="Close search" title="Close search" data-header-search-close>
+        <X aria-hidden="true" />
+      </button>
+    </div>
+
+    <label class="header-search-label" for="header-search-input">Search the site</label>
+    <div class="header-search-field">
+      <span class="header-quick-search-icon" aria-hidden="true">
+        <Search />
+      </span>
+      <input
+        id="header-search-input"
+        name="query"
+        type="search"
+        value={currentQuery}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="header-search-results"
+        aria-describedby="header-search-status"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        placeholder="Search the site"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+        enterkeyhint="search"
+        data-header-search-input
+      />
+      <button type="button" class="header-search-clear" aria-label="Clear search" title="Clear search" data-header-search-clear hidden>
+        <X aria-hidden="true" />
+      </button>
+    </div>
+
+    <p id="header-search-status" class="header-search-status" data-header-search-status aria-live="polite">
+      Search notes and projects.
+    </p>
+    <ol id="header-search-results" class="header-search-results" role="listbox" data-header-search-results aria-label="Search suggestions"></ol>
+    <a class="header-search-all" href="/search" data-header-search-all hidden>
+      <span>View all results</span>
+      <ArrowRight aria-hidden="true" />
+    </a>
+  </div>
+</form>

@@ -10,6 +10,23 @@ const createDescription = (overrides: Partial<Parameters<typeof createArticleDes
 )
 
 describe('createArticleDescription', () => {
+  it('derives CMS descriptions from prose without exposing code, image URLs, or raw markup', () => {
+    expect(createDescription({
+      contentHtml: '',
+      contentMarkdown: '# Heading\n\nUseful **prose** with `Map` and [links](https://example.com/private-path).\n\n![Image alt](https://example.com/photo.png)\n\n```js\nconst secret = "do not describe code";\n```\n\n<script>ignored()</script>\n\n- Another thought.',
+    })).toBe('Useful prose with Map and links. Another thought.')
+  })
+
+  it('keeps rendered prose and authored summaries ahead of the Markdown fallback', () => {
+    expect(createDescription({ contentMarkdown: 'Markdown fallback.' })).toBe('Content fallback.')
+    expect(createDescription({ contentHtml: '', contentMarkdown: 'Markdown fallback.', summary: 'My summary.' })).toBe('My summary.')
+    expect(createDescription({ contentHtml: '', contentMarkdown: '> A quoted note.\n\nA line\nwith prose.' })).toBe('A quoted note. A line with prose.')
+  })
+
+  it('describes prose in static or aligned HTML while excluding headings and scripts', () => {
+    expect(createDescription({ contentHtml: '', contentMarkdown: '<h2>A heading</h2><p style="text-align: center">A centered &amp; useful thought.</p><script>ignored()</script>' })).toBe('A centered & useful thought.')
+    expect(createDescription({ contentHtml: '', contentMarkdown: 'First line.  \nSecond line.' })).toBe('First line. Second line.')
+  })
   it('preserves an authored summary while normalizing its whitespace', () => {
     expect(createDescription({
       contentHtml: '<p>This content should not replace the summary.</p>',

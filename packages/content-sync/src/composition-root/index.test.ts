@@ -41,7 +41,7 @@ const mocks = vi.hoisted(() => {
   }
 })
 
-vi.mock('../application/document-exporter/index.ts', () => ({
+vi.mock('../application/document-exporter.ts', () => ({
   createDocumentExporter: mocks.createDocumentExporter,
 }))
 vi.mock('../application/sync-collection/index.ts', () => ({

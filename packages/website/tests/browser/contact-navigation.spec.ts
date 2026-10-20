@@ -1,5 +1,38 @@
 import { expect, test } from '@playwright/test'
 
+test('email starting points hand off the selected subject after client navigation', async ({ page }) => {
+  const handoffs: string[] = []
+  await page.exposeFunction('captureEmail', (href: string) => handoffs.push(href))
+  await page.addInitScript(() => {
+    HTMLAnchorElement.prototype.click = function () {
+      if (this.protocol !== 'mailto:') throw new Error('Expected an email handoff')
+      const testWindow = window as typeof window & { captureEmail: (href: string) => void }
+      testWindow.captureEmail(this.href)
+    }
+  })
+  await page.goto('/about')
+  await page.locator('.site-nav').getByRole('link', { name: 'Contact', exact: true }).click()
+  const options = [
+    ['A project or collaboration', 'A project or collaboration'],
+    ['Something I made or wrote', 'About your work'],
+    ['Just saying hello', 'Hello, Caio'],
+  ] as const
+  for (const [index, [label, subject]] of options.entries()) {
+    const button = page.getByRole('button', { name: new RegExp(label) })
+    await expect(button).toBeEnabled()
+    await button.focus()
+    await page.keyboard.press('Enter')
+    await expect.poll(() => handoffs.length).toBe(index + 1)
+    const href = handoffs[index]
+    if (!href) throw new Error('Expected an email handoff')
+    const handoff = new URL(href)
+    expect(handoff.protocol).toBe('mailto:')
+    expect(handoff.pathname).toBe(['caiobep', 'me.com'].join('@'))
+    expect(handoff.searchParams.get('subject')).toBe(subject)
+  }
+  await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0)
+})
+
 const routeStates = [
   ['/', '/'],
   ['/posts', '/posts'],
@@ -57,27 +90,43 @@ test('five primary links fit at desktop, tablet, and mobile widths', async ({ pa
   expect(measurements.linksInsideNavigation).toBe(true)
 })
 
-test('contact page prioritizes email and preserves secondary destinations', async ({ page }) => {
-  await page.goto('/contact')
+test('contact routes remain reachable without publishing the email address', async ({ page }) => {
+  const response = await page.goto('/contact')
+  expect(await response?.text()).not.toContain('caiobep@me.com')
+  const content = page.locator('main')
+  await expect(content).toHaveCount(1)
+  await expect(content.getByRole('heading', { name: 'What’s on your mind?' })).toBeVisible()
+  const email = content.getByRole('button', { name: /Just saying hello/ })
+  await expect(email).toBeEnabled()
+  await expect(content).not.toContainText('caiobep@me.com')
+  await expect(content.locator('a[href^="mailto:"]')).toHaveCount(0)
+  await email.scrollIntoViewIfNeeded()
+  await expect(email).toBeInViewport()
+  await expect(content.locator('form')).toHaveCount(0)
 
-  const primaryContact = page.locator('.primary-contact')
-  await expect(primaryContact).toHaveAttribute('href', 'mailto:caiobep@me.com')
-  await expect(primaryContact).toContainText('Start with an email.')
-  await expect(primaryContact).toContainText('caiobep@me.com')
-
-  const secondaryContacts = page.locator('.secondary-contact-list a')
-  await expect(secondaryContacts).toHaveCount(4)
-  for (const secondaryContact of await secondaryContacts.all()) {
-    await expect(secondaryContact).toHaveAttribute('target', '_blank')
-    await expect(secondaryContact).toHaveAttribute('rel', 'noopener noreferrer')
+  const calendar = content.getByRole('link', { name: /Book a 20-minute chat/ })
+  await expect(calendar).toHaveAttribute('href', 'https://fantastical.app/caio/20-minute-chat-with-caio')
+  await calendar.scrollIntoViewIfNeeded()
+  await expect(calendar).toBeInViewport()
+  const profiles = content.getByRole('navigation', { name: 'Social profiles' })
+  await expect(profiles.getByRole('link')).toHaveCount(3)
+  for (const link of await content.locator('a[target="_blank"]').all()) {
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   }
-  await expect(secondaryContacts).toHaveText([
-    /Calendar/,
-    /GitHub/,
-    /LinkedIn/,
-    /X \/ Twitter/,
-  ])
-
-  await expect(page.locator('#contact-page-form')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Prepare email' })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  if ((page.viewportSize()?.width ?? 0) > 760) {
+    const alignment = await page.evaluate(() => {
+      const rect = (selector: string) => {
+        const element = document.querySelector(selector)
+        if (!element) throw new Error('Expected contact column')
+        return element.getBoundingClientRect()
+      }
+      return {
+        bottomDifference: rect('.email-options').bottom - rect('.profiles').bottom,
+        labelDifference: rect('.email-start .section-label').top - rect('.calendar .section-label').top,
+      }
+    })
+    expect(Math.abs(alignment.bottomDifference)).toBeLessThan(1)
+    expect(Math.abs(alignment.labelDifference)).toBeLessThan(1)
+  }
 })

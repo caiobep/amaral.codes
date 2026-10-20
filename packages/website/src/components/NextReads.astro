@@ -1,5 +1,7 @@
 ---
+import { getEntryHref } from '../lib/routes'
 import type { CollectionEntry } from 'astro:content'
+import { ENTRY_CATEGORY_PRESENTATION } from '../features/entries/category-presentation'
 import { formatPostDate } from '../lib/date'
 
 interface Props {
@@ -7,11 +9,6 @@ interface Props {
 }
 
 const { entries } = Astro.props
-const categoryLabels = {
-  essay: 'Essay',
-  note: 'Note',
-  review: 'Review',
-} as const
 ---
 
 {entries.length > 0 ? (
@@ -22,10 +19,10 @@ const categoryLabels = {
     </div>
     <div class="next-reads-list">
       {entries.map((entry) => (
-        <a href={`/posts/${entry.id}`}>
+        <a href={getEntryHref(entry.id, entry.data.translation)}>
           <div class="next-read-meta">
-            <span>{categoryLabels[entry.data.category as keyof typeof categoryLabels]}</span>
-            <time datetime={entry.data.date}>{formatPostDate(entry.data.date)}</time>
+            <span>{ENTRY_CATEGORY_PRESENTATION[entry.data.category].singularLabel}</span>
+            <time datetime={entry.data.date}>{formatPostDate(entry.data.date, {})}</time>
           </div>
           <h3>{entry.data.title}</h3>
           {entry.data.summary ? <p>{entry.data.summary}</p> : null}

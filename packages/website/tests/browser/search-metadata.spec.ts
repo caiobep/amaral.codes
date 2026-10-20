@@ -58,3 +58,23 @@ test('search results expose one accurate content type in visible and accessible 
     await expect(metadata).toHaveAttribute('aria-label', expected.join(', '))
   }
 })
+
+test('search Clear follows the visible query and resets results', async ({ page }) => {
+  await page.route('**/search-index.json', route => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify(documents),
+  }))
+  await page.goto('/search')
+  const input = page.getByRole('searchbox', { name: 'Search the site' })
+  const clear = page.locator('[data-clear-search]')
+  await expect(clear).toBeHidden()
+  await input.fill('result')
+  await expect(clear).toBeVisible()
+  await expect(page.locator('[data-search-results] > li')).toHaveCount(documents.length)
+  await clear.click()
+  await expect(input).toHaveValue('')
+  await expect(input).toBeFocused()
+  await expect(clear).toBeHidden()
+  await expect(page.locator('[data-search-results] > li')).toHaveCount(0)
+  await expect(page).toHaveURL(/\/search\/?$/)
+})

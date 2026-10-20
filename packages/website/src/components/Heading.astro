@@ -1,0 +1,37 @@
+---
+interface Props {
+  id?: string
+  level?: 1 | 2
+}
+
+const { id, level = 2 } = Astro.props
+const Tag = level === 1 ? 'h1' : 'h2'
+---
+
+<Tag id={id} class:list={['heading', { 'heading-page': level === 1 }]}><slot /></Tag>
+
+<style>
+  .heading {
+    margin: 0.55rem 0 0;
+    font-family: var(--section-heading-font);
+    font-size: 3rem;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .heading-page {
+    margin: 0 0 1.35rem;
+    font-family: var(--heading-font);
+    font-size: 3.5rem;
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  @media (max-width: 680px) {
+    .heading { font-size: 2.25rem; }
+    .heading-page { font-size: 2.75rem; }
+  }
+</style>

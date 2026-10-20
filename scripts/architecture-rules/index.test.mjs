@@ -5,6 +5,7 @@ import {
   collectModuleSpecifiers,
   findPipelineDependencyViolations,
   findWorkspaceDependencyViolations,
+  findTestLocationViolations,
 } from './index.mjs'
 
 const pipelineRoot = path.resolve('/repo/packages/content-sync/src')
@@ -13,6 +14,21 @@ const roots = {
   applicationRoot: path.join(pipelineRoot, 'application'),
   domainRoot: path.join(pipelineRoot, 'domain'),
 }
+
+test('accepts descriptive colocated tests and separate test suites', () => {
+  assert.deepEqual(findTestLocationViolations([
+    'src/search.ts', 'src/search.test.ts',
+    'src/module/index.mjs', 'src/module/index.test.mjs',
+    'src/Card.astro', 'src/Card.test.ts',
+    'tests/browser/search.spec.ts', 'tests/runtime/search.test.ts',
+  ]), [])
+})
+
+test('rejects orphaned unit tests rather than prescribing index filenames', () => {
+  assert.deepEqual(findTestLocationViolations(['src/search.test.ts']), [
+    'src/search.test.ts must be colocated with its matching source module.',
+  ])
+})
 
 test('collects every supported module dependency syntax', () => {
   const source = `

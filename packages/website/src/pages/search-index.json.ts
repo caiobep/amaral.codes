@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getEntryIndex, getProjectIndex } from '../lib/content'
-import { createSearchDocuments } from '../lib/search'
+import { createSearchDocuments } from '../lib/search/documents'
 
 export const GET: APIRoute = async () => {
   const [{ entries }, { projects }] = await Promise.all([

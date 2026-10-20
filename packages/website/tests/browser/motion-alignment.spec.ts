@@ -24,8 +24,8 @@ const hoverCases: HoverCase[] = [
   },
   {
     route: '/contact',
-    row: '.secondary-contact-list a',
-    children: ['span', 'p'],
+    row: '.profiles a',
+    children: ['span', 'strong', 'small'],
   },
 ]
 
@@ -79,27 +79,27 @@ test('contact options collapse into one clear action per row on mobile', async (
   test.skip(testInfo.project.name !== 'mobile-webkit')
   await page.goto('/contact')
 
-  const routes = page.locator('.contact-routes')
-  const options = routes.locator('.primary-contact, .secondary-contact-list a')
-  await expect(options).toHaveCount(5)
+  const routes = page.locator('.contact-layout')
+  const options = routes.locator('.email-options button, .calendar a, .profiles a')
+  await expect(options).toHaveCount(7)
 
   const layout = await routes.evaluate((element) => {
     const routeRect = element.getBoundingClientRect()
-    const links = Array.from(element.querySelectorAll('a'))
+    const actions = Array.from(element.querySelectorAll('a, button'))
 
     return {
       columnCount: getComputedStyle(element).gridTemplateColumns.split(' ').length,
-      linksInsideRoutes: links.every((link) => {
-        const linkRect = link.getBoundingClientRect()
-        return linkRect.left >= routeRect.left - 1 && linkRect.right <= routeRect.right + 1
+      actionsInsideRoutes: actions.every((action) => {
+        const actionRect = action.getBoundingClientRect()
+        return actionRect.left >= routeRect.left - 1 && actionRect.right <= routeRect.right + 1
       }),
-      rowCount: new Set(links.map((link) => Math.round(link.getBoundingClientRect().top))).size,
+      rowCount: new Set(actions.map((action) => Math.round(action.getBoundingClientRect().top))).size,
     }
   })
 
   expect(layout.columnCount).toBe(1)
-  expect(layout.linksInsideRoutes).toBe(true)
-  expect(layout.rowCount).toBe(5)
+  expect(layout.actionsInsideRoutes).toBe(true)
+  expect(layout.rowCount).toBe(7)
 })
 
 test('search results stay aligned on hover', async ({ page }, testInfo) => {

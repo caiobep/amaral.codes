@@ -48,6 +48,26 @@ test('project filters hydrate from descriptive query parameters', async ({ page 
   await expect(page.locator('[data-project]:not([hidden])')).toContainText(['Port Sniffer'])
 })
 
+test('clearing search restores the full-width additional project list', async ({ page }) => {
+  await page.goto('/projects?query=Scriptable')
+  const search = page.getByRole('searchbox', { name: 'Search projects' })
+  const group = page.getByRole('region', { name: 'More projects', exact: true })
+
+  await expect(page.locator('[data-project]:not([hidden])')).toContainText(['Fancy Scriptable Editor'])
+
+  await search.fill('')
+  await expect(group.locator('[data-project]:not([hidden])')).toHaveCount(3)
+  await search.fill('Scriptable')
+  await expect(group.locator('[data-project]:not([hidden])')).toHaveCount(1)
+  await search.fill('   ')
+  await expect(group.locator('[data-project]:not([hidden])')).toHaveCount(3)
+  const widths = await group.evaluate((section) => ({
+    section: section.clientWidth,
+    list: section.querySelector('.project-list')?.clientWidth,
+  }))
+  expect(widths.list).toBe(widths.section)
+})
+
 test('project index wraps within the mobile viewport', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-webkit')
   await page.goto('/projects')

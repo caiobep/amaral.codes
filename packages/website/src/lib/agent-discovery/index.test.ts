@@ -1,3 +1,4 @@
+import { entrySchema } from '../../content/schemas'
 import { describe, expect, it } from 'vitest'
 import type { EntryData, ProjectData } from '../../content/schemas'
 import {
@@ -15,14 +16,14 @@ const makeEntry = (
 ) => ({
   id,
   body,
-  data: {
+  data: entrySchema.parse({
     category: 'note',
     date: '2026-08-17',
     summary: 'A concrete summary.',
     title: 'A useful note',
     topics: ['Software'],
     ...overrides,
-  } satisfies EntryData,
+  }),
 })
 
 const makeProject = (id: string, overrides: Partial<ProjectData> = {}) => ({

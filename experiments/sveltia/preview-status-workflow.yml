@@ -1,0 +1,20 @@
+name: Report protected publishing preview
+on:
+  check_run:
+    types: [completed]
+permissions:
+  contents: read
+  statuses: write
+jobs:
+  report:
+    if: github.event.check_run.app.id == 85455 && github.event.check_run.name == 'Workers Builds: amaral-publishing-preview'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - run: node publishing/preview-status.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

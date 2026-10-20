@@ -1,0 +1,58 @@
+main {
+  position: relative;
+  isolation: isolate;
+}
+
+.ambient-light {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ambient-light::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(25.7rem, calc(33vw - 2.64rem));
+  aspect-ratio: 1;
+  border-radius: 40%;
+  background: linear-gradient(
+    145deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 14%, transparent) 45%,
+    color-mix(in srgb, var(--accent) 8%, transparent) 65%,
+    transparent
+  );
+  filter: blur(56px);
+  content: "";
+  animation: ambient-light-drift 32s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-light-drift {
+  0% {
+    transform: translate(8vw, 18vh) rotate(-18deg);
+  }
+
+  50% {
+    transform: translate(calc(90vw - 100%), 40vh) rotate(12deg);
+  }
+
+  100% {
+    transform: translate(20vw, calc(85vh - 100%)) rotate(-8deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .ambient-light::before {
+    width: calc((100vw - 32px) * 0.6);
+    filter: blur(40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-light::before {
+    animation: none;
+    transform: translate(8vw, 18vh) rotate(-18deg);
+  }
+}

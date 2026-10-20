@@ -21,9 +21,9 @@ test('homepage keeps distinct hero and notes typography roles', async ({ page })
 
   await expect(page.locator('[data-headline-lead]')).toHaveCSS(
     'font-family',
-    /Instrument Sans/,
+    /Georgia/,
   )
-  await expect(page.locator('[data-headline-lead]')).toHaveCSS('font-weight', '700')
+  await expect(page.locator('[data-headline-lead]')).toHaveCSS('font-weight', '400')
   await expect(page.locator('[data-headline-lead]')).toHaveCSS(
     'text-transform',
     'none',
@@ -32,17 +32,17 @@ test('homepage keeps distinct hero and notes typography roles', async ({ page })
     'font-family',
     /Newsreader/,
   )
-  await expect(page.locator('.notebook h2')).toHaveCSS('font-family', /Literata/)
+  await expect(page.locator('.notebook h2')).toHaveCSS('font-family', /Newsreader/)
   await expect(page.locator('.story-list h3').first()).toHaveCSS(
     'font-family',
     /Literata/,
   )
-  await expect(page.locator('#work-title')).toHaveCSS('font-family', /Literata/)
+  await expect(page.locator('#work-title')).toHaveCSS('font-family', /Newsreader/)
   await expect(page.locator('#work-context-title')).toHaveCSS(
     'font-family',
-    /Literata/,
+    /Newsreader/,
   )
-  await expect(page.locator('.closing h2')).toHaveCSS('font-family', /Literata/)
+  await expect(page.locator('.closing h2')).toHaveCSS('font-family', /Newsreader/)
 })
 
 test('homepage keeps the hero and featured note composition responsive', async ({ page }) => {
@@ -69,7 +69,7 @@ test('homepage keeps the hero and featured note composition responsive', async (
   }
 })
 
-test('homepage stages its major sections as desktop slides', async ({ page }) => {
+test('homepage uses native scrolling without section snapping', async ({ page }) => {
   await page.goto('/')
 
   const viewport = page.viewportSize()
@@ -77,14 +77,37 @@ test('homepage stages its major sections as desktop slides', async ({ page }) =>
 
   const slides = page.locator('[data-home-slide]')
   await expect(slides).toHaveCount(5)
+  await expect(page.locator('html')).toHaveCSS('scroll-behavior', 'auto')
+  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+  for (const slide of await slides.all()) {
+    await expect(slide).toHaveCSS('scroll-snap-align', 'none')
+  }
+
+  if (viewport.width <= 660) {
+    await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
+
+    const [hero, heroCopy] = await Promise.all([
+      page.locator('.hero').boundingBox(),
+      page.locator('.hero-copy').boundingBox(),
+    ])
+    if (!hero || !heroCopy) throw new Error('Expected the mobile homepage hero to be visible')
+
+    expect(hero.height).toBeGreaterThanOrEqual(viewport.height * 0.72)
+    const copyTopSpace = heroCopy.y - hero.y
+    const copyBottomSpace = hero.y + hero.height - heroCopy.y - heroCopy.height
+    expect(Math.abs(copyTopSpace - copyBottomSpace)).toBeLessThan(32)
+    return
+  }
 
   if (viewport.width <= 900) {
     await expect(page.locator('html')).toHaveCSS('scroll-snap-type', 'none')
     return
   }
 
-  await expect(page.locator('html')).toHaveCSS('scroll-snap-type', /^y(?: proximity)?$/)
-  await expect(slides.first()).toHaveCSS('scroll-snap-align', 'start')
+  for (let index = 2; index < 5; index += 1) {
+    await expect(slides.nth(index)).toHaveCSS('scroll-snap-align', 'none')
+    await expect(slides.nth(index)).toHaveCSS('min-height', '0px')
+  }
 
   const leadStory = await page.locator('.lead-story').boundingBox()
   const storyList = await page.locator('.story-list').boundingBox()
@@ -93,10 +116,34 @@ test('homepage stages its major sections as desktop slides', async ({ page }) =>
 
   const hero = await page.locator('.hero').boundingBox()
   if (!hero) throw new Error('Expected the homepage hero to be visible')
-  expect(hero.height).toBeGreaterThanOrEqual(viewport.height - 120)
+  expect(hero.height).toBeLessThan(viewport.height - 120)
 })
 
-test('homepage uses consistent type roles across notes and projects', async ({ page }) => {
+test('homepage preserves the featured screenshot and groups its description with it', async ({ page }) => {
+  await page.goto('/')
+  const preview = page.locator('.featured-project')
+  const projects = page.locator('.project-links > a')
+  await expect(projects).toHaveCount(2)
+  await expect(preview.locator('h3')).toHaveText('Apple Watch Calendar Widget')
+  const screenshot = await preview.locator('img').evaluate((image) => ({
+    width: image.getBoundingClientRect().width,
+    height: image.getBoundingClientRect().height,
+    ratio: Number(image.getAttribute('width')) / Number(image.getAttribute('height')),
+  }))
+  expect(screenshot.width).toBeLessThanOrEqual(550)
+  expect(Math.abs(screenshot.width / screenshot.height - screenshot.ratio)).toBeLessThan(0.01)
+  const image = await preview.boundingBox()
+  const list = await page.locator('.project-links').boundingBox()
+  if (!image || !list) throw new Error('Expected project preview and list')
+  if ((page.viewportSize()?.width ?? 0) > 900) {
+    expect(list.x).toBeGreaterThanOrEqual(image.x + image.width)
+    expect(Math.abs(list.y - image.y)).toBeLessThan(2)
+  } else {
+    expect(list.y).toBeGreaterThanOrEqual(image.y + image.height)
+  }
+})
+
+test('homepage preserves the distinct note and project type roles', async ({ page }) => {
   await page.goto('/')
 
   const typography = await page.evaluate(() => {
@@ -116,6 +163,7 @@ test('homepage uses consistent type roles across notes and projects', async ({ p
   })
 
   expect(typography.projectTitle).toBe(typography.noteTitle)
-  expect(typography.projectSummary).toBe(typography.noteSummary)
-  expect(typography.projectMeta).toContain('IBM Plex Mono')
+  expect(typography.projectSummary).toContain('Literata')
+  expect(typography.noteSummary).toContain('Instrument Sans')
+  expect(typography.projectMeta).toContain('Instrument Sans')
 })

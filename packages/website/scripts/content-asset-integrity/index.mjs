@@ -2,14 +2,14 @@ export {
   auditCanonicalAssetReferences,
   collectCanonicalAssetReferences,
   extractCanonicalAssetReferences,
-} from './canonical-assets/index.mjs'
+} from './canonical-assets.mjs'
 export {
   MAX_SYNCED_CANONICAL_MEDIA_BYTES,
   collectSyncedCanonicalAssets,
   findSyncedCanonicalAssetViolations,
-} from './synced-media/index.mjs'
+} from './synced-media.mjs'
 export {
   auditTalkMaterialReferences,
   collectTalkMaterialReferences,
   extractTalkMaterialReferences,
-} from './talk-materials/index.mjs'
+} from './talk-materials.mjs'

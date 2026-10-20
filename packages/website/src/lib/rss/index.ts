@@ -14,7 +14,7 @@ export interface RssFeedDefinition {
 
 export interface RssEntry {
   id: string
-  data: Pick<EntryData, 'category' | 'date' | 'podcast' | 'summary' | 'title'>
+  data: Pick<EntryData, 'category' | 'date' | 'podcast' | 'summary' | 'title' | 'translation'>
 }
 
 export const RSS_FEEDS = [
@@ -100,7 +100,7 @@ export async function createRssResponse(
       title: entry.data.title,
       pubDate: new Date(entry.data.date),
       description: entry.data.summary ?? 'A note from Caio Amaral.',
-      link: getEntryHref(entry.id),
+      link: getEntryHref(entry.id, entry.data.translation),
       enclosure: getPodcastEnclosure(entry),
     })),
   })

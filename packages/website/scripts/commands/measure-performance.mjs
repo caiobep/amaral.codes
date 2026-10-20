@@ -71,7 +71,7 @@ async function assertBuildExists() {
   try {
     await fs.access(path.join(DIST_DIRECTORY, 'index.html'))
   } catch {
-    throw new Error('No production build found. Run `npm run build` before `perf:measure`.')
+    throw new Error('No production build found. Run `npm run build` before `perf`.')
   }
 }
 

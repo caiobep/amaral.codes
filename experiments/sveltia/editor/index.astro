@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
+    <title>Caio Amaral · Publishing</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="cms-config-url" href="/admin/config.yml" type="text/yaml" />
+  </head>
+  <body>
+    <script>
+      import CMS from '@sveltia/cms'
+      import { registerPublishingPreview } from './preview.mjs'
+      import { createArticleDescription } from '../../../packages/website/src/lib/article-description'
+      registerPublishingPreview(CMS, { describeArticle: createArticleDescription, siteUrl: window.location.origin })
+      void CMS.init()
+    </script>
+  </body>
+</html>

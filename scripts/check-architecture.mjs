@@ -3,7 +3,9 @@ import path from 'node:path'
 import {
   findPipelineDependencyViolations,
   findWorkspaceDependencyViolations,
+  findTestLocationViolations,
 } from './architecture-rules/index.mjs'
+import { findBrowserBoundaryViolations } from './browser-boundaries.mjs'
 
 const ROOT = process.cwd()
 const PACKAGE_ROOT = path.join(ROOT, 'packages')
@@ -22,7 +24,8 @@ const WORKSPACE_DEPENDENCY_POLICY = {
 
 const files = await listFiles(PACKAGE_ROOT)
 const failures = [
-  ...checkTestLocations(files),
+  ...findTestLocationViolations(files.map(relative)),
+  ...await findBrowserBoundaryViolations(path.join(PACKAGE_ROOT, 'website')),
   ...await checkPipelineDependencies(),
   ...await checkWorkspaceDependencies(),
 ]
@@ -33,17 +36,6 @@ if (failures.length > 0) {
   process.exitCode = 1
 } else {
   console.log('Architecture checks passed.')
-}
-
-function checkTestLocations(allFiles) {
-  return allFiles
-    .filter(file => /\.(?:test|spec)\.(?:[cm]?[jt]s|tsx)$/.test(file))
-    .filter(file => !file.includes(`${path.sep}tests${path.sep}browser${path.sep}`))
-    .flatMap(file => {
-      const name = path.basename(file)
-      if (/^index\.(?:test|spec)\./.test(name)) return []
-      return [`${relative(file)} must be index.test.* inside the tested module's folder.`]
-    })
 }
 
 async function checkPipelineDependencies() {

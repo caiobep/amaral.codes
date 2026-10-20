@@ -1,0 +1,17 @@
+---
+import { getCollection, render } from 'astro:content'
+import EntryArticle from '../../../features/articles/EntryArticle.astro'
+import { translatedPath, originalSlug } from '../../../features/articles/translations'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('entries')
+  return entries.filter(entry => /^\/(en|pt-br)\/posts\//u.test(translatedPath(entry))).map(entry => ({
+    params: { locale: entry.data.language?.toLowerCase(), slug: originalSlug(entry) },
+    props: { entry },
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+---
+<EntryArticle entry={entry}><Content /></EntryArticle>

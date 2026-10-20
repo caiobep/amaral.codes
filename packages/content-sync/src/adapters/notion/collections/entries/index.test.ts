@@ -27,8 +27,6 @@ test('maps a Notion entry into website frontmatter', () => {
     category: 'essay',
     topics: ['Software', 'Interfaces'],
     featuredOrder: 2,
-    podcast: undefined,
-    talk: undefined,
   })
 })
 
@@ -91,8 +89,6 @@ test('maps the compact BlogDB schema without publishing unfinished rows', () => 
       category: 'note',
       topics: ['Interfaces'],
       featuredOrder: undefined,
-      podcast: undefined,
-      talk: undefined,
     },
   })
 })

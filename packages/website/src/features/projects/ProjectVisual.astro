@@ -1,0 +1,35 @@
+---
+import type { ProjectData } from '../../content/schemas'
+
+type ProjectVisualData = NonNullable<ProjectData['visual']>
+
+interface Props {
+  visual?: ProjectVisualData | undefined
+  sizes?: string
+  loading?: 'eager' | 'lazy'
+  fetchpriority?: 'high' | 'low' | 'auto'
+}
+
+const { visual, sizes, loading, fetchpriority } = Astro.props
+const srcset = visual?.type === 'image' && visual.sources.length > 0
+  ? visual.sources.map((source) => `${source.src} ${String(source.width)}w`).join(', ')
+  : undefined
+---
+
+{visual?.type === 'image'
+  ? (
+      <img
+        src={visual.src}
+        srcset={srcset}
+        sizes={sizes}
+        alt={visual.alt}
+        width={visual.width}
+        height={visual.height}
+        loading={loading}
+        decoding="async"
+        fetchpriority={fetchpriority}
+      />
+    )
+  : visual?.type === 'code'
+    ? <pre><code>{visual.lines.join('\n')}</code></pre>
+    : null}

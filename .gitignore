@@ -7,6 +7,10 @@ node_modules/
 !.env.example
 .vercel/
 .wrangler/
+/packages/website/.emdash/
+/packages/website/emdash-env.d.ts
+/packages/website/.trial/
+/packages/website/data.db*
 
 # Editor, OS, and local-only work
 .DS_Store

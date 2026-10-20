@@ -1,4 +1,4 @@
-import { applyBrowserChromeSurface } from '../theme/runtime'
+import { applyBrowserChromeSurface } from '../../../features/appearance/appearance.client'
 
 let footerObserver: IntersectionObserver | null = null
 let observedFooter: Element | null = null

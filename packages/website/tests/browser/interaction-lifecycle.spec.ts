@@ -1,5 +1,56 @@
 import { expect, test, type Page } from '@playwright/test'
 
+function signal() {
+  let resolve!: () => void
+  const promise = new Promise<void>(complete => { resolve = complete })
+  return { promise, resolve }
+}
+
+for (const closeMethod of ['button', 'escape', 'breakpoint'] as const) {
+  test(`a delayed search response stays closed after ${closeMethod}`, async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 900 })
+    const responseGate = signal()
+    const requestStarted = signal()
+    await page.route('**/search-index.json', async route => {
+      requestStarted.resolve()
+      await responseGate.promise
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify([{
+          id: 'post:delayed', type: 'writing', title: 'Delayed result',
+          summary: '', content: '', href: '/posts/delayed', category: 'note',
+          topics: [], external: false,
+        }]),
+      })
+    })
+    await page.goto('/')
+    const form = page.locator('[data-header-search]')
+    const input = page.locator('[data-header-search-input]')
+    const trigger = page.locator('[data-header-search-open]')
+    await expect(form).toHaveAttribute('data-header-search', 'ready')
+    await trigger.click()
+    await input.fill('Delayed')
+    await requestStarted.promise
+    if (closeMethod === 'button') await page.locator('[data-header-search-close]').click()
+    if (closeMethod === 'escape') await input.press('Escape')
+    if (closeMethod === 'breakpoint') await page.setViewportSize({ width: 1024, height: 900 })
+    await expect(form).toHaveAttribute('data-open', 'false')
+    const responseFinished = page.waitForResponse('**/search-index.json')
+    responseGate.resolve()
+    await (await responseFinished).finished()
+    await page.evaluate(() => new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    }))
+    await expect(input).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('[data-header-search-results] [role="option"]')).toHaveCount(0)
+    await expect(page.locator('main')).toHaveJSProperty('inert', false)
+    await page.setViewportSize({ width: 768, height: 900 })
+    await trigger.click()
+    await expect(input).toBeFocused()
+    await expect(page.locator('[data-header-search-results] [role="option"]')).toHaveCount(1)
+  })
+}
+
 async function gesture(page: Page, points: [number, number][]) {
   await page.locator('main').evaluate((main, path) => {
     for (const [index, [clientX, clientY]] of path.entries()) {

@@ -1,3 +1,4 @@
+import { escapeHtml, escapeMarkdownLabel } from '../../../../serialization.ts'
 import { requirePublicHttpsUrl } from '@amaral.codes/content-contract/public-url'
 import type {
   LinkBlockData,
@@ -45,7 +46,7 @@ function renderEmbed(data: LinkBlockData): string {
 
 function renderLink(data: LinkBlockData): string {
   const url = requirePublicHttpsUrl(data.url ?? '', 'Notion link URL')
-  return `[${escapeMarkdown(getLinkLabel(data, url))}](${url})`
+  return `[${escapeMarkdownLabel(getLinkLabel(data, url))}](${url})`
 }
 
 function getLinkLabel(data: LinkBlockData, fallback: string): string {
@@ -67,16 +68,4 @@ function getUrlLabel(url: string | undefined, fallback: string): string {
   } catch {
     return fallback
   }
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-}
-
-function escapeMarkdown(value: string): string {
-  return value.replaceAll('[', '\\[').replaceAll(']', '\\]')
 }

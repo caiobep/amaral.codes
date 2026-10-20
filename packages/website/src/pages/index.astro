@@ -3,7 +3,9 @@ import '../styles/pages/home.css'
 import '../styles/pages/home-notebook.css'
 import '../styles/pages/home-responsive.css'
 import CompaniesIveWorkedWith from '../components/CompaniesIveWorkedWith.astro'
+import Heading from '../components/Heading.astro'
 import { homepageEasterEggHeadlines, homepageHeadlines } from '../data/homepage-headlines'
+import ProjectVisual from '../features/projects/ProjectVisual.astro'
 import Layout from '../layouts/Layout.astro'
 import {
   formatTechnologies,
@@ -18,13 +20,10 @@ import { createPageStructuredData } from '../lib/structured-data'
 
 const { featuredEntries } = await getEntryIndex()
 const { featuredProjects } = await getProjectIndex()
-const [primaryProject, ...secondaryProjects] = featuredProjects
+const [primaryProject] = featuredProjects
 const primaryProjectHref = primaryProject ? getProjectHref(primaryProject) : undefined
 const primaryProjectExternal = primaryProject ? isExternalProject(primaryProject) : false
 const primaryVisual = primaryProject?.data.visual
-const primarySrcset = primaryVisual?.type === 'image'
-  ? primaryVisual.sources.map((source) => `${source.src} ${String(source.width)}w`).join(', ')
-  : undefined
 const fallbackHeadline = homepageHeadlines[0]
 const showHomepagePortrait = false
 const pageDescription = 'Caio Amaral’s online home for the things he makes and the ideas he wants to keep.'
@@ -145,7 +144,7 @@ const structuredData = createPageStructuredData({
     <div class="section-heading">
       <div>
         <p class="section-label">Notes</p>
-        <h2 id="notebook-title">Recent notes.</h2>
+        <Heading id="notebook-title">Recent notes.</Heading>
       </div>
       <a href="/posts">See all notes</a>
     </div>
@@ -154,7 +153,7 @@ const structuredData = createPageStructuredData({
       {featuredEntries[0] && (
         <a
           class="lead-story"
-          href={getEntryHref(featuredEntries[0].id)}
+          href={getEntryHref(featuredEntries[0].id, featuredEntries[0].data.translation)}
           data-lead-story-motion
         >
           <div class="story-meta">
@@ -173,7 +172,7 @@ const structuredData = createPageStructuredData({
 
       <div class="story-list">
         {featuredEntries.slice(1).map((entry) => (
-          <a href={getEntryHref(entry.id)}>
+          <a href={getEntryHref(entry.id, entry.data.translation)}>
             <div class="story-meta">
               <span>{entry.data.category}</span>
               <time datetime={entry.data.date}>
@@ -193,7 +192,7 @@ const structuredData = createPageStructuredData({
       <div class="work-heading">
         <div>
           <p class="section-label">Featured projects</p>
-          <h2 id="work-title">Things I’ve made.</h2>
+          <Heading id="work-title">Things I’ve made.</Heading>
         </div>
         <a href="/projects">All projects</a>
       </div>
@@ -203,27 +202,19 @@ const structuredData = createPageStructuredData({
           ? (
             <a
               class="featured-project"
+              aria-label={`Preview ${primaryProject.data.title}`}
               href={primaryProjectHref}
               target={primaryProjectExternal ? '_blank' : undefined}
               rel={primaryProjectExternal ? 'noopener noreferrer' : undefined}
             >
               <div class="featured-project-visual">
-                {primaryVisual?.type === 'image'
-                  ? (
-                      <img
-                        src={primaryVisual.src}
-                        srcset={primarySrcset}
-                        sizes="(max-width: 900px) calc(100vw - 4rem), min(58vw, 46rem)"
-                        alt={primaryVisual.alt}
-                        width={primaryVisual.width}
-                        height={primaryVisual.height}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )
-                  : null}
+                <ProjectVisual
+                  visual={primaryVisual}
+                  sizes="(max-width: 900px) min(550px, calc(100vw - 4rem)), min(550px, 50vw)"
+                  loading="lazy"
+                />
               </div>
-              <div class="featured-project-copy">
+              <div class="featured-project-caption">
                 <span>{primaryProject.data.category}</span>
                 <h3>{primaryProject.data.title}</h3>
                 <p>{primaryProject.data.summary}</p>
@@ -234,7 +225,7 @@ const structuredData = createPageStructuredData({
           : null}
 
         <div class="project-links">
-        {secondaryProjects.slice(0, 2).map((project) => {
+        {featuredProjects.slice(1, 3).map((project) => {
           const external = isExternalProject(project)
 
           return (
@@ -261,9 +252,9 @@ const structuredData = createPageStructuredData({
     <div class="section-heading">
       <div>
         <p class="section-label">Work context</p>
-        <h2 id="work-context-title">Teams and products I’ve worked with.</h2>
+        <Heading id="work-context-title">Teams and products I’ve worked with.</Heading>
       </div>
-      <a href="/projects">See projects</a>
+      <a class="section-link-secondary" href="/projects">See projects</a>
     </div>
     <CompaniesIveWorkedWith />
   </section>
@@ -271,7 +262,7 @@ const structuredData = createPageStructuredData({
   <section class="closing page-shell" data-home-slide data-reveal>
     <div class="contact-copy">
       <p class="section-label">Contact</p>
-      <h2>Tell me what brought you here.</h2>
+      <Heading>Tell me what brought you here.</Heading>
       <p>If you’re hiring, building something, or have a question, a little context is enough.</p>
       <a class="button" href="/contact">Get in touch</a>
     </div>

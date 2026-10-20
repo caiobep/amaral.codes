@@ -2,22 +2,28 @@
 import '../styles/global/fonts.css'
 import '../styles/global/theme.css'
 import '../styles/global/base.css'
+import '../styles/global/ambient-light.css'
 import '../styles/global/motion.css'
-import '../styles/global/header-search.css'
+import '../features/search/header-search.css'
 import Footer from '../components/Footer.astro'
-import HeaderSearch from '../components/HeaderSearch.astro'
+import { createAppearanceBootstrapScript } from '../features/appearance/first-paint.client'
+import HeaderSearch from '../features/search/HeaderSearch.astro'
 import { createArticleStructuredData } from '../lib/structured-data'
 import { createCanonicalUrl, requireSite } from '../lib/site'
 
 export interface Props {
+  class?: string
   title?: string
   description?: string
+  sharingTitle?: string | undefined
+  sharingDescription?: string | undefined
   image?: string
   imageAlt?: string
-  imageHeight?: number
-  imageType?: string
-  imageWidth?: number
+  imageHeight?: number | undefined
+  imageType?: string | undefined
+  imageWidth?: number | undefined
   language?: 'en' | 'pt-BR'
+  languageAlternates?: readonly { language: 'en' | 'pt-BR', href: string }[]
   ogType?: 'article' | 'website'
   publishedTime?: string
   twitterCard?: 'summary' | 'summary_large_image'
@@ -26,19 +32,23 @@ export interface Props {
   robots?: string
   footerFlush?: boolean
   hideFooter?: boolean
-  structuredData?: Record<string, unknown>
-  markdownAlternate?: string
+  structuredData?: Record<string, unknown> | undefined
+  markdownAlternate?: string | undefined
+  cmsContent?: { collection: string, id: string, slug?: string } | undefined
 }
 
 const {
   title = 'Caio Amaral',
   description = 'Caio Amaral writes about software, interfaces, productivity, media, and useful digital tools.',
+  sharingTitle,
+  sharingDescription,
   image = '/photos/profile/home-portrait-900.webp',
   imageAlt = 'Portrait of Caio Amaral',
-  imageHeight = 1125,
-  imageType = 'image/webp',
-  imageWidth = 900,
+  imageHeight = image === '/photos/profile/home-portrait-900.webp' ? 1125 : undefined,
+  imageType = image === '/photos/profile/home-portrait-900.webp' ? 'image/webp' : undefined,
+  imageWidth = image === '/photos/profile/home-portrait-900.webp' ? 900 : undefined,
   language = 'en',
+  languageAlternates = [],
   ogType = 'website',
   publishedTime,
   twitterCard = 'summary',
@@ -49,6 +59,7 @@ const {
   hideFooter = false,
   structuredData,
   markdownAlternate,
+  cmsContent,
   ...rest
 } = Astro.props
 
@@ -89,6 +100,20 @@ const inferredActiveNav = navItems.find((item) => (
 ))?.id
 
 const activeNav = activeNavOverride ?? inferredActiveNav
+const appearanceBootstrapScript = createAppearanceBootstrapScript()
+const cmsUi = import.meta.env.AMARAL_CMS_TRIAL === '1' ? await import('emdash/ui') : undefined
+const EmDashBodyStart = cmsUi?.EmDashBodyStart
+const EmDashBodyEnd = cmsUi?.EmDashBodyEnd
+const cmsPage = import.meta.env.AMARAL_CMS_TRIAL === '1'
+  ? (await import('emdash/page')).createPublicPageContext({
+      url: Astro.url,
+      locale: language,
+      kind: cmsContent ? 'content' : 'custom',
+      title,
+      ...(cmsContent ? { content: cmsContent } : {}),
+      seo: { robots },
+    })
+  : undefined
 ---
 
 <!DOCTYPE html>
@@ -100,52 +125,7 @@ const activeNav = activeNavOverride ?? inferredActiveNav
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#ffffff" data-theme-color />
-    <script is:inline>
-      (() => {
-        const root = document.documentElement
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        let storedTheme = null
-        let storedPalette = null
-
-        try {
-          storedTheme = localStorage.getItem('amaral-theme')
-          localStorage.removeItem('amaral-palette')
-          storedPalette = sessionStorage.getItem('amaral-palette')
-        } catch {
-          // System preference remains available when storage is blocked.
-        }
-
-        const theme = storedTheme === 'light' || storedTheme === 'dark'
-          ? storedTheme
-          : prefersDark ? 'dark' : 'light'
-        const palettes = [
-          'ember',
-          'cobalt',
-          'graphite',
-          'garnet',
-          'ochre',
-          'plum',
-          'lagoon',
-        ]
-        const palette = palettes.includes(storedPalette)
-          ? storedPalette
-          : palettes[Math.floor(Math.random() * palettes.length)] ?? 'cobalt'
-
-        try {
-          sessionStorage.setItem('amaral-palette', palette)
-        } catch {
-          // The random palette still applies for the current page.
-        }
-
-        root.dataset.theme = theme
-        root.dataset.palette = palette
-        root.style.colorScheme = theme
-        document.querySelector('[data-theme-color]')?.setAttribute(
-          'content',
-          theme === 'dark' ? '#0f1413' : '#ffffff',
-        )
-      })()
-    </script>
+    <script is:inline set:html={appearanceBootstrapScript}></script>
     <meta name="generator" content={Astro.generator} />
     <meta name="author" content="Caio Amaral" />
     <meta name="description" content={description} />
@@ -155,6 +135,7 @@ const activeNav = activeNavOverride ?? inferredActiveNav
     <meta name="apple-mobile-web-app-title" content="Caio Amaral" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="canonical" href={canonicalUrl} />
+    {languageAlternates.map(alternate => <link rel="alternate" hreflang={alternate.language} href={new URL(alternate.href, site)} />)}
     <link rel="describedby" href="/llms.txt" />
     {markdownAlternate
       ? <link rel="alternate" type="text/markdown" href={markdownAlternate} />
@@ -166,33 +147,35 @@ const activeNav = activeNavOverride ?? inferredActiveNav
     <link rel="mask-icon" href="/favicon.svg?v=3" color="#174b47" />
     <link rel="alternate" type="application/rss+xml" title="Caio Amaral RSS" href="/rss.xml" />
     <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
-    {currentPath === '/'
+    {activeNav === 'home'
+      ? <link rel="preload" href="/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+      : activeNav === 'about'
       ? (
-          <>
-            <link rel="preload" href="/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin />
-            <link rel="preload" href="/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
-          </>
+          <link rel="preload" href="/fonts/fraunces-latin-500.woff2" as="font" type="font/woff2" crossorigin />
         )
-      : null}
+      : (
+          <>
+            <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+            <link rel="preload" href="/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+          </>
+        )}
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="Caio Amaral" />
     <meta property="og:locale" content={openGraphLocale} />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={sharingTitle ?? pageTitle} />
+    <meta property="og:description" content={sharingDescription ?? description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:alt" content={imageAlt} />
-    <meta property="og:image:type" content={imageType} />
-    <meta property="og:image:width" content={String(imageWidth)} />
-    <meta property="og:image:height" content={String(imageHeight)} />
+    {imageType ? <meta property="og:image:type" content={imageType} /> : null}
+    {imageWidth ? <meta property="og:image:width" content={String(imageWidth)} /> : null}
+    {imageHeight ? <meta property="og:image:height" content={String(imageHeight)} /> : null}
     {publishedTime ? <meta property="article:published_time" content={publishedTime} /> : null}
     {ogType === 'article' ? <meta property="article:author" content={authorUrl} /> : null}
     <meta name="twitter:card" content={twitterCard} />
     <meta name="twitter:creator" content="@caicorre" />
-    <meta name="twitter:title" content={pageTitle} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={sharingTitle ?? pageTitle} />
+    <meta name="twitter:description" content={sharingDescription ?? description} />
     <meta name="twitter:image" content={socialImage} />
     <meta name="twitter:image:alt" content={imageAlt} />
     {serializedStructuredData
@@ -202,6 +185,7 @@ const activeNav = activeNavOverride ?? inferredActiveNav
   </head>
 
   <body>
+    {cmsPage && EmDashBodyStart ? <EmDashBodyStart page={cmsPage} /> : null}
     <a class="skip-link" href="#content">Skip to content</a>
     <div class="site-header-slot">
       <header class="site-header">
@@ -239,6 +223,7 @@ const activeNav = activeNavOverride ?? inferredActiveNav
       data-swipe-previous-href={swipePreviousHref}
       {...rest}
     >
+      <div class="ambient-light" aria-hidden="true"></div>
       <slot />
     </main>
 
@@ -247,5 +232,6 @@ const activeNav = activeNavOverride ?? inferredActiveNav
     <script>
       import '../scripts/layout/index'
     </script>
+    {cmsPage && EmDashBodyEnd ? <EmDashBodyEnd page={cmsPage} /> : null}
   </body>
 </html>

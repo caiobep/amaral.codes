@@ -18,5 +18,6 @@ export const shouldIncludeInSitemap = (page) => {
   const routePath = toRoutePath(page)
   return !EXCLUDED_PATHS.has(routePath) &&
     !routePath.startsWith('/utils/') &&
+    !routePath.endsWith('.xml/') &&
     !routePath.endsWith('.md/')
 }

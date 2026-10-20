@@ -1,20 +1,20 @@
-import { initializeHeaderSearch } from './header-search/runtime'
+import { initializeHeaderSearch } from '../../features/search/header-search.client'
+import { initializeAppearance } from '../../features/appearance/appearance.client'
 import { initializeFooterChrome } from './footer-chrome/runtime'
 import { initializeMobileHeader } from './mobile-header'
 import { initializePageMotion } from './motion'
 import { initializeNavigationState } from './navigation-state/runtime'
 import { initializePwa } from './pwa'
 import { initializeSwipeNavigation } from './swipe-navigation'
-import { initializeTheme } from './theme/runtime'
 import { initializeTouchFocus } from './touch-focus'
-import { initializeShareControls } from '../share/runtime'
-import { initializeTalkMaterialPreviews } from '../talk-material-preview'
+import { initializeShareControls } from '../../features/sharing/share.client'
+import { initializeTalkMaterialPreviews } from '../../features/talks/material-preview.client'
 
 const initializers = [
   initializeNavigationState,
   initializeHeaderSearch,
   initializeMobileHeader,
-  initializeTheme,
+  initializeAppearance,
   initializeFooterChrome,
   initializePageMotion,
   initializePwa,
@@ -30,7 +30,7 @@ initializers.forEach((initialize) => {
 
 document.addEventListener('astro:after-swap', () => {
   initializeNavigationState()
-  initializeTheme()
+  initializeAppearance()
 })
 
 initializeTouchFocus()

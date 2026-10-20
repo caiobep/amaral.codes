@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { PageObjectResponse as NotionPage } from '@notionhq/client'
 import type { ContentMapper } from '../application/ports.ts'
-import { createDocumentExporter } from '../application/document-exporter/index.ts'
+import { createDocumentExporter } from '../application/document-exporter.ts'
 import { syncCollection } from '../application/sync-collection/index.ts'
 import { writeContentSource } from '../adapters/filesystem/write-document/index.ts'
 import { createFilesystemSnapshotStore } from '../adapters/filesystem/snapshot-store/index.ts'
@@ -42,11 +42,9 @@ export function createContentSync(
   }
   const materializationSession = createMarkdownAssetMaterializationSession()
   const exporter = createDocumentExporter<NotionPage>({
-    destinations: {
-      resolve: (root, identity) => identity.partition
-        ? path.join(root, identity.partition)
-        : root,
-    },
+    resolveDestination: (root, identity) => identity.partition
+      ? path.join(root, identity.partition)
+      : root,
     reader: {
       read: source => getPageContentsInMarkdown(source.id, notion),
     },
