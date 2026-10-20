@@ -39,5 +39,5 @@ test('the installed GitHub workflow parses and listens for the completed Cloudfl
   const workflow = yaml.load(await fs.readFile(new URL('./preview-status-workflow.yml', import.meta.url), 'utf8'))
   assert.deepEqual(workflow.on.check_run.types, ['completed'])
   assert(workflow.jobs.report.if.includes("'Workers Builds: amaral-publishing-preview'"))
-  assert.deepEqual(workflow.permissions, { contents: 'read', statuses: 'write' })
+  assert.deepEqual(workflow.permissions, { contents: 'read', 'pull-requests': 'read', statuses: 'write' })
 })
